@@ -1,0 +1,119 @@
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { Utilisateur } from '@prisma/client';
+import { hash } from 'src/utils/bcrypt';
+
+// This should be a real class/interface representing a user entity
+export type User = any;
+
+@Injectable()
+export class UsersService {
+
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createUserDto: CreateUserDto) {
+    try {
+      const isExiste = (await this.findOne({email:createUserDto.email})) as Utilisateur;
+
+      if (isExiste){
+         throw new HttpException(
+          {
+            status: HttpStatus.CONFLICT,
+            message: 'Utilisateur existe déjà.',
+            error: 'Conflict',
+          },
+          HttpStatus.CONFLICT,
+        );
+    }
+
+      const passwordHash = await hash(createUserDto.password);
+      const user = await this.prisma.$transaction(async (prisma) => {
+        return await prisma.utilisateur.create({
+          data: {
+            nom: createUserDto.nom,
+            prenom: createUserDto.prenom,
+            email: createUserDto.email,
+            telephone: createUserDto.telephone,
+            password: passwordHash,
+          },
+          select: {
+            id: true,
+            nom: true,
+            prenom: true,
+            email: true,
+            telephone: true,
+          },
+        });
+      });
+
+      return {
+        status: 201,
+        msg: `L'utilisateur ${user.nom} ${user.prenom} a a ete creer avec success`,
+      };
+    } catch (error) {
+      console.error(error.status);
+      switch (error.status) {
+        case 409:
+            throw new HttpException(
+                {
+                  status: HttpStatus.CONFLICT,
+                  message: 'Utilisateur existe déjà.',
+                  error: 'Conflict',
+                },
+                HttpStatus.CONFLICT,
+              );
+            break;
+        case 500:
+            throw Error(
+                "Une Erreur c'est produit lord de la creation d'un utilisateur",
+              );
+              break
+        default:
+            break;
+      }
+      
+    }
+  }
+
+  findAll() {
+    return `This action returns all produit`;
+  }
+
+  async findOne(user:{email?:string,telephone?:null}): Promise<User | undefined> {
+    try {
+        console.log(user);
+        
+      if (user.email) {
+        const userExist = this.prisma.utilisateur.findUnique({
+          where: {
+            email: user.email,
+          },
+        });
+
+        return userExist;
+      } else if (user.telephone) {
+        const userExist = this.prisma.utilisateur.findUnique({
+          where: {
+            telephone: user.telephone,
+          },
+        });
+
+        return userExist;
+      }
+    } catch (error) {
+      console.error('...findOne', error);
+      return null;
+    }
+    // return this.users.find(user => user.username === username);
+  }
+
+  update(id: number, updateProduitDto: UpdateUserDto) {
+    return `This action updates a #${id} produit`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} produit`;
+  }
+}
