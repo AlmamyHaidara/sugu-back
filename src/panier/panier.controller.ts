@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { PanierService } from './panier.service';
 import { CreatePanierDto } from './dto/create-panier.dto';
@@ -19,6 +20,7 @@ export class PanierController {
   addToCart(
     @Body()
     addToCartDto: {
+      utilisateurId: number;
       produitId: number;
       boutiqueId: number;
       count: number;
@@ -30,6 +32,11 @@ export class PanierController {
   @Get(':boutiqueId')
   getCart(@Param('boutiqueId') boutiqueId: string) {
     return this.panierService.getCart(+boutiqueId);
+  }
+
+  @Get()
+  getCartByUser(@Query('utilisateurId') utilisateurId: string) {
+    return this.panierService.getCartByUser(+utilisateurId);
   }
 
   @Patch(':id')

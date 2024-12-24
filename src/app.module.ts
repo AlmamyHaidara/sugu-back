@@ -14,6 +14,8 @@ import { PrixModule } from './prix/prix.module';
 import { PanierModule } from './panier/panier.module';
 import { ConfigModule } from '@nestjs/config';
 
+console.log(join(__dirname, '..', 'uploads'));
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -25,7 +27,8 @@ import { ConfigModule } from '@nestjs/config';
     ProduitModule,
     BoutiqueModule,
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'), // <-- path to the static files
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
     }),
     PrixModule,
     PanierModule,

@@ -10,15 +10,16 @@ export type User = any;
 
 @Injectable()
 export class UsersService {
-
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
     try {
-      const isExiste = (await this.findOne({email:createUserDto.email})) as Utilisateur;
+      const isExiste = (await this.findOne({
+        email: createUserDto.email,
+      })) as Utilisateur;
 
-      if (isExiste){
-         throw new HttpException(
+      if (isExiste) {
+        throw new HttpException(
           {
             status: HttpStatus.CONFLICT,
             message: 'Utilisateur existe déjà.',
@@ -26,7 +27,7 @@ export class UsersService {
           },
           HttpStatus.CONFLICT,
         );
-    }
+      }
 
       const passwordHash = await hash(createUserDto.password);
       const user = await this.prisma.$transaction(async (prisma) => {
@@ -37,6 +38,7 @@ export class UsersService {
             email: createUserDto.email,
             telephone: createUserDto.telephone,
             password: passwordHash,
+            profile: createUserDto.profile || 'CLIENT',
           },
           select: {
             id: true,
@@ -44,6 +46,7 @@ export class UsersService {
             prenom: true,
             email: true,
             telephone: true,
+            profile: true,
           },
         });
       });
@@ -56,24 +59,23 @@ export class UsersService {
       console.error(error.status);
       switch (error.status) {
         case 409:
-            throw new HttpException(
-                {
-                  status: HttpStatus.CONFLICT,
-                  message: 'Utilisateur existe déjà.',
-                  error: 'Conflict',
-                },
-                HttpStatus.CONFLICT,
-              );
-            break;
+          throw new HttpException(
+            {
+              status: HttpStatus.CONFLICT,
+              message: 'Utilisateur existe déjà.',
+              error: 'Conflict',
+            },
+            HttpStatus.CONFLICT,
+          );
+          break;
         case 500:
-            throw Error(
-                "Une Erreur c'est produit lord de la creation d'un utilisateur",
-              );
-              break
+          throw Error(
+            "Une Erreur c'est produit lord de la creation d'un utilisateur",
+          );
+          break;
         default:
-            break;
+          break;
       }
-      
     }
   }
 
@@ -81,10 +83,13 @@ export class UsersService {
     return `This action returns all produit`;
   }
 
-  async findOne(user:{email?:string,telephone?:null}): Promise<User | undefined> {
+  async findOne(user: {
+    email?: string;
+    telephone?: null;
+  }): Promise<User | undefined> {
     try {
-        console.log(user);
-        
+      console.log(user);
+
       if (user.email) {
         const userExist = this.prisma.utilisateur.findUnique({
           where: {
@@ -104,6 +109,32 @@ export class UsersService {
       }
     } catch (error) {
       console.error('...findOne', error);
+      return null;
+    }
+    // return this.users.find(user => user.username === username);
+  }
+
+  async getCurrentUser(email: string): Promise<User> {
+    try {
+      console.log(email);
+
+      const userExist = await this.prisma.utilisateur.findUnique({
+        where: {
+          email: email,
+        },
+        select: {
+          id: true,
+          nom: true,
+          prenom: true,
+          email: true,
+          telephone: true,
+          profile: true,
+        },
+      });
+
+      return userExist;
+    } catch (error) {
+      console.error('...getCurrentUser', error);
       return null;
     }
     // return this.users.find(user => user.username === username);

@@ -1,0 +1,5 @@
+{
+  "appService.zipIgnorePattern": ["node_modules{,/**}", ".vscode{,/**}"],
+  "appService.defaultWebAppToDeploy": "/subscriptions/17b81b88-74d7-4ca5-a7cf-3abfcb996bc4/resourceGroups/rg-almamy-temp/providers/Microsoft.Web/sites/ap-sugu-back",
+  "appService.deploySubpath": "."
+}

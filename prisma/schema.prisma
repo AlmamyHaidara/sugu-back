@@ -20,11 +20,14 @@ model Utilisateur {
   telephone String @unique
   email     String @unique
   password  String
+  profile Profile @default(CLIENT)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   Boutique Boutique[]
+
+  Panier Panier[]
 }
 
 model Produit {
@@ -78,12 +81,20 @@ model Panier {
   id Int @id @default(autoincrement())
   count Int
 
+  utilisateurId Int
   produitId Int
   boutiqueId Int
 
+  utilisateurs  Utilisateur @relation(fields: [utilisateurId], references: [id])
   boutiques  Boutique @relation(fields: [boutiqueId], references: [id])
   produits  Produit @relation(fields: [produitId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum Profile{
+  ADMIN
+  CLIENT
+  BOUTIQUIER
 }
