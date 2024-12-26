@@ -17,7 +17,6 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Public } from 'src/auth/constants';
 
-
 @Controller('boutique')
 export class BoutiqueController {
   constructor(private readonly boutiqueService: BoutiqueService) {}
@@ -52,9 +51,13 @@ export class BoutiqueController {
     @UploadedFile() file: Express.Multer.File,
     @Body() createBoutiqueDto: CreateBoutiqueDto,
   ) {
-    return this.boutiqueService.create({...createBoutiqueDto,img:file.path});
+    return this.boutiqueService.create({
+      ...createBoutiqueDto,
+      img: file.path,
+    });
   }
 
+  @Public()
   @Get()
   findAll() {
     return this.boutiqueService.findAll();
@@ -65,14 +68,19 @@ export class BoutiqueController {
     return this.boutiqueService.findOne(+id);
   }
 
+  @Public()
+  @Get('/all-produits/:id')
+  findBoutiqueProduit(@Param('id') id: string) {
+    return this.boutiqueService.findAllShopWithProducts(+id);
+  }
+
   @Patch(':id')
   update(
     @Param('id') id: string,
     @Body() updateBoutiqueDto: UpdateBoutiqueDto,
   ) {
-
     console.log(id);
-    
+
     return this.boutiqueService.update(+id, updateBoutiqueDto);
   }
 

@@ -101,6 +101,29 @@ export class BoutiqueService {
     }
   }
 
+  async findAllShopWithProducts(shopId: number) {
+    try {
+      return await this.prisma.boutique.findFirst({
+        where: {
+          id: shopId,
+        },
+        include: {
+          Prix: {
+            where: {
+              boutiqueId: shopId,
+            },
+            include: {
+              produits: true,
+            },
+          },
+        },
+      });
+      return;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   async findAll() {
     try {
       const boutiques = await this.prisma.boutique.findMany();

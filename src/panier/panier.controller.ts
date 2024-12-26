@@ -9,8 +9,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { PanierService } from './panier.service';
-import { CreatePanierDto } from './dto/create-panier.dto';
-import { UpdatePanierDto } from './dto/update-panier.dto';
 
 @Controller('panier')
 export class PanierController {

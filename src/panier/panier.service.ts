@@ -1,9 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreatePanierDto } from './dto/create-panier.dto';
-import { UpdatePanierDto } from './dto/update-panier.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { count } from 'console';
-import { ExeceptionCase } from 'src/utils/constants';
 
 @Injectable()
 export class PanierService {
@@ -15,6 +11,7 @@ export class PanierService {
     boutiqueId: number;
     count: number;
   }) {
+    ``;
     try {
       const user = await this.prisma.utilisateur.findFirst({
         where: {
@@ -45,7 +42,6 @@ export class PanierService {
         },
       });
 
-      console.log('fvgfv', data.utilisateurId, data.produitId, data.boutiqueId);
       if (!boutique) {
         throw new HttpException(
           {
@@ -107,10 +103,18 @@ export class PanierService {
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }
+
       return newPanier;
     } catch (error) {
-      console.error(Object.keys(error));
-
+      console.error(error);
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Internal error',
+          error: 'Internal error',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       return null;
     }
   }
@@ -125,14 +129,78 @@ export class PanierService {
     });
   }
 
+  // async getCartByUser(utilisateurId: number) {
+  //   return this.prisma.panier.findMany({
+  //     where: { utilisateurId },
+  //     include: {
+  //       produits: {
+  //         include: {
+  //           Prix: {
+  //             select: {
+  //               prix: true,
+  //             },
+  //           },
+  //         },
+  //       },
+  //       boutiques: true,
+  //     },
+  //   });
+  // }
+
   async getCartByUser(utilisateurId: number) {
-    return this.prisma.panier.findMany({
+    // Récupère les produits dans le panier de l'utilisateur
+    const cartItems = await this.prisma.panier.findMany({
       where: { utilisateurId },
-      include: {
-        produits: true,
-        boutiques: true,
+
+      select: {
+        boutiqueId: true,
+        count: true,
+        id: true,
+        produits: {
+          select: {
+            id: true,
+            nom: true,
+            categorie: true,
+            description: true,
+            img: true,
+            Prix: {
+              select: {
+                prix: true,
+              },
+            },
+          },
+        },
       },
     });
+
+    const reformattedCartItems = cartItems.map((item) => {
+      const { Prix, ...otherProduits } = item.produits || {}; // Supprime la clé Prix
+      return {
+        ...item,
+        produits: {
+          ...otherProduits,
+          prix: Prix?.[0]?.prix,
+        },
+      };
+    });
+
+    const cumulatedItems = reformattedCartItems.reduce(
+      (acc, item) => {
+        const existingItem = acc.find(
+          (prod) => prod.produits.id === item.produits.id,
+        );
+        if (existingItem) {
+          existingItem.count += item.count;
+        } else {
+          acc.push({ ...item });
+        }
+        return acc;
+      },
+      [] as Array<(typeof reformattedCartItems)[0]>,
+    );
+
+    // Retourner les produits cumulés
+    return cumulatedItems;
   }
 
   async updateCartItem(id: number, count: number) {
