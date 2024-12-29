@@ -13,6 +13,8 @@ import { join } from 'path';
 import { PrixModule } from './prix/prix.module';
 import { PanierModule } from './panier/panier.module';
 import { ConfigModule } from '@nestjs/config';
+import { AdresseModule } from './adresse/adresse.module';
+import { CommandModule } from './command/command.module';
 
 console.log(join(__dirname, '..', 'uploads'));
 
@@ -32,6 +34,8 @@ console.log(join(__dirname, '..', 'uploads'));
     }),
     PrixModule,
     PanierModule,
+    AdresseModule,
+    CommandModule,
   ],
   controllers: [AppController],
   providers: [

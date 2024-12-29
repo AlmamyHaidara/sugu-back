@@ -72,39 +72,64 @@ export class PanierService {
           HttpStatus.NOT_FOUND,
         );
       }
-      const newPanier = await this.prisma.panier.create({
-        data: {
-          count: data.count,
-          boutiques: {
-            connect: {
-              id: data.boutiqueId,
-            },
-          },
-          produits: {
-            connect: {
-              id: data.produitId,
-            },
-          },
-          utilisateurs: {
-            connect: {
-              id: data.utilisateurId,
-            },
-          },
+      const isExiste = await this.prisma.panier.findFirst({
+        where: {
+          boutiqueId: boutique.id,
+          produitId: produit.id,
+          utilisateurId: user.id,
+        },
+        select: {
+          id: true,
+          count: true,
         },
       });
+      console.log(isExiste);
 
-      if (!newPanier) {
-        throw new HttpException(
-          {
-            status: HttpStatus.INTERNAL_SERVER_ERROR,
-            message: 'Internal error',
-            error: 'Internal error',
+      if (isExiste) {
+        const updateBasket = await this.prisma.panier.update({
+          where: {
+            id: isExiste.id,
           },
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
+          data: {
+            count: data.count + isExiste.count,
+          },
+        });
 
-      return newPanier;
+        return updateBasket;
+      } else {
+        const newPanier = await this.prisma.panier.create({
+          data: {
+            count: data.count,
+            boutiques: {
+              connect: {
+                id: data.boutiqueId,
+              },
+            },
+            produits: {
+              connect: {
+                id: data.produitId,
+              },
+            },
+            utilisateurs: {
+              connect: {
+                id: data.utilisateurId,
+              },
+            },
+          },
+        });
+
+        if (!newPanier) {
+          throw new HttpException(
+            {
+              status: HttpStatus.INTERNAL_SERVER_ERROR,
+              message: 'Internal error',
+              error: 'Internal error',
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        }
+        return newPanier;
+      }
     } catch (error) {
       console.error(error);
       throw new HttpException(
@@ -156,6 +181,15 @@ export class PanierService {
         boutiqueId: true,
         count: true,
         id: true,
+        boutiques: {
+          select: {
+            id: true,
+            nom: true,
+            categorie: true,
+            description: true,
+            img: true,
+          },
+        },
         produits: {
           select: {
             id: true,
@@ -204,6 +238,26 @@ export class PanierService {
   }
 
   async updateCartItem(id: number, count: number) {
+    const isExiste = await this.prisma.panier.findUnique({
+      where: {
+        id: id,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!isExiste) {
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Internal error',
+          error: 'Internal error',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
     return this.prisma.panier.update({
       where: { id },
       data: { count },

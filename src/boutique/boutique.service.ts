@@ -109,6 +109,7 @@ export class BoutiqueService {
         },
         include: {
           Prix: {
+
             where: {
               boutiqueId: shopId,
             },
