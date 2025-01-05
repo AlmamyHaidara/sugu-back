@@ -114,6 +114,27 @@ export class UsersService {
     // return this.users.find(user => user.username === username);
   }
 
+  async findOneById(id: number): Promise<{ id: number } | null> {
+    try {
+      if (id != 0) {
+        const userExist = this.prisma.utilisateur.findUnique({
+          where: {
+            id: id,
+          },
+          select: {
+            id: true,
+          },
+        });
+
+        return userExist;
+      }
+    } catch (error) {
+      console.error('...findOne', error);
+      return null;
+    }
+    // return this.users.find(user => user.username === username);
+  }
+
   async getCurrentUser(email: string): Promise<User> {
     try {
       console.log(email);

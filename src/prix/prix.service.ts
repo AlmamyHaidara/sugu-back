@@ -213,6 +213,44 @@ export class PrixService {
     }
   }
 
+  async findOneManyById(ids: number[]): Promise<{ id: number }[] | null> {
+    try {
+      const userExist = await this.prisma.prix.findMany({
+        where: {
+          id: {
+            in: ids, // Filtrer les enregistrements correspondant aux ID
+          },
+        },
+        select: {
+          id: true, // Récupérer uniquement le champ 'id'
+        },
+      });
+
+      return userExist.length > 0 ? userExist : null; // Retourne null si aucun résultat
+    } catch (error) {
+      console.error('Error in findOneManyById:', error);
+      return null;
+    }
+  }
+
+  async findOneById(id: number): Promise<{ id: number } | null> {
+    try {
+      const userExist = await this.prisma.prix.findUnique({
+        where: {
+          id: id,
+        },
+        select: {
+          id: true, // Récupérer uniquement le champ 'id'
+        },
+      });
+
+      return userExist.id > 0 ? userExist : null; // Retourne null si aucun résultat
+    } catch (error) {
+      console.error('Error in findOneManyById:', error);
+      return null;
+    }
+  }
+
   async remove(id: number) {
     try {
       const isExiste = await this.prisma.prix.findFirst({

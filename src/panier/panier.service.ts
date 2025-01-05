@@ -200,6 +200,7 @@ export class PanierService {
             Prix: {
               select: {
                 prix: true,
+                id: true,
               },
             },
           },
@@ -213,6 +214,7 @@ export class PanierService {
         ...item,
         produits: {
           ...otherProduits,
+          prixId: Prix?.[0]?.id,
           prix: Prix?.[0]?.prix,
         },
       };
