@@ -16,8 +16,13 @@ export class CreateBoutiqueDto {
   @MinLength(2)
   description: string;
 
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(8)
+  phone: string;
+
   img: string;
-  
+
   @IsNotEmpty()
   userId: number;
 }

@@ -53,6 +53,7 @@ export class BoutiqueService {
             categorie: createBoutiqueDto.categorie,
             description: createBoutiqueDto.description,
             img: createBoutiqueDto.img,
+            phone: createBoutiqueDto.phone,
             utilisateurs: {
               connect: {
                 id: Number(createBoutiqueDto.userId),
@@ -109,7 +110,6 @@ export class BoutiqueService {
         },
         include: {
           Prix: {
-
             where: {
               boutiqueId: shopId,
             },
@@ -121,6 +121,20 @@ export class BoutiqueService {
       });
       return;
     } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async findAllShopByUser(userId: number) {
+    try {
+      return await this.prisma.boutique.findMany({
+        where: {
+          userId: userId,
+        },
+      });
+      return;
+    } catch (error) {
+      ExeceptionCase(error);
       console.error(error);
     }
   }

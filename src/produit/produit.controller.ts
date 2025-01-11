@@ -58,6 +58,11 @@ export class ProduitController {
     return this.produitService.findAll();
   }
 
+  @Get('shop-products/:id')
+  findAllByShop(@Param('id') id: string) {
+    return this.produitService.findAllByShop(+id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.produitService.findOne(+id);

@@ -51,6 +51,8 @@ export class BoutiqueController {
     @UploadedFile() file: Express.Multer.File,
     @Body() createBoutiqueDto: CreateBoutiqueDto,
   ) {
+    console.log(file.path);
+
     return this.boutiqueService.create({
       ...createBoutiqueDto,
       img: file.path,
@@ -72,6 +74,12 @@ export class BoutiqueController {
   @Get('/all-produits/:id')
   findBoutiqueProduit(@Param('id') id: string) {
     return this.boutiqueService.findAllShopWithProducts(+id);
+  }
+
+  @Public()
+  @Get('/all-produits/user/:id')
+  findBoutiqueByUserId(@Param('id') id: string) {
+    return this.boutiqueService.findAllShopByUser(+id);
   }
 
   @Patch(':id')

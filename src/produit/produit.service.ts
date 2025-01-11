@@ -6,46 +6,61 @@ import { ExeceptionCase } from 'src/utils/constants';
 
 @Injectable()
 export class ProduitService {
-
-    constructor(private readonly prisma: PrismaService) {}
-  
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createProduitDto: CreateProduitDto) {
     try {
-          const produit = await this.prisma.$transaction(async (prisma) => {
-            return await prisma.produit.create({
-              data: {
-                nom: createProduitDto.nom,
-                categorie: createProduitDto.categorie,
-                description: createProduitDto.description,
-                img: createProduitDto.img,
-               
-              },
-            });
-          });
-    
-          return {
-            status: 201,
-            data: produit,
-          };
-        } catch (error) {
-          console.error(error);
-          switch (error.status) {
-            case 500:
-              throw Error(
-                "Une Erreur c'est produit lord de la creation du boutique",
-              );
-              break;
-            default:
-              break;
-          }
-        }
+      const produit = await this.prisma.$transaction(async (prisma) => {
+        return await prisma.produit.create({
+          data: {
+            nom: createProduitDto.nom,
+            categorie: createProduitDto.categorie,
+            description: createProduitDto.description,
+            img: createProduitDto.img,
+          },
+        });
+      });
+
+      return {
+        status: 201,
+        data: produit,
+      };
+    } catch (error) {
+      console.error(error);
+      switch (error.status) {
+        case 500:
+          throw Error(
+            "Une Erreur c'est produit lord de la creation du boutique",
+          );
+          break;
+        default:
+          break;
+      }
+    }
   }
 
-async findAll() {
+  async findAll() {
     try {
       const produit = await this.prisma.produit.findMany();
       return { status: 200, data: produit || [] };
+    } catch (error) {
+      console.error(error);
+      ExeceptionCase(error);
+    }
+  }
+
+  async findAllByShop(shopId: number) {
+    try {
+      const produits = await this.prisma.produit.findMany({
+        where: {
+          Prix: {
+            some: {
+              boutiqueId: shopId,
+            },
+          },
+        },
+      });
+      return { status: 200, data: produits || [] };
     } catch (error) {
       console.error(error);
       ExeceptionCase(error);

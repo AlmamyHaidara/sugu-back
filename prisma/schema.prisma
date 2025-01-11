@@ -67,6 +67,7 @@ model Boutique {
   categorie    String
   img          String?
   description  String
+  phone        String?
   userId       Int
   utilisateurs Utilisateur @relation(fields: [userId], references: [id])
 
