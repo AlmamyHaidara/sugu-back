@@ -1,15 +1,24 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateAdresseDto } from './dto/create-adresse.dto';
 import { UpdateAdresseDto } from './dto/update-adresse.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AdresseService {
+  private readonly logger = new Logger(AdresseService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Creates a new address entry in the database.
+   *
+   * @param {CreateAdresseDto} createAdresseDto - The data transfer object containing the details of the address to be created.
+   * @returns {Promise<{status: number, data: any}>} - The status and data of the created address.
+   * @throws {HttpException} - Throws an HTTP exception if the input data is invalid or if there is an internal server error.
+   */
   async create(createAdresseDto: CreateAdresseDto) {
     try {
-      console.log(createAdresseDto);
+      this.logger.log('Creating a new address', createAdresseDto);
 
       if (
         Object.keys(createAdresseDto).length <= 0 ||
@@ -23,7 +32,6 @@ export class AdresseService {
           },
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
-        return 'This action adds a new adresse';
       }
       const adresse = await this.prisma.$transaction(async (transaction) => {
         return transaction.adresse.create({
@@ -31,7 +39,7 @@ export class AdresseService {
             nom: createAdresseDto.nom,
             quartier: createAdresseDto.quartier,
             telephone: createAdresseDto.telephone,
-            descrition: createAdresseDto.description,
+            description: createAdresseDto.description,
             utilisateurs: {
               connect: {
                 id: createAdresseDto.userId,
@@ -49,7 +57,6 @@ export class AdresseService {
           },
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
-        return 'This action adds a new adresse';
       }
 
       return {
@@ -57,7 +64,7 @@ export class AdresseService {
         data: adresse,
       };
     } catch (error) {
-      console.error(error);
+      this.logger.error('Error creating address', error.stack);
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -66,16 +73,16 @@ export class AdresseService {
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-      return null;
     }
   }
 
   async findAll() {
     try {
+      this.logger.log('Fetching all addresses');
       const adresses = await this.prisma.adresse.findMany();
       return { status: 200, data: adresses || [] };
     } catch (error) {
-      console.error(error);
+      this.logger.error('Error fetching all addresses', error.stack);
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -84,12 +91,12 @@ export class AdresseService {
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-      return null;
     }
   }
 
   async findOne(id: number) {
     try {
+      this.logger.log(`Fetching address with id ${id}`);
       const adresses = await this.prisma.adresse.findMany({
         where: {
           id: id,
@@ -97,7 +104,7 @@ export class AdresseService {
       });
       return { status: 200, data: adresses || [] };
     } catch (error) {
-      console.error(error);
+      this.logger.error(`Error fetching address with id ${id}`, error.stack);
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -106,12 +113,12 @@ export class AdresseService {
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-      return null;
     }
   }
 
   async findOneByUserId(id: number) {
     try {
+      this.logger.log(`Fetching addresses for user with id ${id}`);
       const adresses = await this.prisma.adresse.findMany({
         where: {
           userId: id,
@@ -119,7 +126,10 @@ export class AdresseService {
       });
       return { status: 200, data: adresses || [] };
     } catch (error) {
-      console.error(error);
+      this.logger.error(
+        `Error fetching addresses for user with id ${id}`,
+        error.stack,
+      );
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -128,13 +138,12 @@ export class AdresseService {
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-      return null;
     }
   }
 
   async update(id: number, updateAdresseDto: UpdateAdresseDto) {
     try {
-      console.log(updateAdresseDto);
+      this.logger.log(`Updating address with id ${id}`, updateAdresseDto);
 
       if (
         Object.keys(updateAdresseDto).length <= 0 ||
@@ -148,9 +157,7 @@ export class AdresseService {
           },
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
-        return 'This action adds a new adresse';
       }
-      // const isExist = await this.findOne(updateAdresseDto.id);
       const isExist = await this.prisma.adresse.findUnique({
         where: { id: id, userId: updateAdresseDto.userId },
         select: {
@@ -177,7 +184,7 @@ export class AdresseService {
             nom: updateAdresseDto.nom,
             quartier: updateAdresseDto.quartier,
             telephone: updateAdresseDto.telephone,
-            descrition: updateAdresseDto.description,
+            description: updateAdresseDto.description,
             utilisateurs: {
               connect: {
                 id: updateAdresseDto.userId,
@@ -201,7 +208,7 @@ export class AdresseService {
         data: adresse,
       };
     } catch (error) {
-      console.error(error);
+      this.logger.error(`Error updating address with id ${id}`, error.stack);
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -210,13 +217,14 @@ export class AdresseService {
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-      return null;
     }
   }
 
   async remove(id: number, userId: number) {
     try {
-      // const isExist = await this.findOne(updateAdresseDto.id);
+      this.logger.log(
+        `Removing address with id ${id} for user with id ${userId}`,
+      );
       const isExist = await this.prisma.adresse.findUnique({
         where: { id: id, userId: userId },
         select: {
@@ -246,7 +254,7 @@ export class AdresseService {
         msg: `L'adresse ${id} a ete suprimer avec succes`,
       };
     } catch (error) {
-      console.error(error);
+      this.logger.error(`Error removing address with id ${id}`, error.stack);
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -255,7 +263,6 @@ export class AdresseService {
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-      return null;
     }
   }
 }

@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProduitDto } from './dto/create-produit.dto';
 import { UpdateProduitDto } from './dto/update-produit.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -10,11 +15,24 @@ export class ProduitService {
 
   async create(createProduitDto: CreateProduitDto) {
     try {
+      const categories = await this.prisma.categorieProduit.findFirst({
+        where: {
+          id: createProduitDto.categorie,
+        },
+      });
+
+      if (!categories) {
+        new NotFoundException();
+      }
       const produit = await this.prisma.$transaction(async (prisma) => {
-        return await prisma.produit.create({
+        return prisma.produit.create({
           data: {
             nom: createProduitDto.nom,
-            categorie: createProduitDto.categorie,
+            categories: {
+              connect: {
+                id: createProduitDto.categorie,
+              },
+            },
             description: createProduitDto.description,
             img: createProduitDto.img,
           },
@@ -32,7 +50,6 @@ export class ProduitService {
           throw Error(
             "Une Erreur c'est produit lord de la creation du boutique",
           );
-          break;
         default:
           break;
       }
@@ -59,8 +76,27 @@ export class ProduitService {
             },
           },
         },
+        include: {
+          Prix: {
+            select: {
+              id: true,
+              prix: true,
+              quantiter: true,
+              boutiqueId: true,
+              produitId: true,
+            },
+          },
+        },
       });
-      return { status: 200, data: produits || [] };
+
+      const t = [];
+      produits.forEach((element) => {
+        const o = element.Prix[0];
+        delete element.Prix;
+        t.push({ ...element, ...o });
+      });
+
+      return { status: 200, data: t || [] };
     } catch (error) {
       console.error(error);
       ExeceptionCase(error);
@@ -76,7 +112,7 @@ export class ProduitService {
       });
 
       if (!isExiste) {
-        throw new HttpException(
+        new HttpException(
           {
             status: HttpStatus.NOT_FOUND,
             message: 'Produit introuvable.',
@@ -101,7 +137,7 @@ export class ProduitService {
       });
 
       if (!isExiste) {
-        throw new HttpException(
+        new HttpException(
           {
             status: HttpStatus.NOT_FOUND,
             message: 'Produit introuvable.',
@@ -112,7 +148,7 @@ export class ProduitService {
       }
 
       const boutique = await this.prisma.$transaction(async (prisma) => {
-        return await prisma.produit.update({
+        return prisma.produit.update({
           where: {
             id: Number(id),
           },
@@ -139,7 +175,7 @@ export class ProduitService {
       });
 
       if (!isExiste) {
-        throw new HttpException(
+        new HttpException(
           {
             status: HttpStatus.NOT_FOUND,
             message: 'Produit introuvable.',
@@ -149,8 +185,8 @@ export class ProduitService {
         );
       }
 
-      const boutique = await this.prisma.$transaction(async (prisma) => {
-        return await prisma.produit.delete({
+      await this.prisma.$transaction(async (prisma) => {
+        return prisma.produit.delete({
           where: {
             id: Number(id),
           },
@@ -158,8 +194,8 @@ export class ProduitService {
       });
 
       return {
+        msg: `La produit ${id} a ete supprimer avec success`,
         status: 200,
-        msg: `La produit ${id} a ete suprimer avec succes`,
       };
     } catch (error) {
       console.error(error);

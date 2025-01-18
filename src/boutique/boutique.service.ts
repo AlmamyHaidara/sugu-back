@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateBoutiqueDto } from './dto/create-boutique.dto';
 import { UpdateBoutiqueDto } from './dto/update-boutique.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -6,246 +6,159 @@ import { ExeceptionCase } from 'src/utils/constants';
 
 @Injectable()
 export class BoutiqueService {
+  private readonly logger = new Logger(BoutiqueService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createBoutiqueDto: CreateBoutiqueDto) {
-    try {
-      const isExiste = await this.prisma.boutique.findFirst({
-        where: {
-          nom: createBoutiqueDto.nom,
-        },
-      });
+    this.logger.log('Creating a new boutique');
+    const isExiste = await this.prisma.boutique.findFirst({
+      where: {
+        nom: createBoutiqueDto.nom,
+      },
+    });
 
-      const user = await this.prisma.utilisateur.findUnique({
-        where: {
-          id: Number(createBoutiqueDto.userId),
-        },
-      });
+    const user = await this.prisma.utilisateur.findUnique({
+      where: {
+        id: Number(createBoutiqueDto.userId),
+      },
+    });
 
-      if (isExiste) {
-        throw new HttpException(
-          {
-            status: HttpStatus.CONFLICT,
-            message: 'Boutique existe déjà.',
-            error: 'Conflict',
-          },
-          HttpStatus.CONFLICT,
-        );
-      }
-
-      if (!user) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            message: 'Utilisateur introuvable.',
-            error: 'Non Trouvez',
-          },
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      console.log(!user);
-
-      const boutique = await this.prisma.$transaction(async (prisma) => {
-        return await prisma.boutique.create({
-          data: {
-            nom: createBoutiqueDto.nom,
-            categorie: createBoutiqueDto.categorie,
-            description: createBoutiqueDto.description,
-            img: createBoutiqueDto.img,
-            phone: createBoutiqueDto.phone,
-            utilisateurs: {
-              connect: {
-                id: Number(createBoutiqueDto.userId),
-              },
-            },
-          },
-        });
-      });
-
-      return {
-        status: 201,
-        data: boutique,
-      };
-    } catch (error) {
-      console.error(error);
-      switch (error.status) {
-        case 409:
-          throw new HttpException(
-            {
-              status: HttpStatus.CONFLICT,
-              message: 'Boutique existe déjà.',
-              error: 'Conflict',
-            },
-            HttpStatus.CONFLICT,
-          );
-          break;
-        case 404:
-          throw new HttpException(
-            {
-              status: HttpStatus.NOT_FOUND,
-              message: 'Donnee introuvable.',
-              error: 'Non Trouvez',
-            },
-            HttpStatus.NOT_FOUND,
-          );
-          break;
-
-        case 500:
-          throw Error(
-            "Une Erreur c'est produit lord de la creation du boutique",
-          );
-          break;
-        default:
-          break;
-      }
+    if (isExiste) {
+      this.logger.warn('Boutique already exists');
+      throw new HttpException('Boutique existe déjà.', HttpStatus.CONFLICT);
     }
+
+    if (!user) {
+      this.logger.warn('User not found');
+      throw new HttpException('Utilisateur introuvable.', HttpStatus.NOT_FOUND);
+    }
+
+    const boutique = await this.prisma.$transaction(async (prisma) => {
+      return prisma.boutique.create({
+        data: {
+          nom: createBoutiqueDto.nom,
+          categorie: createBoutiqueDto.categorie,
+          location: createBoutiqueDto.location,
+          img: createBoutiqueDto.img,
+          phone: createBoutiqueDto.phone,
+          description: createBoutiqueDto.description,
+          utilisateurs: {
+            connect: {
+              id: Number(createBoutiqueDto.userId),
+            },
+          },
+        },
+      });
+    });
+
+    return {
+      status: 201,
+      data: boutique,
+    };
   }
 
   async findAllShopWithProducts(shopId: number) {
-    try {
-      return await this.prisma.boutique.findFirst({
-        where: {
-          id: shopId,
-        },
-        include: {
-          Prix: {
-            where: {
-              boutiqueId: shopId,
-            },
-            include: {
-              produits: true,
-            },
+    this.logger.log(`Finding all products for shop: ${shopId}`);
+    return await this.prisma.boutique.findFirst({
+      where: {
+        id: shopId,
+      },
+      include: {
+        Prix: {
+          where: {
+            boutiqueId: shopId,
+          },
+          include: {
+            produits: true,
           },
         },
-      });
-      return;
-    } catch (error) {
-      console.error(error);
-    }
+      },
+    });
   }
 
   async findAllShopByUser(userId: number) {
-    try {
-      return await this.prisma.boutique.findMany({
-        where: {
-          userId: userId,
-        },
-      });
-      return;
-    } catch (error) {
-      ExeceptionCase(error);
-      console.error(error);
-    }
+    this.logger.log(`Finding all shops for user: ${userId}`);
+    return await this.prisma.boutique.findMany({
+      where: {
+        userId: userId,
+      },
+    });
   }
 
   async findAll() {
-    try {
-      const boutiques = await this.prisma.boutique.findMany();
-      return { status: 200, data: boutiques || [] };
-    } catch (error) {
-      console.error(error);
-      ExeceptionCase(error);
-    }
+    this.logger.log('Finding all boutiques');
+    const boutiques = await this.prisma.boutique.findMany();
+    return { status: 200, data: boutiques || [] };
   }
 
   async findOne(id: number) {
-    try {
-      const isExiste = await this.prisma.boutique.findFirst({
-        where: {
-          id: Number(id),
-        },
-      });
+    this.logger.log(`Finding boutique with id: ${id}`);
+    const isExiste = await this.prisma.boutique.findFirst({
+      where: {
+        id: Number(id),
+      },
+    });
 
-      if (!isExiste) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            message: 'Boutique introuvable.',
-            error: 'Non trouvez',
-          },
-          HttpStatus.NOT_FOUND,
-        );
-      }
-      return { status: 200, data: isExiste || {} };
-    } catch (error) {
-      console.error(error);
-      ExeceptionCase(error);
+    if (!isExiste) {
+      this.logger.warn(`Boutique not found: ${id}`);
+      throw new HttpException('Boutique introuvable.', HttpStatus.NOT_FOUND);
     }
+    return { status: 200, data: isExiste || {} };
   }
 
   async update(id: number, updateBoutiqueDto: UpdateBoutiqueDto) {
-    try {
-      const isExiste = await this.prisma.boutique.findFirst({
+    this.logger.log(`Updating boutique with id: ${id}`);
+    const isExiste = await this.prisma.boutique.findFirst({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    if (!isExiste) {
+      this.logger.warn(`Boutique not found: ${id}`);
+      throw new HttpException('Boutique introuvable.', HttpStatus.NOT_FOUND);
+    }
+
+    const boutique = await this.prisma.$transaction(async (prisma) => {
+      return prisma.boutique.update({
         where: {
           id: Number(id),
         },
+        data: updateBoutiqueDto,
       });
+    });
 
-      if (!isExiste) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            message: 'Boutique introuvable.',
-            error: 'Non trouvez',
-          },
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      const boutique = await this.prisma.$transaction(async (prisma) => {
-        return await prisma.boutique.update({
-          where: {
-            id: Number(id),
-          },
-          data: updateBoutiqueDto,
-        });
-      });
-
-      return {
-        status: 200,
-        data: boutique,
-      };
-    } catch (error) {
-      console.error(error);
-      ExeceptionCase(error);
-    }
+    return {
+      status: 200,
+      data: boutique,
+    };
   }
 
   async remove(id: number) {
-    try {
-      const isExiste = await this.prisma.boutique.findFirst({
+    this.logger.log(`Removing boutique with id: ${id}`);
+    const isExiste = await this.prisma.boutique.findFirst({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    if (!isExiste) {
+      this.logger.warn(`Boutique not found: ${id}`);
+      throw new HttpException('Boutique introuvable.', HttpStatus.NOT_FOUND);
+    }
+
+    await this.prisma.$transaction(async (prisma) => {
+      return prisma.boutique.delete({
         where: {
           id: Number(id),
         },
       });
+    });
 
-      if (!isExiste) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            message: 'Boutique introuvable.',
-            error: 'Non trouvez',
-          },
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      await this.prisma.$transaction(async (prisma) => {
-        return await prisma.boutique.delete({
-          where: {
-            id: Number(id),
-          },
-        });
-      });
-
-      return {
-        status: 200,
-        msg: `La boutique ${id} a ete suprimer avec succes`,
-      };
-    } catch (error) {
-      console.error(error);
-      ExeceptionCase(error);
-    }
+    return {
+      status: 200,
+      msg: `La boutique ${id} a ete suprimer avec succes`,
+    };
   }
 }

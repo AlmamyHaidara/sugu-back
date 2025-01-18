@@ -15,6 +15,7 @@ import { PanierModule } from './panier/panier.module';
 import { ConfigModule } from '@nestjs/config';
 import { AdresseModule } from './adresse/adresse.module';
 import { CommandModule } from './command/command.module';
+import { CategorieProduitModule } from './categorie-produit/categorie-produit.module';
 
 console.log(join(__dirname, '..', 'uploads'));
 
@@ -36,6 +37,7 @@ console.log(join(__dirname, '..', 'uploads'));
     PanierModule,
     AdresseModule,
     CommandModule,
+    CategorieProduitModule,
   ],
   controllers: [AppController],
   providers: [

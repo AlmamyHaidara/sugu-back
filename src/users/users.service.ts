@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -10,9 +10,12 @@ export type User = any;
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
+    this.logger.log('Creating a new user');
     try {
       const isExiste = (await this.findOne({
         email: createUserDto.email,
@@ -87,6 +90,7 @@ export class UsersService {
     email?: string;
     telephone?: null;
   }): Promise<User | undefined> {
+    this.logger.log(`Finding user with criteria: ${JSON.stringify(user)}`);
     try {
       console.log(user);
 
@@ -136,6 +140,7 @@ export class UsersService {
   }
 
   async getCurrentUser(email: string): Promise<User> {
+    this.logger.log(`Getting current user with email: ${email}`);
     try {
       console.log(email);
 

@@ -38,7 +38,7 @@ model Adresse {
   nom          String
   quartier     String
   telephone    String
-  descrition   String
+  description  String
   userId       Int
   utilisateurs Utilisateur @relation(fields: [userId], references: [id])
 
@@ -47,11 +47,12 @@ model Adresse {
 }
 
 model Produit {
-  id          Int    @id @default(autoincrement())
+  id          Int              @id @default(autoincrement())
   nom         String
-  categorie   String
   description String
   img         String
+  categorieId Int
+  categories  CategorieProduit @relation(fields: [categorieId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -62,14 +63,15 @@ model Produit {
 }
 
 model Boutique {
-  id           Int         @id @default(autoincrement())
+  id           Int               @id @default(autoincrement())
   nom          String
-  categorie    String
+  categorie    CategorieBoutique @default(DETAILLANT)
+  location     Location          @default(NATIONAL)
   img          String?
   description  String
   phone        String?
   userId       Int
-  utilisateurs Utilisateur @relation(fields: [userId], references: [id])
+  utilisateurs Utilisateur       @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   Prix Prix[]
 
@@ -77,6 +79,14 @@ model Boutique {
   updatedAt DateTime @updatedAt
 
   Panier Panier[]
+}
+
+model CategorieProduit {
+  id          Int     @id @default(autoincrement())
+  nom         String
+  description String?
+
+  produits Produit[]
 }
 
 model Prix {
@@ -145,6 +155,16 @@ enum Profile {
   ADMIN
   CLIENT
   BOUTIQUIER
+}
+
+enum Location {
+  NATIONAL
+  INTERNATIONAL
+}
+
+enum CategorieBoutique {
+  DETAILLANT
+  GROSSISTE
 }
 
 enum EtatCommand {

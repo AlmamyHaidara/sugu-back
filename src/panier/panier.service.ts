@@ -11,7 +11,6 @@ export class PanierService {
     boutiqueId: number;
     count: number;
   }) {
-    ``;
     try {
       const user = await this.prisma.utilisateur.findFirst({
         where: {
@@ -194,7 +193,7 @@ export class PanierService {
           select: {
             id: true,
             nom: true,
-            categorie: true,
+            categories: true,
             description: true,
             img: true,
             Prix: {
