@@ -76,6 +76,12 @@ export class AdresseService {
     }
   }
 
+  /**
+   * Fetches all addresses from the database.
+   *
+   * @returns {Promise<{status: number, data: any[]}>} - The status and data of all addresses.
+   * @throws {HttpException} - Throws an HTTP exception if there is an internal server error.
+   */
   async findAll() {
     try {
       this.logger.log('Fetching all addresses');
@@ -94,6 +100,13 @@ export class AdresseService {
     }
   }
 
+  /**
+   * Fetches a specific address by its ID.
+   *
+   * @param {number} id - The ID of the address to fetch.
+   * @returns {Promise<{status: number, data: any}>} - The status and data of the fetched address.
+   * @throws {HttpException} - Throws an HTTP exception if there is an internal server error.
+   */
   async findOne(id: number) {
     try {
       this.logger.log(`Fetching address with id ${id}`);
@@ -116,6 +129,13 @@ export class AdresseService {
     }
   }
 
+  /**
+   * Fetches all addresses associated with a specific user ID.
+   *
+   * @param {number} id - The ID of the user whose addresses to fetch.
+   * @returns {Promise<{status: number, data: any[]}>} - The status and data of the fetched addresses.
+   * @throws {HttpException} - Throws an HTTP exception if there is an internal server error.
+   */
   async findOneByUserId(id: number) {
     try {
       this.logger.log(`Fetching addresses for user with id ${id}`);
@@ -141,6 +161,14 @@ export class AdresseService {
     }
   }
 
+  /**
+   * Updates an existing address entry in the database.
+   *
+   * @param {number} id - The ID of the address to update.
+   * @param {UpdateAdresseDto} updateAdresseDto - The data transfer object containing the updated details of the address.
+   * @returns {Promise<{status: number, data: any}>} - The status and data of the updated address.
+   * @throws {HttpException} - Throws an HTTP exception if the input data is invalid, the address is not found, or if there is an internal server error.
+   */
   async update(id: number, updateAdresseDto: UpdateAdresseDto) {
     try {
       this.logger.log(`Updating address with id ${id}`, updateAdresseDto);
@@ -220,6 +248,14 @@ export class AdresseService {
     }
   }
 
+  /**
+   * Removes an address entry from the database.
+   *
+   * @param {number} id - The ID of the address to remove.
+   * @param {number} userId - The ID of the user who owns the address.
+   * @returns {Promise<{status: number, msg: string}>} - The status and message of the removal operation.
+   * @throws {HttpException} - Throws an HTTP exception if the address is not found or if there is an internal server error.
+   */
   async remove(id: number, userId: number) {
     try {
       this.logger.log(
