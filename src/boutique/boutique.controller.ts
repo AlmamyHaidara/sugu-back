@@ -25,21 +25,19 @@ export class BoutiqueController {
   @UseInterceptors(
     FileInterceptor('img', {
       storage: diskStorage({
-        destination: './uploads/boutiques', // Dossier où stocker les photos
-        filename: (req, file, callback) => {
-          // Générer un nom unique pour le fichier
+        destination: './uploads/boutiques',
+        filename: (_req, file, callback) => {
           const uniqueSuffix =
             Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = extname(file.originalname); // Extension du fichier
+          const ext = extname(file.originalname);
           const filename = `boutique-${uniqueSuffix}${ext}`;
           callback(null, filename);
         },
       }),
-      fileFilter: (req, file, callback) => {
-        // Accepter uniquement les fichiers image
+      fileFilter: (_req, file, callback) => {
         if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
           return callback(
-            new Error('Seuls les fichiers JPG, JPEG et PNG sont autorisés !'),
+            new Error('Only JPG, JPEG, and PNG files are allowed!'),
             false,
           );
         }
@@ -51,23 +49,31 @@ export class BoutiqueController {
     @UploadedFile() file: Express.Multer.File,
     @Body() createBoutiqueDto: CreateBoutiqueDto,
   ) {
-    console.log(file.path);
-
-    return this.boutiqueService.create({
-      ...createBoutiqueDto,
-      img: file.path,
-    });
+    try {
+      return this.boutiqueService.create({
+        ...createBoutiqueDto,
+        img: file?.path,
+      });
+    } catch (error) {
+      console.error('Error creating boutique', error.stack);
+    }
   }
 
-  @Public()
-  @Get()
-  findAll() {
-    return this.boutiqueService.findAll();
-  }
+  // @Public()
+  // @Get()
+  // findAll() {
+  //   return this.boutiqueService.findAll();
+  // }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.boutiqueService.findOne(+id);
+  }
+
+  @Public()
+  @Get('')
+  findAllWithProducts() {
+    return this.boutiqueService.findAllShopAndProducts();
   }
 
   @Public()

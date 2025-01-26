@@ -12,50 +12,61 @@ export class BoutiqueService {
 
   async create(createBoutiqueDto: CreateBoutiqueDto) {
     this.logger.log('Creating a new boutique');
-    const isExiste = await this.prisma.boutique.findFirst({
-      where: {
-        nom: createBoutiqueDto.nom,
-      },
-    });
-
-    const user = await this.prisma.utilisateur.findUnique({
-      where: {
-        id: Number(createBoutiqueDto.userId),
-      },
-    });
-
-    if (isExiste) {
-      this.logger.warn('Boutique already exists');
-      throw new HttpException('Boutique existe déjà.', HttpStatus.CONFLICT);
-    }
-
-    if (!user) {
-      this.logger.warn('User not found');
-      throw new HttpException('Utilisateur introuvable.', HttpStatus.NOT_FOUND);
-    }
-
-    const boutique = await this.prisma.$transaction(async (prisma) => {
-      return prisma.boutique.create({
-        data: {
+    try {
+      const isExiste = await this.prisma.boutique.findFirst({
+        where: {
           nom: createBoutiqueDto.nom,
-          categorie: createBoutiqueDto.categorie,
-          location: createBoutiqueDto.location,
-          img: createBoutiqueDto.img,
-          phone: createBoutiqueDto.phone,
-          description: createBoutiqueDto.description,
-          utilisateurs: {
-            connect: {
-              id: Number(createBoutiqueDto.userId),
-            },
-          },
         },
       });
-    });
 
-    return {
-      status: 201,
-      data: boutique,
-    };
+      const user = await this.prisma.utilisateur.findUnique({
+        where: {
+          id: Number(createBoutiqueDto.userId),
+        },
+      });
+
+      if (isExiste) {
+        this.logger.warn('Boutique already exists');
+        throw new HttpException('Boutique existe déjà.', HttpStatus.CONFLICT);
+      }
+
+      if (!user) {
+        this.logger.warn('User not found');
+        throw new HttpException(
+          'Utilisateur introuvable.',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const boutique = await this.prisma.$transaction(async (prisma) => {
+        return prisma.boutique.create({
+          data: {
+            nom: createBoutiqueDto.nom,
+            categorie: createBoutiqueDto.categorie,
+            location: createBoutiqueDto.location,
+            img: createBoutiqueDto.img,
+            phone: createBoutiqueDto.phone,
+            description: createBoutiqueDto.description,
+            utilisateurs: {
+              connect: {
+                id: Number(createBoutiqueDto.userId),
+              },
+            },
+          },
+        });
+      });
+
+      return {
+        status: 201,
+        data: boutique,
+      };
+    } catch (error) {
+      this.logger.error('Error creating boutique', error.stack);
+      throw new HttpException(
+        'Erreur lors de la création de la boutique.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async findAllShopWithProducts(shopId: number) {
@@ -71,6 +82,22 @@ export class BoutiqueService {
           },
           include: {
             produits: true,
+          },
+        },
+      },
+    });
+  }
+
+  async findAllShopAndProducts() {
+    return await this.prisma.boutique.findMany({
+      include: {
+        Prix: {
+          include: {
+            produits: {
+              include: {
+                categories: true,
+              },
+            },
           },
         },
       },
