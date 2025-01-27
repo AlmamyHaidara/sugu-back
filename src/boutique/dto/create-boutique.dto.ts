@@ -1,6 +1,6 @@
 import { IsEnum, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
-enum Location {
+export enum Location {
   NATIONAL = 'NATIONAL',
   INTERNATIONAL = 'INTERNATIONAL',
 }
@@ -38,6 +38,10 @@ export class CreateBoutiqueDto {
   phone: string;
 
   img: string;
+
+  @IsNotEmpty()
+  @IsString()
+  countryId: number;
 
   @IsNotEmpty()
   userId: number;

@@ -8,6 +8,7 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { BoutiqueService } from './boutique.service';
 import { CreateBoutiqueDto } from './dto/create-boutique.dto';
@@ -16,90 +17,112 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Public } from 'src/auth/constants';
+import { Roles } from 'src/auth/roles.guard';
+
+const boutiqueStorage = {
+  storage: diskStorage({
+    destination: './uploads/boutiques',
+    filename: (req, file, callback) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+      const ext = extname(file.originalname);
+      callback(null, `boutique-${uniqueSuffix}${ext}`);
+    },
+  }),
+  fileFilter: (req, file, callback) => {
+    if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
+      return callback(
+        new Error('Seuls JPG, JPEG et PNG sont autorisés'),
+        false,
+      );
+    }
+    callback(null, true);
+  },
+};
 
 @Controller('boutique')
 export class BoutiqueController {
   constructor(private readonly boutiqueService: BoutiqueService) {}
 
+  // ========== CREATE ==========
   @Post()
-  @UseInterceptors(
-    FileInterceptor('img', {
-      storage: diskStorage({
-        destination: './uploads/boutiques',
-        filename: (_req, file, callback) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = extname(file.originalname);
-          const filename = `boutique-${uniqueSuffix}${ext}`;
-          callback(null, filename);
-        },
-      }),
-      fileFilter: (_req, file, callback) => {
-        if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
-          return callback(
-            new Error('Only JPG, JPEG, and PNG files are allowed!'),
-            false,
-          );
-        }
-        callback(null, true);
-      },
-    }),
-  )
-  create(
+  @Roles('admin')
+  @UseInterceptors(FileInterceptor('img', boutiqueStorage))
+  async create(
     @UploadedFile() file: Express.Multer.File,
     @Body() createBoutiqueDto: CreateBoutiqueDto,
   ) {
-    try {
-      return this.boutiqueService.create({
-        ...createBoutiqueDto,
-        img: file?.path,
-      });
-    } catch (error) {
-      console.error('Error creating boutique', error.stack);
+    // Si un fichier est présent, on stocke son chemin dans le DTO
+    if (file) {
+      createBoutiqueDto.img = file.path;
     }
+    const boutique = await this.boutiqueService.create(createBoutiqueDto);
+    return {
+      message: 'Boutique créée avec succès',
+      data: boutique,
+    };
   }
 
+  // ========== READ ALL ==========
   // @Public()
-  // @Get()
-  // findAll() {
-  //   return this.boutiqueService.findAll();
-  // }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.boutiqueService.findOne(+id);
+  @Roles('boutiquier')
+  @Get()
+  async findAll() {
+    return this.boutiqueService.findAll();
   }
 
-  @Public()
-  @Get('')
+  // ========== READ ONE BY ID ==========
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.boutiqueService.findOne(id);
+  }
+
+  // ========== READ: ALL SHOPS + PRODUCTS ==========
+  // @Public()
+  @Get('all-with-products')
   findAllWithProducts() {
     return this.boutiqueService.findAllShopAndProducts();
   }
 
+  // ========== READ: ONE SHOP + ALL ITS PRODUCTS ==========
   @Public()
-  @Get('/all-produits/:id')
-  findBoutiqueProduit(@Param('id') id: string) {
-    return this.boutiqueService.findAllShopWithProducts(+id);
+  @Get('all-produits/:id')
+  findBoutiqueProduit(@Param('id', ParseIntPipe) id: number) {
+    return this.boutiqueService.findAllShopWithProducts(id);
   }
 
+  // ========== READ: SHOPS BY USER ==========
   @Public()
-  @Get('/all-produits/user/:id')
-  findBoutiqueByUserId(@Param('id') id: string) {
-    return this.boutiqueService.findAllShopByUser(+id);
+  @Get('all-produits/user/:id')
+  findBoutiqueByUserId(@Param('id', ParseIntPipe) userId: number) {
+    return this.boutiqueService.findAllShopByUser(userId);
   }
 
+  // ========== UPDATE ==========
   @Patch(':id')
-  update(
-    @Param('id') id: string,
+  @UseInterceptors(FileInterceptor('img', boutiqueStorage))
+  async update(
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateBoutiqueDto: UpdateBoutiqueDto,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    console.log(id);
-
-    return this.boutiqueService.update(+id, updateBoutiqueDto);
+    // Si un fichier est présent, on le met dans le DTO
+    if (file) {
+      updateBoutiqueDto.img = file.path;
+    }
+    const updated = await this.boutiqueService.update(id, updateBoutiqueDto);
+    return {
+      message: 'Boutique mise à jour avec succès',
+      data: updated,
+    };
   }
 
+  // ========== DELETE ==========
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.boutiqueService.remove(+id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    const removed = await this.boutiqueService.remove(id);
+    return {
+      message: 'Boutique supprimée avec succès',
+      data: removed,
+    };
   }
 }

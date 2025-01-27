@@ -7,8 +7,8 @@ export class CreateProduitDto {
   nom: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  categorie: number;
+  @IsString()
+  categorie: string;
 
   @IsNotEmpty()
   @IsString()
@@ -16,4 +16,20 @@ export class CreateProduitDto {
   description: string;
 
   img: string;
+
+  @IsNotEmpty()
+  @IsString()
+  prix: string;
+
+  @IsNotEmpty()
+  @IsString()
+  quantiter: string;
+
+  @IsNotEmpty()
+  @IsString()
+  tags: string;
+
+  @IsNotEmpty()
+  @IsString()
+  boutique: string;
 }

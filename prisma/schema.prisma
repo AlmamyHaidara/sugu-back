@@ -4,6 +4,8 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+/// This is your Prisma schema file.
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,6 +14,32 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// ====================== ENUMERATIONS ======================
+
+enum Profile {
+  ADMIN
+  CLIENT
+  BOUTIQUIER
+}
+
+enum Location {
+  NATIONAL
+  INTERNATIONAL
+}
+
+enum CategorieBoutique {
+  DETAILLANT
+  GROSSISTE
+}
+
+enum EtatCommand {
+  ANNULER
+  VALIDER
+  ATTENTE
+}
+
+// ====================== MODELS ======================
 
 model Utilisateur {
   id        Int     @id @default(autoincrement())
@@ -27,9 +55,7 @@ model Utilisateur {
 
   Boutique Boutique[]
   Adresse  Adresse[]
-
-  Panier Panier[]
-
+  Panier   Panier[]
   Commande Commande[]
 }
 
@@ -47,38 +73,47 @@ model Adresse {
 }
 
 model Produit {
-  id          Int              @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   nom         String
   description String
   img         String
+  // Tableau de mots-clés pour la recherche avancée (facultatif)
+  tags        String[]
+
   categorieId Int
   categories  CategorieProduit @relation(fields: [categorieId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  Prix Prix[]
-
+  Prix   Prix[]
   Panier Panier[]
 }
 
 model Boutique {
-  id           Int               @id @default(autoincrement())
-  nom          String
-  categorie    CategorieBoutique @default(DETAILLANT)
-  location     Location          @default(NATIONAL)
-  img          String?
-  description  String
-  phone        String?
-  userId       Int
-  utilisateurs Utilisateur       @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  id        Int               @id @default(autoincrement())
+  nom       String
+  categorie CategorieBoutique @default(DETAILLANT)
+  location  Location          @default(NATIONAL)
 
-  Prix Prix[]
+  // Ajout d'un champ facultatif pour l'image
+  img         String?
+  description String
+  phone       String?
+
+  // L'utilisateur à qui appartient la boutique
+  userId       Int
+  utilisateurs Utilisateur @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  // Nouveau champ pour référencer le pays dans la table Country
+  countryId Int?
+  country   Country? @relation(fields: [countryId], references: [id])
+
+  Prix   Prix[]
+  Panier Panier[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  Panier Panier[]
 }
 
 model CategorieProduit {
@@ -90,8 +125,9 @@ model CategorieProduit {
 }
 
 model Prix {
-  id        Int    @id @default(autoincrement())
-  prix      String
+  id        Int     @id @default(autoincrement())
+  // Passer de String à Decimal pour permettre des recherches par intervalle
+  prix      Decimal @db.Decimal(10, 2)
   quantiter Int
 
   produitId  Int
@@ -127,19 +163,17 @@ model Commande {
   commandeNbr String
 
   utilisateurId Int
-
-  utilisateurs Utilisateur @relation(fields: [utilisateurId], references: [id])
+  utilisateurs  Utilisateur @relation(fields: [utilisateurId], references: [id])
 
   LigneCommand LigneCommand[]
 
   etat      EtatCommand @default(ATTENTE)
   createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  updatedAt DateTime?   @updatedAt
 }
 
 model LigneCommand {
-  id Int @id @default(autoincrement())
-
+  id         Int  @id @default(autoincrement())
   prixId     Int?
   commandeId Int?
   quantiter  Int
@@ -153,31 +187,25 @@ model LigneCommand {
 
 model Logs {
   id        Int      @id @default(autoincrement())
-  timestamp String
+  // stocker la date/heure du log
+  timestamp DateTime @default(now())
   level     String
-  message   DateTime @default(now())
+  // stocker le message sous forme de texte
+  message   String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-enum Profile {
-  ADMIN
-  CLIENT
-  BOUTIQUIER
-}
+// ====================== NOUVEAU MODELE COUNTRY ======================
 
-enum Location {
-  NATIONAL
-  INTERNATIONAL
-}
+model Country {
+  id      Int     @id @default(autoincrement())
+  name    String
+  isoCode String? // ex: "FR", "US", "SN", etc.
 
-enum CategorieBoutique {
-  DETAILLANT
-  GROSSISTE
-}
+  boutiques Boutique[] // Relation inverse: une Country peut être liée à plusieurs boutiques
 
-enum EtatCommand {
-  ANNULER
-  VALIDER
-  ATTENTE
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
 }

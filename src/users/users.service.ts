@@ -104,10 +104,7 @@ export class UsersService {
    * @param {Object} user - The object containing the email or telephone of the user to fetch.
    * @returns {Promise<User | undefined>} - The fetched user or undefined if not found.
    */
-  async findOne(user: {
-    email?: string;
-    telephone?: null;
-  }): Promise<User | undefined> {
+  async findOne(user: { email?: string; telephone?: null }): Promise<User> {
     this.logger.log(`Finding user with criteria: ${JSON.stringify(user)}`);
     try {
       console.log(user);
