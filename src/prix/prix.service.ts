@@ -251,6 +251,28 @@ export class PrixService {
     }
   }
 
+  async findOneByUserId(id: number): Promise<{ id: number } | null> {
+    try {
+      const userExist = await this.prisma.prix.findFirst({
+        where: {
+          boutiques: {
+            userId: id,
+          },
+        },
+        select: {
+          id: true,
+          boutiques: true,
+        },
+      });
+      const boutique = userExist.id > 0 && userExist.boutiques;
+      delete userExist.boutiques;
+      return userExist.id > 0 ? { ...userExist, ...boutique } : null; // Retourne null si aucun résultat
+    } catch (error) {
+      console.error('Error in findOneManyById:', error);
+      return null;
+    }
+  }
+
   async remove(id: number) {
     try {
       const isExiste = await this.prisma.prix.findFirst({

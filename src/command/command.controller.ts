@@ -33,6 +33,11 @@ export class CommandController {
     return this.commandService.findOne(+id, +userId);
   }
 
+  @Get('by-shop-id/:shopId')
+  findByShopId(@Param('shopId') shopId: string) {
+    return this.commandService.findByShopId(+shopId);
+  }
+
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updateCammandDto: UpdateCommandDto) {
   //   return this.commandService.update(+id, updateCammandDto);

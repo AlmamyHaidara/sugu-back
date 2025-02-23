@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Utilisateur } from '@prisma/client';
+// import { Utilisateur } from '@prisma/client';
 import { hash } from 'src/utils/bcrypt';
 
 // This should be a real class/interface representing a user entity
@@ -26,7 +26,7 @@ export class UsersService {
     try {
       const isExiste = (await this.findOne({
         email: createUserDto.email,
-      })) as Utilisateur;
+      })) as any;
 
       if (isExiste) {
         throw new HttpException(
@@ -34,6 +34,17 @@ export class UsersService {
             status: HttpStatus.CONFLICT,
             message: 'Utilisateur existe déjà.',
             error: 'Conflict',
+          },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      if (createUserDto.password) {
+        throw new HttpException(
+          {
+            status: HttpStatus.BAD_REQUEST,
+            message: 'Mots de passe obligatoire',
+            error: 'BAD_REQUEST',
           },
           HttpStatus.CONFLICT,
         );
@@ -104,7 +115,10 @@ export class UsersService {
    * @param {Object} user - The object containing the email or telephone of the user to fetch.
    * @returns {Promise<User | undefined>} - The fetched user or undefined if not found.
    */
-  async findOne(user: { email?: string; telephone?: null }): Promise<User> {
+  async findOne(user: {
+    email?: string;
+    telephone?: null;
+  }): Promise<User | null> {
     this.logger.log(`Finding user with criteria: ${JSON.stringify(user)}`);
     try {
       console.log(user);
@@ -200,8 +214,79 @@ export class UsersService {
    * @param {UpdateUserDto} updateProduitDto - The data transfer object containing the updated details of the user.
    * @returns {string} - A message indicating the action.
    */
-  update(id: number, updateProduitDto: UpdateUserDto) {
-    return `This action updates a #${id} produit`;
+  async update(
+    id: number,
+    updateProduitDto: UpdateUserDto,
+    file?: Express.Multer.File,
+  ) {
+    this.logger.log('Creating a new user');
+    try {
+      const isExiste: User = (await this.findOne({
+        email: updateProduitDto.email,
+      })) as User;
+
+      if (!isExiste) {
+        throw new HttpException(
+          {
+            status: HttpStatus.CONFLICT,
+            message: "Utilisateur n'existe pas.",
+            error: 'Conflict',
+          },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      if (file) {
+        updateProduitDto.avatar = file.path;
+      }
+
+      // delete updateProduitDto?.password;
+      const user = await this.prisma.$transaction(async (prisma) => {
+        return await prisma.utilisateur.update({
+          where: {
+            id: isExiste?.id,
+          },
+          data: {
+            ...updateProduitDto,
+          },
+          select: {
+            id: true,
+            nom: true,
+            prenom: true,
+            email: true,
+            telephone: true,
+            profile: true,
+            avatar: true,
+          },
+        });
+      });
+      return {
+        status: 200,
+        data: { ...user },
+        msg: `L'utilisateur ${user.nom} ${user.prenom} a a ete mis àjours avec success`,
+      };
+    } catch (error) {
+      console.error(error.status);
+      switch (error.status) {
+        case 404:
+          throw new HttpException(
+            {
+              status: HttpStatus.NOT_FOUND,
+              message: 'Utilisateur introuvable.',
+              error: 'Not found',
+            },
+            HttpStatus.NOT_FOUND,
+          );
+          break;
+        case 500:
+          throw Error(
+            "Une Erreur c'est produit lord de la mise a jours de utilisateur",
+          );
+          break;
+        default:
+          break;
+      }
+    }
   }
 
   /**

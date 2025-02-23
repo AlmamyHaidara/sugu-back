@@ -16,8 +16,16 @@ import { ConfigModule } from '@nestjs/config';
 import { AdresseModule } from './adresse/adresse.module';
 import { CommandModule } from './command/command.module';
 import { CategorieProduitModule } from './categorie-produit/categorie-produit.module';
+import { SearchModule } from './search/search.module';
+import { CountryController } from './country/country.controller';
+import { CountryService } from './country/country.service';
+import { NotificationsModule } from './notifications/notifications.module';
+import { UsersController } from './users/users.controller';
 
-console.log(join(__dirname, '..', 'uploads'));
+console.log(
+  '888888888888888888888888888888888:',
+  join(__dirname, '..', 'uploads'),
+);
 
 @Module({
   imports: [
@@ -38,8 +46,10 @@ console.log(join(__dirname, '..', 'uploads'));
     AdresseModule,
     CommandModule,
     CategorieProduitModule,
+    SearchModule,
+    NotificationsModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, CountryController, UsersController],
   providers: [
     AppService,
     {
@@ -47,6 +57,7 @@ console.log(join(__dirname, '..', 'uploads'));
       useClass: AuthGuard,
     },
     PrismaService,
+    CountryService,
   ],
 })
 export class AppModule {}

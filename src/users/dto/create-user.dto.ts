@@ -28,13 +28,17 @@ export class CreateUserDto {
   @MinLength(8)
   telephone: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  password: string;
+  password?: string;
 
   @IsOptional()
   @IsString()
-  profile: Profile;
+  profile?: Profile;
+
+  @IsOptional()
+  @IsString()
+  avatar?: string;
 
   // @IsDateString()
   // @IsOptional()

@@ -8,7 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProduitDto } from './dto/create-produit.dto';
 import { UpdateProduitDto } from './dto/update-produit.dto';
 import { SearchProduitsDto } from './dto/SearchProduits.dto';
-import { Prisma } from '@prisma/client';
+import { CategorieBoutique, Prisma } from '@prisma/client';
 import { Location } from 'src/boutique/dto/create-boutique.dto';
 import fs from 'fs';
 @Injectable()
@@ -36,7 +36,6 @@ export class ProduitService {
           `Boutique #${createProduitDto.boutique} introuvable`,
         );
       }
-      console.log(JSON.parse(createProduitDto.tags));
 
       // Création du produit avec son prix associé
       const produit = await this.prisma.produit.create({
@@ -60,14 +59,24 @@ export class ProduitService {
         },
         include: {
           categories: true,
-          Prix: true,
+          Prix: {
+            select: {
+              id: true,
+              prix: true,
+              quantiter: true,
+            },
+          },
         },
       });
 
+      const prixId = produit.Prix[0].id;
+      delete produit.Prix[0].id;
+      const productFiltered = { ...produit, ...produit.Prix[0], prixId };
+      delete productFiltered.Prix;
       return {
         statusCode: HttpStatus.CREATED,
         message: 'Produit créé avec succès',
-        data: produit,
+        data: productFiltered,
       };
     } catch (error) {
       console.error(error);
@@ -169,6 +178,52 @@ export class ProduitService {
     }
   }
 
+  async findByUserIdAndShopId(shopId: number, userId: number) {
+    try {
+      const prixs = await this.prisma.prix.findMany({
+        where: {
+          boutiqueId: shopId,
+          boutiques: {
+            userId: userId,
+          },
+        },
+        include: {
+          produits: {
+            select: {
+              id: true,
+              categorieId: true,
+              description: true,
+              img: true,
+              nom: true,
+              tags: true,
+              categories: true,
+            },
+          },
+        },
+      });
+
+      const products = prixs.flatMap((prix) => {
+        const prixId = prix.id;
+        const products = prix.produits;
+        delete prix.boutiqueId;
+        delete prix.produitId;
+        delete prix.produits;
+        return { ...prix, prixId, ...products };
+      });
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: `La liste des produits`,
+        data: products,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException(
+        'Erreur lors de la récupération du produit',
+      );
+    }
+  }
+
   // ========== UPDATE ==========
   async update(
     id: number,
@@ -240,12 +295,31 @@ export class ProduitService {
             },
           },
         },
+        include: {
+          categories: true,
+          Prix: {
+            select: {
+              id: true,
+              prix: true,
+              quantiter: true,
+            },
+          },
+        },
       });
+
+      const prixId = updatedProduit.Prix[0].id;
+      delete updatedProduit.Prix[0].id;
+      const productFiltered = {
+        ...updatedProduit,
+        ...updatedProduit.Prix[0],
+        prixId,
+      };
+      delete productFiltered.Prix;
 
       return {
         statusCode: HttpStatus.OK,
         message: `Produit #${id} mis à jour avec succès`,
-        data: updatedProduit,
+        data: productFiltered,
       };
     } catch (error) {
       console.error(error);
@@ -277,7 +351,7 @@ export class ProduitService {
       // (Facultatif) Si vous stockez l'image localement, supprimez le fichier ici
       // fs.unlinkSync(existingProduit.img) si le champ img est un path local.
 
-      await this.prisma.produit.delete({
+      await this.prisma.produit.deleteMany({
         where: { id: Number(id) },
       });
 
@@ -297,6 +371,7 @@ export class ProduitService {
   async findAllProduits(query: SearchProduitsDto) {
     const {
       nom,
+      categorieBoutique,
       categorieId,
       prixMin,
       prixMax,
@@ -308,15 +383,21 @@ export class ProduitService {
 
     // Construction de l'objet where
     const whereClause: Prisma.ProduitWhereInput = {};
+    const whereBoutiqueClause: Prisma.BoutiqueWhereInput = {};
 
     // Filtre par nom
     if (nom) {
+      // whereClause.nom = { contains: nom };
       whereClause.nom = { contains: nom, mode: 'insensitive' };
     }
 
     // Filtre par catégorie
     if (categorieId) {
       whereClause.categorieId = Number(categorieId);
+    }
+
+    if (categorieBoutique) {
+      whereBoutiqueClause.categorie = categorieBoutique as CategorieBoutique;
     }
 
     // Préparation du filtre sur Prix pour gérer le prix + location
@@ -345,7 +426,7 @@ export class ProduitService {
 
     // Pagination
     const pageNumber = page ? Number(page) : 1;
-    const pageSize = limit ? Number(limit) : 10;
+    const pageSize = limit ? Number(limit) : 60;
     const skip = (pageNumber - 1) * pageSize;
 
     try {
@@ -367,7 +448,28 @@ export class ProduitService {
         }),
       ]);
 
-      const dataFiltered = produits.map((res) => {
+      const products = produits.filter((item) => {
+        // Vérification si l'article a des prix
+        if (item.Prix.length > 0) {
+          // Si une catégorie boutique est fournie, filtrer les prix associés à cette catégorie
+          if (categorieBoutique) {
+            // Si au moins un prix correspond à la catégorie de la boutique, on inclut ce produit
+            return item.Prix.some(
+              (prix) => prix.boutiques.categorie === categorieBoutique,
+            );
+          } else {
+            // Si aucune catégorie boutique n'est spécifiée, on inclut tous les produits avec des prix
+            return true;
+          }
+        }
+
+        // Si l'article n'a pas de prix, il est exclu
+        return false;
+      });
+
+      console.log('============================================');
+
+      const dataFiltered = products.map((res) => {
         const filter = res.Prix.map((prix) => {
           return {
             prix: prix.prix,
@@ -376,12 +478,13 @@ export class ProduitService {
               nom: prix.boutiques.nom,
               location: prix.boutiques.location,
               phone: prix.boutiques.phone,
+              categorie: prix.boutiques.categorie,
             },
           };
         });
 
         return filter.map((el) => {
-          const categorie = res.categories.nom;
+          const categorie = res?.categories?.nom;
           delete res.Prix;
           delete res.categories;
           return {
@@ -392,6 +495,7 @@ export class ProduitService {
           };
         })[0];
       });
+      console.log(dataFiltered.length);
 
       return {
         statusCode: HttpStatus.OK,

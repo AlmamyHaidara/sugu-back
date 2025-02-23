@@ -5,7 +5,7 @@ export enum Location {
   INTERNATIONAL = 'INTERNATIONAL',
 }
 
-enum CategorieBoutique {
+export enum CategorieBoutique {
   DETAILLANT = 'DETAILLANT',
   GROSSISTE = 'GROSSISTE',
 }

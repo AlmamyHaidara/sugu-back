@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCommandDto, EtatCommand } from './dto/create-command.dto';
-import { UpdateCommandDto } from './dto/update-command.dto';
 import { ExeceptionCase } from 'src/utils/constants';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersService } from 'src/users/users.service';
 import { PrixService } from 'src/prix/prix.service';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Injectable()
 export class CommandService {
@@ -12,10 +12,12 @@ export class CommandService {
     private readonly prisma: PrismaService,
     private readonly user: UsersService,
     private readonly prix: PrixService,
+    private readonly notification: NotificationsService,
   ) {}
 
   async create(createCommandDto: CreateCommandDto) {
     try {
+      const ligneCommandInfo = [];
       // Vérification de l'utilisateur
       const usr = await this.user.findOneById(createCommandDto.usetilisateurId);
       if (!usr || !usr.id) {
@@ -59,9 +61,17 @@ export class CommandService {
         for (const element of createCommandDto.ligneCommands) {
           const prix = await prisma.prix.findUnique({
             where: { id: element.prixId },
-            select: { quantiter: true },
+            select: {
+              quantiter: true,
+              id: true,
+              boutiques: true,
+              produits: true,
+              prix: true,
+            },
           });
-
+          ligneCommandInfo.push({
+            ...prix,
+          });
           if (
             !prix ||
             prix.quantiter === undefined ||
@@ -87,13 +97,34 @@ export class CommandService {
         },
       });
 
+      this.prisma.notification.create({
+        data: {
+          title: 'Création de commande',
+          type: 'INFO',
+          message: `Nous avons le plaisir de vous confirmer que votre commande a été acceptée et est en cours de traitement. Vous recevrez prochainement un e-mail de confirmation avec les détails de votre commande et les informations de suivi.
+          Nous vous remercions pour votre confiance et restons à votre disposition pour toute question supplémentaire.`,
+          data: {
+            commandNbr: createCommandDto.commandeNbr,
+            ligneCommand: ligneCommandInfo,
+            etat: result.etat,
+            createdAt: result.createdAt,
+          },
+          status: 'UNREAD',
+          utilisateur: {
+            connect: {
+              id: createCommandDto.usetilisateurId,
+            },
+          },
+        },
+      });
+
       return {
         status: 201,
         data: result,
       };
     } catch (error) {
       console.error('Erreur lors de la création de la commande:', error);
-      throw error; // Relance l'erreur pour une gestion en amont
+      throw error;
     }
   }
 
@@ -104,11 +135,24 @@ export class CommandService {
           utilisateurId: userId,
         },
         select: {
+          id: true,
+          commandeNbr: true,
+          createdAt: true,
+          etat: true,
           LigneCommand: {
             include: {
               Prix: {
                 include: {
-                  boutiques: true,
+                  boutiques: {
+                    select: {
+                      id: true,
+                      nom: true,
+                      categorie: true,
+                      location: true,
+                      description: true,
+                      phone: true,
+                    },
+                  },
                   produits: true,
                 },
               },
@@ -117,7 +161,22 @@ export class CommandService {
         },
       });
 
-      return cmd || [];
+      const isFiltered = cmd.flatMap((res) => {
+        const filter = res.LigneCommand.map((lc) => {
+          const newLc = { ...lc, ...lc.Prix };
+          delete newLc.Prix;
+
+          return newLc;
+        });
+
+        const total = filter.reduce((acc: any, prev) => {
+          return (prev.prix += acc);
+        }, 0);
+        console.log(total);
+        return { ...res, LigneCommand: [...filter], total };
+      });
+
+      return isFiltered || [];
     } catch (error) {
       console.error(error);
       ExeceptionCase(error);
@@ -126,18 +185,36 @@ export class CommandService {
 
   async findOne(id: number, userId: number) {
     try {
-      const cmd = await this.prisma.commande.findFirst({
+      const resultes = await this.prisma.commande.findFirst({
         where: {
           id: id,
           utilisateurId: userId,
         },
         select: {
+          id: true,
+          commandeNbr: true,
+          utilisateurs: {
+            select: {
+              id: true,
+              Adresse: true,
+              email: true,
+              nom: true,
+              prenom: true,
+              telephone: true,
+            },
+          },
+          createdAt: true,
+
+          etat: true,
           LigneCommand: {
             include: {
               Prix: {
                 include: {
-                  boutiques: true,
-                  produits: true,
+                  produits: {
+                    include: {
+                      categories: true,
+                    },
+                  },
                 },
               },
             },
@@ -145,9 +222,97 @@ export class CommandService {
         },
       });
 
+      const LigneCommand = resultes.LigneCommand.map((ligne) => {
+        const prix = ligne.Prix.prix;
+        const prixId = ligne.Prix.id;
+        const quantiter = ligne.Prix.quantiter;
+        const products = { ...ligne.Prix.produits, prix, quantiter, prixId };
+
+        delete ligne.Prix;
+        return { ...ligne, products: products };
+      });
+
+      const total = LigneCommand?.reduce((acc, el) => {
+        return acc + (parseFloat(String(el.products.prix)) || 0);
+      }, 0);
+      const utilisateur = resultes.utilisateurs;
+      delete resultes.utilisateurs;
+
+      const command = { ...resultes, utilisateur, LigneCommand, total };
+
       return {
         status: 200,
-        data: cmd || {},
+        data: command || {},
+      };
+    } catch (error) {
+      console.error(error);
+      ExeceptionCase(error);
+    }
+  }
+
+  async findByShopId(shopId: number) {
+    try {
+      const resultes = await this.prisma.commande.findMany({
+        where: {
+          LigneCommand: {
+            some: {
+              Prix: {
+                boutiqueId: shopId,
+              },
+            },
+          },
+        },
+        select: {
+          id: true,
+          commandeNbr: true,
+          utilisateurs: {
+            select: {
+              id: true,
+              Adresse: true,
+              email: true,
+              nom: true,
+              prenom: true,
+              telephone: true,
+            },
+          },
+          createdAt: true,
+
+          etat: true,
+          LigneCommand: {
+            include: {
+              Prix: {
+                include: {
+                  produits: {
+                    include: {
+                      categories: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const command = resultes.map((res) => {
+        const LigneCommand = res.LigneCommand.map((ligne) => {
+          const prix = ligne.Prix.prix;
+          const prixId = ligne.Prix.id;
+          const quantiter = ligne.Prix.quantiter;
+          const products = { ...ligne.Prix.produits, prix, quantiter, prixId };
+
+          delete ligne.Prix;
+          return { ...ligne, products: products };
+        });
+        const utilisateur = res.utilisateurs;
+        delete res.utilisateurs;
+
+        return { ...res, utilisateur, LigneCommand };
+      });
+
+      return {
+        status: 200,
+        data: command || [],
       };
     } catch (error) {
       console.error(error);
@@ -249,6 +414,23 @@ export class CommandService {
         console.log(`État de la commande mis à jour en ${nouvelEtat}.`);
       }
 
+      this.prisma.notification.create({
+        data: {
+          title: 'Création de commande',
+          type: 'INFO',
+          message: `Nous avons le plaisir de vous confirmer que votre commande est en ${nouvelEtat}. Vous recevrez prochainement un e-mail de confirmation avec les détails de votre commande et les informations de suivi.
+              Nous vous remercions pour votre confiance et restons à votre disposition pour toute question supplémentaire.`,
+          data: {
+            etat: nouvelEtat,
+          },
+          status: 'UNREAD',
+          utilisateur: {
+            connect: {
+              id: commande.utilisateurId,
+            },
+          },
+        },
+      });
       return {
         status: 200,
         message: 'Commande mise à jour avec succès.',

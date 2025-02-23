@@ -33,6 +33,19 @@ export class BoutiqueService {
         // vous pouvez lever une exception si vous ne voulez pas de doublon
         // throw new ConflictException('Une boutique avec ce nom existe déjà');
       }
+      console.log(
+        '===========================================',
+        Number(createBoutiqueDto.countryId),
+      );
+      const country = await this.prisma.country.findUnique({
+        where: { id: Number(createBoutiqueDto.countryId) },
+      });
+
+      if (!country) {
+        throw new NotFoundException(
+          `Country #${createBoutiqueDto.countryId} introuvable`,
+        );
+      }
 
       const boutique = await this.prisma.boutique.create({
         data: {
@@ -49,7 +62,7 @@ export class BoutiqueService {
           },
           country: {
             connect: {
-              id: Number(createBoutiqueDto.countryId),
+              id: Number(country.id),
             },
           },
         },
@@ -60,6 +73,8 @@ export class BoutiqueService {
         data: boutique,
       };
     } catch (error) {
+      console.error(error);
+
       // Vous pouvez logger l'erreur
       throw new InternalServerErrorException(
         'Erreur lors de la création de la boutique',
@@ -123,7 +138,11 @@ export class BoutiqueService {
           Prix: {
             where: { boutiqueId: shopId },
             include: {
-              produits: true,
+              produits: {
+                include: {
+                  categories: true,
+                },
+              },
             },
           },
         },
@@ -131,9 +150,22 @@ export class BoutiqueService {
       if (!boutique) {
         throw new NotFoundException(`Boutique #${shopId} introuvable`);
       }
+      const boutiqueFiltered = boutique.Prix.map((prix) => {
+        const customPrice = {
+          ...prix.produits,
+          categorie: prix.produits.categories.nom,
+          produitId: prix.produitId,
+          boutiqueId: prix.boutiqueId,
+          prix: prix.prix,
+        };
+
+        delete customPrice.categories;
+        delete prix.produits;
+        return customPrice;
+      });
       return {
         statusCode: 200,
-        data: boutique,
+        data: boutiqueFiltered,
       };
     } catch (error) {
       throw new InternalServerErrorException(
@@ -149,9 +181,13 @@ export class BoutiqueService {
       // const user = await this.prisma.utilisateur.findUnique({ where: { id: userId }});
       // if (!user) throw new NotFoundException(`Utilisateur #${userId} introuvable`);
 
-      const boutiques = await this.prisma.boutique.findMany({
-        where: { userId: userId },
-      });
+      // const boutiques = await this.prisma.boutique.findMany({
+      //   where: { userId: userId },
+      // });
+
+      const boutiques = await this.prisma.boutique.findMany();
+      console.log(boutiques);
+
       return {
         statusCode: 200,
         data: boutiques,
@@ -190,6 +226,51 @@ export class BoutiqueService {
       return {
         statusCode: 200,
         data: boutique,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Erreur lors de la récupération de la boutique',
+      );
+    }
+  }
+
+  async getStatistic(id: number) {
+    try {
+      const today = new Date();
+      const startDate = new Date(today.getFullYear(), today.getMonth() - 4, 1); // Début du 5e mois
+      const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Fin du mois en cours
+
+      const commandes = await this.prisma.commande.findMany({
+        where: {
+          createdAt: {
+            gte: startDate,
+            lte: endDate,
+          },
+          LigneCommand: {
+            some: {
+              Prix: {
+                boutiqueId: id,
+              },
+            },
+          },
+        },
+        include: {
+          LigneCommand: {
+            include: {
+              Prix: true,
+            },
+          },
+        },
+      });
+
+      const sales = this.getSalesStats(commandes);
+
+      const orders = this.getOrderStats(commandes);
+
+      const revenue = this.getRevenueStats(commandes);
+      return {
+        statusCode: 200,
+        data: { sales, orders, revenue },
       };
     } catch (error) {
       throw new InternalServerErrorException(
@@ -285,4 +366,111 @@ export class BoutiqueService {
       );
     }
   }
+
+  private getSalesStats = (commandes) => {
+    // 📌 Obtenir la date actuelle et le mois en cours
+    const today = new Date();
+    const currentMonth = today.getMonth(); // Mois actuel (0-11)
+    const currentYear = today.getFullYear(); // Année actuelle
+
+    // 📌 Initialiser un tableau pour stocker les ventes par jour (31 jours max)
+    const dailySales = Array.from({ length: 31 }, () => 0);
+
+    // 📌 Filtrer les commandes livrées (`LIVRER`) du mois en cours
+    const filtered = commandes.filter((cmd) => {
+      if (cmd.etat === 'LIVRER') {
+        const cmdDate = new Date(cmd.createdAt); // Convertir `createdAt` en Date
+        return (
+          cmdDate.getMonth() === currentMonth &&
+          cmdDate.getFullYear() === currentYear
+        );
+      }
+      return false;
+    });
+
+    // 📌 Remplir `dailySales` avec le nombre de commandes par jour
+    filtered.forEach((cmd) => {
+      const day = new Date(cmd.createdAt).getDate() - 1; // Récupérer le jour (1-31) et ajuster en index (0-30)
+      dailySales[day] += 1;
+    });
+
+    // 📌 Construire l'objet résultat
+    return {
+      total: filtered.length, // Nombre total de commandes livrées
+      daily: dailySales.slice(0, today.getDate()), // Tronquer jusqu'au jour actuel
+    };
+  };
+
+  private getRevenueStats = (cmd: any[]) => {
+    const commandes = cmd.filter((cm) => {
+      return cm.etat == 'LIVRER';
+    });
+    const today = new Date();
+    const currentMonth = today.getMonth(); // Mois actuel (0-11)
+    const currentYear = today.getFullYear();
+
+    // 📌 Initialiser un tableau pour stocker les revenus des 5 derniers mois
+    const monthlyRevenue = Array(5).fill(0);
+
+    commandes.forEach((commande) => {
+      const cmdDate = new Date(commande.createdAt);
+      const cmdMonth = cmdDate.getMonth();
+      const cmdYear = cmdDate.getFullYear();
+
+      // 📌 Vérifier si la commande appartient aux 5 derniers mois
+      for (let i = 0; i < 5; i++) {
+        const targetMonth = (currentMonth - i + 12) % 12;
+        const targetYear = currentYear - (currentMonth - i < 0 ? 1 : 0);
+
+        if (cmdMonth === targetMonth && cmdYear === targetYear) {
+          // 💰 Additionner le prix de chaque LigneCommand
+          const revenue = commande.LigneCommand.reduce((acc, line) => {
+            return acc + (parseFloat(line?.Prix?.prix) || 0) * line.quantiter;
+          }, 0);
+
+          monthlyRevenue[i] += revenue;
+        }
+      }
+    });
+
+    // 📌 Calculer le revenu total
+    const totalRevenue = monthlyRevenue.reduce((acc, val) => acc + val, 0);
+
+    return {
+      total: totalRevenue,
+      monthly: monthlyRevenue.reverse(), // ✅ Inverser pour afficher du plus ancien au plus récent
+    };
+  };
+
+  private getOrderStats = (commandes) => {
+    // 📌 Initialiser les compteurs
+    const stats = {
+      pending: 0, // ATTENTE
+      shipped: 0, // VALIDER
+      delivered: 0, // LIVRER
+      cancelled: 0, // ANNULER
+    };
+
+    // 📌 Parcourir les commandes et incrémenter le bon compteur
+    commandes.forEach((commande) => {
+      switch (commande.etat) {
+        case 'ATTENTE':
+          stats.pending += 1;
+          break;
+        case 'VALIDER':
+          stats.shipped += 1;
+          break;
+        case 'LIVRER':
+          stats.delivered += 1;
+          break;
+        case 'ANNULER':
+          stats.cancelled += 1;
+          break;
+        default:
+          break;
+      }
+    });
+
+    return stats;
+  };
 }

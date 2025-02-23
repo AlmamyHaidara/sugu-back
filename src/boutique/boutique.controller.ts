@@ -63,7 +63,7 @@ export class BoutiqueController {
   }
 
   // ========== READ ALL ==========
-  // @Public()
+  @Public()
   @Roles('boutiquier')
   @Get()
   async findAll() {
@@ -74,6 +74,11 @@ export class BoutiqueController {
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.boutiqueService.findOne(id);
+  }
+
+  @Get('statistic/:id')
+  async getStatistic(@Param('id', ParseIntPipe) id: number) {
+    return this.boutiqueService.getStatistic(id);
   }
 
   // ========== READ: ALL SHOPS + PRODUCTS ==========

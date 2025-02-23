@@ -1,7 +1,17 @@
 // produit/dto/find-all-produit-query.dto.ts
 
-import { IsOptional, IsString, IsInt, Min, IsPositive } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsInt,
+  Min,
+  IsPositive,
+  IsEnum,
+  IsNotEmpty,
+  MinLength,
+} from 'class-validator';
 import { Type } from 'class-transformer';
+import { CategorieBoutique } from '@prisma/client';
 
 export class FindAllProduitQueryDto {
   // Recherche par nom de produit
@@ -11,9 +21,16 @@ export class FindAllProduitQueryDto {
 
   // Filtrer par catégorie (ID)
   @IsOptional()
-  @Type(() => Number) // Convertit la query string en number
-  @IsInt()
-  categorieId?: number;
+  @IsString()
+  categorieId?: string;
+
+  // Filtrer par catégorie de botuique
+  @IsOptional()
+  @IsEnum(CategorieBoutique)
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(2)
+  categorieBoutique?: CategorieBoutique;
 
   // Filtrer par prix min
   @IsOptional()

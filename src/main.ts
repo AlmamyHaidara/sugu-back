@@ -33,6 +33,8 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new AllExceptionsFilter());
 
+  app.enableCors(); // Enable CORS if you're dealing with cross-origin requests
+
   await app.listen(process.env.PORT ?? 4000);
 }
 bootstrap();

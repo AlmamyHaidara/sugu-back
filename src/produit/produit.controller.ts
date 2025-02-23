@@ -20,6 +20,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { FindAllProduitQueryDto } from './dto/FindAllProduitQuery.dto';
+import { Public } from 'src/auth/constants';
+import { SearchProduitsDto } from './dto/SearchProduits.dto';
 
 @Controller('produit')
 export class ProduitController {
@@ -59,23 +61,17 @@ export class ProduitController {
     if (!file) {
       throw new BadRequestException('Image file is required');
     }
-
     const created = await this.produitService.create({
       ...createProduitDto,
       img: file.path, // ou construire une URL si besoin
     });
 
-    return {
-      message: 'Produit créé avec succès',
-      data: created,
-    };
+    return created;
   }
 
+  @Public()
   @Get()
-  async findAll(@Query() query: FindAllProduitQueryDto) {
-    console.log(query.nom);
-
-    // return this.produitService.findAll(query);
+  async findAll(@Query() query: SearchProduitsDto) {
     return this.produitService.findAllProduits(query);
   }
 
@@ -127,10 +123,7 @@ export class ProduitController {
       updateProduitDto,
       file,
     );
-    return {
-      message: 'Produit mis à jour avec succès',
-      data: updatedProduit,
-    };
+    return updatedProduit;
   }
 
   @Delete(':id')
@@ -140,5 +133,17 @@ export class ProduitController {
       message: 'Produit supprimé avec succès',
       data: produitSupprimé,
     };
+  }
+
+  @Get('by-shop-id/:shopId/:userId')
+  async getByShopIdAndUserId(
+    @Param('shopId', ParseIntPipe) shopId: number,
+    @Param('userId', ParseIntPipe) userId: number,
+  ) {
+    const produitSupprimé = await this.produitService.findByUserIdAndShopId(
+      shopId,
+      userId,
+    );
+    return produitSupprimé;
   }
 }
