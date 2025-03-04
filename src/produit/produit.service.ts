@@ -1,154 +1,515 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+  HttpStatus,
+} from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProduitDto } from './dto/create-produit.dto';
 import { UpdateProduitDto } from './dto/update-produit.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { ExeceptionCase } from 'src/utils/constants';
-
+import { SearchProduitsDto } from './dto/SearchProduits.dto';
+import { CategorieBoutique, Prisma } from '@prisma/client';
+import { Location } from 'src/boutique/dto/create-boutique.dto';
+import fs from 'fs';
 @Injectable()
 export class ProduitService {
+  constructor(private readonly prisma: PrismaService) {}
 
-    constructor(private readonly prisma: PrismaService) {}
-  
-
+  // ========== CREATE ==========
   async create(createProduitDto: CreateProduitDto) {
     try {
-          const produit = await this.prisma.$transaction(async (prisma) => {
-            return await prisma.produit.create({
-              data: {
-                nom: createProduitDto.nom,
-                categorie: createProduitDto.categorie,
-                description: createProduitDto.description,
-                img: createProduitDto.img,
-               
-              },
-            });
-          });
-    
-          return {
-            status: 201,
-            data: produit,
-          };
-        } catch (error) {
-          console.error(error);
-          switch (error.status) {
-            case 500:
-              throw Error(
-                "Une Erreur c'est produit lord de la creation du boutique",
-              );
-              break;
-            default:
-              break;
-          }
-        }
-  }
+      // Vérifier l'existence de la catégorie
+      const categorie = await this.prisma.categorieProduit.findUnique({
+        where: { id: Number(createProduitDto.categorie) },
+      });
+      if (!categorie) {
+        throw new NotFoundException('Catégorie inexistante');
+      }
 
-async findAll() {
-    try {
-      const produit = await this.prisma.produit.findMany();
-      return { status: 200, data: produit || [] };
+      // (Facultatif) vérifier l'existence de la boutique référencée
+      const boutiqueId = Number(createProduitDto.boutique);
+      const boutique = await this.prisma.boutique.findUnique({
+        where: { id: boutiqueId },
+      });
+      if (!boutique) {
+        throw new NotFoundException(
+          `Boutique #${createProduitDto.boutique} introuvable`,
+        );
+      }
+
+      // Création du produit avec son prix associé
+      const produit = await this.prisma.produit.create({
+        data: {
+          nom: createProduitDto.nom,
+          description: createProduitDto.description,
+          img: createProduitDto.img,
+          tags: JSON.parse(createProduitDto.tags),
+          categories: {
+            connect: { id: Number(createProduitDto.categorie) },
+          },
+          Prix: {
+            create: {
+              prix: createProduitDto.prix,
+              quantiter: Number(createProduitDto.quantiter),
+              boutiques: {
+                connect: { id: boutiqueId },
+              },
+            },
+          },
+        },
+        include: {
+          categories: true,
+          Prix: {
+            select: {
+              id: true,
+              prix: true,
+              quantiter: true,
+            },
+          },
+        },
+      });
+
+      const prixId = produit.Prix[0].id;
+      delete produit.Prix[0].id;
+      const productFiltered = { ...produit, ...produit.Prix[0], prixId };
+      delete productFiltered.Prix;
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'Produit créé avec succès',
+        data: productFiltered,
+      };
     } catch (error) {
       console.error(error);
-      ExeceptionCase(error);
+      throw new InternalServerErrorException(
+        'Une erreur est survenue lors de la création du produit.',
+      );
     }
   }
 
+  // ========== FIND ALL ==========
+  async findAll() {
+    try {
+      const produits = await this.prisma.produit.findMany();
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Liste de tous les produits',
+        data: produits,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException(
+        'Erreur lors de la récupération des produits',
+      );
+    }
+  }
+
+  // ========== FIND ALL BY SHOP ==========
+  async findAllByShop(shopId: number) {
+    try {
+      // (Facultatif) Vérifier l'existence de la boutique
+      const shopExists = await this.prisma.boutique.findUnique({
+        where: { id: shopId },
+      });
+      if (!shopExists) {
+        throw new NotFoundException(`Boutique #${shopId} introuvable.`);
+      }
+
+      const produits = await this.prisma.produit.findMany({
+        where: {
+          Prix: {
+            some: {
+              boutiqueId: shopId,
+            },
+          },
+        },
+        include: {
+          Prix: {
+            select: {
+              id: true,
+              prix: true,
+              quantiter: true,
+              boutiqueId: true,
+              produitId: true,
+            },
+          },
+        },
+      });
+
+      // Exemple : vous fusionnez le premier Prix dans l'objet produit
+      // Attention si un produit a plusieurs prix, vous n'en gardez qu'un seul ici.
+      const result = produits.map((element) => {
+        const firstPrix = element.Prix[0];
+        const { Prix, ...rest } = element;
+        return { ...rest, ...firstPrix };
+      });
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: `Liste des produits de la boutique #${shopId}`,
+        data: result,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException(
+        'Erreur lors de la récupération des produits de la boutique',
+      );
+    }
+  }
+
+  // ========== FIND ONE ==========
   async findOne(id: number) {
     try {
-      const isExiste = await this.prisma.produit.findFirst({
-        where: {
-          id: Number(id),
-        },
+      const produit = await this.prisma.produit.findUnique({
+        where: { id: Number(id) },
       });
-
-      if (!isExiste) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            message: 'Produit introuvable.',
-            error: 'Non trouvez',
-          },
-          HttpStatus.NOT_FOUND,
-        );
+      if (!produit) {
+        throw new NotFoundException(`Produit #${id} introuvable.`);
       }
-      return { status: 200, data: isExiste || {} };
-    } catch (error) {
-      console.error(error);
-      ExeceptionCase(error);
-    }
-  }
-
-  async update(id: number, updateProduitDto: UpdateProduitDto) {
-    try {
-      const isExiste = await this.prisma.produit.findFirst({
-        where: {
-          id: Number(id),
-        },
-      });
-
-      if (!isExiste) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            message: 'Produit introuvable.',
-            error: 'Non trouvez',
-          },
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      const boutique = await this.prisma.$transaction(async (prisma) => {
-        return await prisma.produit.update({
-          where: {
-            id: Number(id),
-          },
-          data: updateProduitDto,
-        });
-      });
-
       return {
-        status: 200,
-        data: boutique,
+        statusCode: HttpStatus.OK,
+        message: `Détails du produit #${id}`,
+        data: produit,
       };
     } catch (error) {
       console.error(error);
-      ExeceptionCase(error);
+      throw new InternalServerErrorException(
+        'Erreur lors de la récupération du produit',
+      );
     }
   }
 
+  async findByUserIdAndShopId(shopId: number, userId: number) {
+    try {
+      const prixs = await this.prisma.prix.findMany({
+        where: {
+          boutiqueId: shopId,
+          boutiques: {
+            userId: userId,
+          },
+        },
+        include: {
+          produits: {
+            select: {
+              id: true,
+              categorieId: true,
+              description: true,
+              img: true,
+              nom: true,
+              tags: true,
+              categories: true,
+            },
+          },
+        },
+      });
+
+      const products = prixs.flatMap((prix) => {
+        const prixId = prix.id;
+        const products = prix.produits;
+        delete prix.boutiqueId;
+        delete prix.produitId;
+        delete prix.produits;
+        return { ...prix, prixId, ...products };
+      });
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: `La liste des produits`,
+        data: products,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException(
+        'Erreur lors de la récupération du produit',
+      );
+    }
+  }
+
+  // ========== UPDATE ==========
+  async update(
+    id: number,
+    updateProduitDto: UpdateProduitDto,
+    file?: Express.Multer.File,
+  ) {
+    try {
+      const existingProduit = await this.prisma.produit.findUnique({
+        where: { id: Number(id) },
+      });
+
+      const existingPrix = await this.prisma.prix.findFirst({
+        where: {
+          produitId: Number(existingProduit.id),
+          boutiqueId: Number(updateProduitDto.boutique),
+        },
+      });
+
+      if (!existingProduit) {
+        throw new NotFoundException(`Produit #${id} introuvable.`);
+      }
+
+      if (!existingPrix) {
+        throw new NotFoundException(`Produit #${id} introuvable.`);
+      }
+
+      if (file && existingProduit.img) {
+        // fs.unlinkSync ou fs/promises.unlink (avec try/catch)
+        try {
+          // Supprimez l'ancien fichier du disque
+          // Attention : vérifiez que existingProduit.img est un path (et pas une URL externe)
+          fs.unlinkSync(existingProduit.img);
+        } catch (error) {
+          console.error(`Erreur de suppression de l'ancien fichier :`, error);
+          // Vous pouvez ignorer l'erreur ou lever une exception, selon votre logique
+        }
+      }
+
+      // 3. Préparer les données à mettre à jour
+      const dataToUpdate: any = {
+        ...updateProduitDto,
+      };
+
+      // 4. Si on a un nouveau fichier, mettre à jour le champ img
+      if (file) {
+        dataToUpdate.img = file.path; // ou construire une URL publique
+      }
+
+      // Mise à jour du produit
+      const updatedProduit = await this.prisma.produit.update({
+        where: { id: Number(id) },
+        data: {
+          nom: updateProduitDto.nom,
+          description: updateProduitDto.description,
+          img: updateProduitDto.img,
+          tags: JSON.parse(updateProduitDto.tags),
+          categories: {
+            connect: { id: Number(updateProduitDto.categorie) },
+          },
+          Prix: {
+            update: {
+              where: {
+                id: existingPrix.id,
+              },
+              data: {
+                prix: updateProduitDto.prix,
+                quantiter: Number(updateProduitDto.quantiter),
+              },
+            },
+          },
+        },
+        include: {
+          categories: true,
+          Prix: {
+            select: {
+              id: true,
+              prix: true,
+              quantiter: true,
+            },
+          },
+        },
+      });
+
+      const prixId = updatedProduit.Prix[0].id;
+      delete updatedProduit.Prix[0].id;
+      const productFiltered = {
+        ...updatedProduit,
+        ...updatedProduit.Prix[0],
+        prixId,
+      };
+      delete productFiltered.Prix;
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: `Produit #${id} mis à jour avec succès`,
+        data: productFiltered,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException(
+        'Erreur lors de la mise à jour du produit',
+      );
+    }
+  }
+
+  // ========== REMOVE ==========
   async remove(id: number) {
     try {
-      const isExiste = await this.prisma.produit.findFirst({
-        where: {
-          id: Number(id),
-        },
+      const existingProduit = await this.prisma.produit.findUnique({
+        where: { id: Number(id) },
       });
-
-      if (!isExiste) {
-        throw new HttpException(
-          {
-            status: HttpStatus.NOT_FOUND,
-            message: 'Produit introuvable.',
-            error: 'Non trouvez',
-          },
-          HttpStatus.NOT_FOUND,
-        );
+      if (!existingProduit) {
+        throw new NotFoundException(`Produit #${id} introuvable.`);
       }
 
-      const boutique = await this.prisma.$transaction(async (prisma) => {
-        return await prisma.produit.delete({
-          where: {
-            id: Number(id),
-          },
-        });
+      if (existingProduit.img) {
+        try {
+          fs.unlinkSync(existingProduit.img);
+        } catch (error) {
+          console.error(`Erreur de suppression de l'image :`, error);
+          // vous pouvez ignorer ou lever une exception selon votre logique
+        }
+      }
+
+      // (Facultatif) Si vous stockez l'image localement, supprimez le fichier ici
+      // fs.unlinkSync(existingProduit.img) si le champ img est un path local.
+
+      await this.prisma.produit.deleteMany({
+        where: { id: Number(id) },
       });
 
       return {
-        status: 200,
-        msg: `La produit ${id} a ete suprimer avec succes`,
+        statusCode: HttpStatus.OK,
+        message: `Le produit #${id} a été supprimé avec succès`,
       };
     } catch (error) {
       console.error(error);
-      ExeceptionCase(error);
+      throw new InternalServerErrorException(
+        'Erreur lors de la suppression du produit',
+      );
+    }
+  }
+
+  // ========== RECHERCHE / PAGINATION ==========
+  async findAllProduits(query: SearchProduitsDto) {
+    const {
+      nom,
+      categorieBoutique,
+      categorieId,
+      prixMin,
+      prixMax,
+      countryId,
+      location,
+      page,
+      limit,
+    } = query;
+
+    // Construction de l'objet where
+    const whereClause: Prisma.ProduitWhereInput = {};
+    const whereBoutiqueClause: Prisma.BoutiqueWhereInput = {};
+
+    // Filtre par nom
+    if (nom) {
+      // whereClause.nom = { contains: nom };
+      whereClause.nom = { contains: nom, mode: 'insensitive' };
+    }
+
+    // Filtre par catégorie
+    if (categorieId) {
+      whereClause.categorieId = Number(categorieId);
+    }
+
+    if (categorieBoutique) {
+      whereBoutiqueClause.categorie = categorieBoutique as CategorieBoutique;
+    }
+
+    // Préparation du filtre sur Prix pour gérer le prix + location
+    const prixFilter: Prisma.PrixWhereInput = {};
+
+    if (prixMin || prixMax) {
+      prixFilter.prix = {
+        gte: prixMin ? Number(prixMin) : undefined,
+        lte: prixMax ? Number(prixMax) : undefined,
+      };
+    }
+
+    if (countryId || location) {
+      prixFilter.boutiques = {
+        countryId: countryId ? Number(countryId) : undefined,
+        location: (location ? location : undefined) as Location,
+      };
+    }
+
+    // Si on a des filtres sur Prix, on les applique avec "some"
+    if (Object.keys(prixFilter).length > 0) {
+      whereClause.Prix = {
+        some: prixFilter,
+      };
+    }
+
+    // Pagination
+    const pageNumber = page ? Number(page) : 1;
+    const pageSize = limit ? Number(limit) : 60;
+    const skip = (pageNumber - 1) * pageSize;
+
+    try {
+      // Récupération du count total + des produits
+      const [totalCount, produits] = await Promise.all([
+        this.prisma.produit.count({ where: whereClause }),
+        this.prisma.produit.findMany({
+          where: whereClause,
+          skip,
+          take: pageSize,
+          include: {
+            categories: true,
+            Prix: {
+              include: {
+                boutiques: true,
+              },
+            },
+          },
+        }),
+      ]);
+
+      const products = produits.filter((item) => {
+        // Vérification si l'article a des prix
+        if (item.Prix.length > 0) {
+          // Si une catégorie boutique est fournie, filtrer les prix associés à cette catégorie
+          if (categorieBoutique) {
+            // Si au moins un prix correspond à la catégorie de la boutique, on inclut ce produit
+            return item.Prix.some(
+              (prix) => prix.boutiques.categorie === categorieBoutique,
+            );
+          } else {
+            // Si aucune catégorie boutique n'est spécifiée, on inclut tous les produits avec des prix
+            return true;
+          }
+        }
+
+        // Si l'article n'a pas de prix, il est exclu
+        return false;
+      });
+
+      console.log('============================================');
+
+      const dataFiltered = products.map((res) => {
+        const filter = res.Prix.map((prix) => {
+          return {
+            prix: prix.prix,
+            boutique: {
+              id: prix.boutiques.id,
+              nom: prix.boutiques.nom,
+              location: prix.boutiques.location,
+              phone: prix.boutiques.phone,
+              categorie: prix.boutiques.categorie,
+            },
+          };
+        });
+
+        return filter.map((el) => {
+          const categorie = res?.categories?.nom;
+          delete res.Prix;
+          delete res.categories;
+          return {
+            ...res,
+            categorie,
+            prix: el.prix,
+            boutique: el.boutique,
+          };
+        })[0];
+      });
+      console.log(dataFiltered.length);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Liste des produits filtrés',
+        data: dataFiltered,
+        totalCount,
+        currentPage: pageNumber,
+        totalPages: Math.ceil(totalCount / pageSize),
+      };
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException(
+        'Erreur lors de la recherche des produits',
+      );
     }
   }
 }
