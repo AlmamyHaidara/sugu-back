@@ -45,7 +45,7 @@ enum EtatCommand {
 model Utilisateur {
   id        Int      @id @default(autoincrement())
   nom       String
-  prenom    String
+  prenom    String?
   telephone String   @unique
   email     String   @unique
   password  String
@@ -95,6 +95,7 @@ model Produit {
 model Boutique {
   id        Int               @id @default(autoincrement())
   nom       String
+  email     String?
   categorie CategorieBoutique @default(DETAILLANT)
   location  Location          @default(NATIONAL)
 

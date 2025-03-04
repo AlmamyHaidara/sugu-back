@@ -21,11 +21,7 @@ import { CountryController } from './country/country.controller';
 import { CountryService } from './country/country.service';
 import { NotificationsModule } from './notifications/notifications.module';
 import { UsersController } from './users/users.controller';
-
-console.log(
-  '888888888888888888888888888888888:',
-  join(__dirname, '..', 'uploads'),
-);
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -48,6 +44,7 @@ console.log(
     CategorieProduitModule,
     SearchModule,
     NotificationsModule,
+    MailModule,
   ],
   controllers: [AppController, CountryController, UsersController],
   providers: [

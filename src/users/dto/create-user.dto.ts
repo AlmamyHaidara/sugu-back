@@ -7,6 +7,11 @@ import {
   MinLength,
 } from 'class-validator';
 
+export enum Profile {
+  ADMIN = 'ADMIN',
+  CLIENT = 'CLIENT',
+  BOUTIQUIER = 'BOUTIQUIER',
+}
 export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
@@ -16,7 +21,8 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
   @MinLength(2)
-  prenom: string;
+  @IsOptional()
+  prenom?: string;
 
   @IsNotEmpty()
   @IsString()
@@ -34,7 +40,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString()
-  profile?: Profile;
+  profile?: Profile | 'ADMIN' | 'CLIENT' | 'BOUTIQUIER';
 
   @IsOptional()
   @IsString()
@@ -47,10 +53,4 @@ export class CreateUserDto {
   // @IsDateString()
   // @IsOptional()
   // updatedAt?: Date;
-}
-
-enum Profile {
-  ADMIN = 'ADMIN',
-  CLIENT = 'CLIENT',
-  BOUTIQUIER = 'BOUTIQUIER',
 }

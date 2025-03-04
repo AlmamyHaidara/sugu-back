@@ -56,10 +56,7 @@ export class BoutiqueController {
       createBoutiqueDto.img = file.path;
     }
     const boutique = await this.boutiqueService.create(createBoutiqueDto);
-    return {
-      message: 'Boutique créée avec succès',
-      data: boutique,
-    };
+    return boutique;
   }
 
   // ========== READ ALL ==========

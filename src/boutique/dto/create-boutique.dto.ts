@@ -1,4 +1,10 @@
-import { IsEnum, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 export enum Location {
   NATIONAL = 'NATIONAL',
@@ -14,6 +20,11 @@ export class CreateBoutiqueDto {
   @IsString()
   @MinLength(2)
   nom: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsEmail()
+  email: string;
 
   @IsEnum(CategorieBoutique)
   @IsNotEmpty()

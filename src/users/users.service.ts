@@ -1,9 +1,17 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import {
+  ConflictException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 // import { Utilisateur } from '@prisma/client';
 import { hash } from 'src/utils/bcrypt';
+import { Prisma, PrismaClient } from '@prisma/client';
+import { DefaultArgs } from '@prisma/client/runtime/library';
 
 // This should be a real class/interface representing a user entity
 export type User = any;
@@ -27,26 +35,16 @@ export class UsersService {
       const isExiste = (await this.findOne({
         email: createUserDto.email,
       })) as any;
+      console.log('eee', isExiste);
 
       if (isExiste) {
-        throw new HttpException(
+        throw new ConflictException(
           {
             status: HttpStatus.CONFLICT,
             message: 'Utilisateur existe déjà.',
             error: 'Conflict',
           },
-          HttpStatus.CONFLICT,
-        );
-      }
-
-      if (createUserDto.password) {
-        throw new HttpException(
-          {
-            status: HttpStatus.BAD_REQUEST,
-            message: 'Mots de passe obligatoire',
-            error: 'BAD_REQUEST',
-          },
-          HttpStatus.CONFLICT,
+          // HttpStatus.,
         );
       }
 
@@ -74,8 +72,81 @@ export class UsersService {
 
       return {
         status: 201,
+        id: user.id,
         msg: `L'utilisateur ${user.nom} ${user.prenom} a a ete creer avec success`,
       };
+    } catch (error) {
+      console.error(error.status);
+      switch (error.status) {
+        case 409:
+          throw new HttpException(
+            {
+              status: HttpStatus.CONFLICT,
+              message: 'Utilisateur existe déjà.',
+              error: 'Conflict',
+            },
+            HttpStatus.CONFLICT,
+          );
+          break;
+        case 500:
+          throw Error(
+            "Une Erreur c'est produit lord de la creation d'un utilisateur",
+          );
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  async createDb(
+    createUserDto: CreateUserDto,
+    db: Omit<
+      PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>,
+      '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+    >,
+  ) {
+    this.logger.log('Creating a new user');
+    try {
+      const isExiste = (await this.findOne({
+        email: createUserDto.email,
+      })) as any;
+      console.log('eee', isExiste);
+
+      if (isExiste) {
+        throw new ConflictException(
+          {
+            status: HttpStatus.CONFLICT,
+            message: 'Utilisateur existe déjà.',
+            error: 'Conflict',
+          },
+          // HttpStatus.,
+        );
+      }
+
+      const passwordHash = await hash(createUserDto.password);
+      // const user = await .$transaction(async (prisma) => {
+      const user = await this.prisma.utilisateur.create({
+        data: {
+          nom: createUserDto.nom,
+          prenom: createUserDto.prenom,
+          email: createUserDto.email,
+          telephone: createUserDto.telephone,
+          password: passwordHash,
+          profile: createUserDto.profile || 'CLIENT',
+        },
+        select: {
+          id: true,
+          nom: true,
+          prenom: true,
+          email: true,
+          telephone: true,
+          profile: true,
+        },
+      });
+      // });
+
+      return user.id;
     } catch (error) {
       console.error(error.status);
       switch (error.status) {
@@ -121,7 +192,7 @@ export class UsersService {
   }): Promise<User | null> {
     this.logger.log(`Finding user with criteria: ${JSON.stringify(user)}`);
     try {
-      console.log(user);
+      console.log(user.email);
 
       if (user.email) {
         const userExist = this.prisma.utilisateur.findUnique({
@@ -129,6 +200,7 @@ export class UsersService {
             email: user.email,
           },
         });
+        console.log('ppppppppppppppppppppppppppppp');
 
         return userExist;
       } else if (user.telephone) {

@@ -7,36 +7,44 @@ import { CreateBoutiqueDto } from './dto/create-boutique.dto';
 import { UpdateBoutiqueDto } from './dto/update-boutique.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as fs from 'fs';
+import { MailService } from 'src/mail/mail.service';
+import { AuthService } from 'src/auth/auth.service';
+import { Profile } from '@prisma/client';
+import { genererMotDePasse } from 'src/utils/functions';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class BoutiqueService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mailService: MailService,
+    private readonly usersService: UsersService,
+  ) {}
 
   // ========== CREATE ==========
   async create(createBoutiqueDto: CreateBoutiqueDto) {
     try {
+      // this.prisma.$transaction(async (tx) => {
       // Vérifier l'utilisateur
-      const user = await this.prisma.utilisateur.findUnique({
-        where: { id: Number(createBoutiqueDto.userId) },
-      });
-      if (!user) {
-        throw new NotFoundException(
-          `Utilisateur #${createBoutiqueDto.userId} introuvable`,
-        );
-      }
+      // const user = await this.prisma.utilisateur.findUnique({
+      //   where: { id: Number(createBoutiqueDto.userId) },
+      // });
+      // if (!user) {
+      //   throw new NotFoundException(
+      //     `Utilisateur #${createBoutiqueDto.userId} introuvable`,
+      //   );
+      // }
 
       // Vérifier si la boutique existe déjà par nom (optionnel)
       const existingByName = await this.prisma.boutique.findFirst({
         where: { nom: createBoutiqueDto.nom },
       });
+
       if (existingByName) {
         // vous pouvez lever une exception si vous ne voulez pas de doublon
         // throw new ConflictException('Une boutique avec ce nom existe déjà');
       }
-      console.log(
-        '===========================================',
-        Number(createBoutiqueDto.countryId),
-      );
+
       const country = await this.prisma.country.findUnique({
         where: { id: Number(createBoutiqueDto.countryId) },
       });
@@ -47,17 +55,35 @@ export class BoutiqueService {
         );
       }
 
+      const password = genererMotDePasse(8);
+
+      // await this.mailService.sendShopLogin(
+      //   createBoutiqueDto.email,
+      //   password,
+      //   createBoutiqueDto.nom,
+      // );
       const boutique = await this.prisma.boutique.create({
         data: {
           nom: createBoutiqueDto.nom,
           phone: createBoutiqueDto.phone,
           location: createBoutiqueDto.location,
+          email: createBoutiqueDto.email,
           img: createBoutiqueDto.img,
           description: createBoutiqueDto.description,
           categorie: createBoutiqueDto.categorie,
           utilisateurs: {
-            connect: {
-              id: Number(createBoutiqueDto.userId),
+            connectOrCreate: {
+              where: {
+                email: createBoutiqueDto.email,
+              },
+              create: {
+                nom: createBoutiqueDto.nom,
+                email: createBoutiqueDto.email,
+                telephone: createBoutiqueDto.phone,
+                avatar: createBoutiqueDto.img,
+                password: password,
+                profile: Profile.BOUTIQUIER,
+              },
             },
           },
           country: {
@@ -68,10 +94,18 @@ export class BoutiqueService {
         },
       });
 
+      // await this.mailService.sendShopLogin(
+      //   createBoutiqueDto.email,
+      //   password,
+      //   createBoutiqueDto.nom,
+      // );
+
       return {
         statusCode: 201,
+        message: 'Boutique créée avec succès',
         data: boutique,
       };
+      // });
     } catch (error) {
       console.error(error);
 
