@@ -33,7 +33,7 @@ const templateToSendShopidentyMail = (password, shopName, email) => `
     .logo {
       font-size: 28px;
       font-weight: bold;
-      color: #4a6ee0;
+      color:#f7a01f;
     }
     .content {
       padding: 30px 20px;
@@ -43,7 +43,7 @@ const templateToSendShopidentyMail = (password, shopName, email) => `
       padding: 15px;
       border-radius: 5px;
       margin: 20px 0;
-      border-left: 4px solid #4a6ee0;
+      border-left: 4px solid #f7a01f;
     }
     .credentials p {
       margin: 10px 0;
@@ -54,7 +54,7 @@ const templateToSendShopidentyMail = (password, shopName, email) => `
     }
     .button {
       display: inline-block;
-      background-color: #4a6ee0;
+      background-color: #f7a01f;
       color: #ffffff;
       text-decoration: none;
       padding: 12px 25px;

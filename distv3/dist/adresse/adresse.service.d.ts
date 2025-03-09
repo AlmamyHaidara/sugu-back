@@ -12,9 +12,9 @@ export declare class AdresseService {
             nom: string;
             telephone: string;
             id: number;
-            description: string;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
             userId: number;
             quartier: string;
         };
@@ -25,9 +25,9 @@ export declare class AdresseService {
             nom: string;
             telephone: string;
             id: number;
-            description: string;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
             userId: number;
             quartier: string;
         }[];
@@ -38,9 +38,9 @@ export declare class AdresseService {
             nom: string;
             telephone: string;
             id: number;
-            description: string;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
             userId: number;
             quartier: string;
         }[];
@@ -51,9 +51,9 @@ export declare class AdresseService {
             nom: string;
             telephone: string;
             id: number;
-            description: string;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
             userId: number;
             quartier: string;
         }[];
@@ -64,9 +64,9 @@ export declare class AdresseService {
             nom: string;
             telephone: string;
             id: number;
-            description: string;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
             userId: number;
             quartier: string;
         };

@@ -86,6 +86,78 @@ export class ProduitService {
     }
   }
 
+  async createA(createProduitDto: CreateProduitDto) {
+    try {
+      // Vérifier l'existence de la catégorie
+      const categorie = await this.prisma.categorieProduit.findUnique({
+        where: { id: Number(createProduitDto.categorie) },
+      });
+      if (!categorie) {
+        throw new NotFoundException('Catégorie inexistante');
+      }
+
+      // (Facultatif) vérifier l'existence de la boutique référencée
+      const boutiqueId = Number(createProduitDto.boutique);
+      console.log('boutiqueIdboutiqueIdboutiqueIdboutiqueId');
+      console.log(boutiqueId);
+      const boutique = await this.prisma.boutique.findFirst({
+        where: { userId: boutiqueId },
+      });
+      if (!boutique) {
+        throw new NotFoundException(
+          `Boutique #${createProduitDto.boutique} introuvable`,
+        );
+      }
+
+      // Création du produit avec son prix associé
+      const produit = await this.prisma.produit.create({
+        data: {
+          nom: createProduitDto.nom,
+          description: createProduitDto.description,
+          img: createProduitDto.img,
+          tags: JSON.parse(createProduitDto.tags),
+          categories: {
+            connect: { id: Number(createProduitDto.categorie) },
+          },
+          Prix: {
+            create: {
+              prix: createProduitDto.prix,
+              quantiter: Number(createProduitDto.quantiter),
+              boutiques: {
+                connect: { id: boutique.id },
+              },
+            },
+          },
+        },
+        include: {
+          categories: true,
+          Prix: {
+            select: {
+              id: true,
+              prix: true,
+              quantiter: true,
+            },
+          },
+        },
+      });
+
+      const prixId = produit.Prix[0].id;
+      delete produit.Prix[0].id;
+      const productFiltered = { ...produit, ...produit.Prix[0], prixId };
+      delete productFiltered.Prix;
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'Produit créé avec succès',
+        data: productFiltered,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException(
+        'Une erreur est survenue lors de la création du produit.',
+      );
+    }
+  }
+
   // ========== FIND ALL ==========
   async findAll() {
     try {

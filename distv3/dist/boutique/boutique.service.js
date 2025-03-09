@@ -17,6 +17,8 @@ const mail_service_1 = require("../mail/mail.service");
 const client_1 = require("@prisma/client");
 const functions_1 = require("../utils/functions");
 const users_service_1 = require("../users/users.service");
+const data_1 = require("../mail/data");
+const bcrypt_1 = require("bcrypt");
 let BoutiqueService = class BoutiqueService {
     constructor(prisma, mailService, usersService) {
         this.prisma = prisma;
@@ -135,7 +137,7 @@ let BoutiqueService = class BoutiqueService {
                                 email: createBoutiqueDto.email,
                                 telephone: createBoutiqueDto.phone,
                                 avatar: createBoutiqueDto.img,
-                                password: password,
+                                password: await (0, bcrypt_1.hash)(password, 10),
                                 profile: client_1.Profile.BOUTIQUIER,
                             },
                         },
@@ -147,6 +149,7 @@ let BoutiqueService = class BoutiqueService {
                     },
                 },
             });
+            await this.mailService.sendMail([createBoutiqueDto.email], 'Les identifiant de votre boutique', (0, data_1.templateToSendShopidentyMail)(password, createBoutiqueDto.nom, createBoutiqueDto.email));
             return {
                 statusCode: 201,
                 message: 'Boutique créée avec succès',

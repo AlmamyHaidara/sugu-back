@@ -34,7 +34,7 @@ export const templateToSendShopidentyMail = (
     .logo {
       font-size: 28px;
       font-weight: bold;
-      color: #4a6ee0;
+      color:#f7a01f;
     }
     .content {
       padding: 30px 20px;
@@ -44,7 +44,7 @@ export const templateToSendShopidentyMail = (
       padding: 15px;
       border-radius: 5px;
       margin: 20px 0;
-      border-left: 4px solid #4a6ee0;
+      border-left: 4px solid #f7a01f;
     }
     .credentials p {
       margin: 10px 0;
@@ -55,7 +55,7 @@ export const templateToSendShopidentyMail = (
     }
     .button {
       display: inline-block;
-      background-color: #4a6ee0;
+      background-color: #f7a01f;
       color: #ffffff;
       text-decoration: none;
       padding: 12px 25px;

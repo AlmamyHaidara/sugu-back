@@ -9,10 +9,10 @@ export declare class PanierService {
         count: number;
     }): Promise<{
         id: number;
-        produitId: number;
-        boutiqueId: number;
         createdAt: Date;
         updatedAt: Date;
+        produitId: number;
+        boutiqueId: number;
         utilisateurId: number;
         count: number;
     }>;
@@ -20,21 +20,21 @@ export declare class PanierService {
         produits: {
             nom: string;
             id: number;
+            createdAt: Date;
+            updatedAt: Date;
             description: string;
             img: string;
             tags: string[];
             categorieId: number;
-            createdAt: Date;
-            updatedAt: Date;
         };
         boutiques: {
             nom: string;
             email: string | null;
             id: number;
-            description: string;
-            img: string | null;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            img: string | null;
             categorie: import(".prisma/client").$Enums.CategorieBoutique;
             location: import(".prisma/client").$Enums.Location;
             phone: string | null;
@@ -43,10 +43,10 @@ export declare class PanierService {
         };
     } & {
         id: number;
-        produitId: number;
-        boutiqueId: number;
         createdAt: Date;
         updatedAt: Date;
+        produitId: number;
+        boutiqueId: number;
         utilisateurId: number;
         count: number;
     })[]>;
@@ -77,10 +77,10 @@ export declare class PanierService {
     }[]>;
     updateCartItem(id: number, count: number): Promise<{
         id: number;
-        produitId: number;
-        boutiqueId: number;
         createdAt: Date;
         updatedAt: Date;
+        produitId: number;
+        boutiqueId: number;
         utilisateurId: number;
         count: number;
     }>;
