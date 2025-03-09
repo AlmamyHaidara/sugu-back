@@ -15,8 +15,8 @@ export declare class CommandService {
             id: number;
             createdAt: Date;
             updatedAt: Date | null;
-            commandeNbr: string;
             utilisateurId: number;
+            commandeNbr: string;
             etat: import(".prisma/client").$Enums.EtatCommand;
         };
     }>;
@@ -25,12 +25,12 @@ export declare class CommandService {
             produits: {
                 nom: string;
                 id: number;
-                createdAt: Date;
-                updatedAt: Date;
                 description: string;
                 img: string;
                 tags: string[];
                 categorieId: number;
+                createdAt: Date;
+                updatedAt: Date;
             };
             boutiques: {
                 nom: string;
@@ -42,21 +42,21 @@ export declare class CommandService {
             };
             prix: import("@prisma/client/runtime/library").Decimal;
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
             quantiter: number;
             produitId: number;
             boutiqueId: number;
+            createdAt: Date;
+            updatedAt: Date;
             Prix: {
                 produits: {
                     nom: string;
                     id: number;
-                    createdAt: Date;
-                    updatedAt: Date;
                     description: string;
                     img: string;
                     tags: string[];
                     categorieId: number;
+                    createdAt: Date;
+                    updatedAt: Date;
                 };
                 boutiques: {
                     nom: string;
@@ -69,11 +69,11 @@ export declare class CommandService {
             } & {
                 prix: import("@prisma/client/runtime/library").Decimal;
                 id: number;
-                createdAt: Date;
-                updatedAt: Date;
                 quantiter: number;
                 produitId: number;
                 boutiqueId: number;
+                createdAt: Date;
+                updatedAt: Date;
             };
             prixId: number | null;
             commandeId: number | null;
@@ -101,9 +101,9 @@ export declare class CommandService {
                     nom: string;
                     telephone: string;
                     id: number;
+                    description: string;
                     createdAt: Date;
                     updatedAt: Date;
-                    description: string;
                     userId: number;
                     quartier: string;
                 }[];
@@ -120,12 +120,12 @@ export declare class CommandService {
                     };
                     nom: string;
                     id: number;
-                    createdAt: Date;
-                    updatedAt: Date;
                     description: string;
                     img: string;
                     tags: string[];
                     categorieId: number;
+                    createdAt: Date;
+                    updatedAt: Date;
                 };
                 Prix: {
                     produits: {
@@ -137,26 +137,26 @@ export declare class CommandService {
                     } & {
                         nom: string;
                         id: number;
-                        createdAt: Date;
-                        updatedAt: Date;
                         description: string;
                         img: string;
                         tags: string[];
                         categorieId: number;
+                        createdAt: Date;
+                        updatedAt: Date;
                     };
                 } & {
                     prix: import("@prisma/client/runtime/library").Decimal;
                     id: number;
-                    createdAt: Date;
-                    updatedAt: Date;
                     quantiter: number;
                     produitId: number;
                     boutiqueId: number;
+                    createdAt: Date;
+                    updatedAt: Date;
                 };
                 id: number;
+                quantiter: number;
                 createdAt: Date;
                 updatedAt: Date;
-                quantiter: number;
                 prixId: number | null;
                 commandeId: number | null;
             }[];
@@ -172,9 +172,9 @@ export declare class CommandService {
                     nom: string;
                     telephone: string;
                     id: number;
+                    description: string;
                     createdAt: Date;
                     updatedAt: Date;
-                    description: string;
                     userId: number;
                     quartier: string;
                 }[];

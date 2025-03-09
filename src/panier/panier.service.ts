@@ -266,9 +266,16 @@ export class PanierService {
   }
 
   async removeFromCart(id: number) {
-    return this.prisma.panier.delete({
-      where: { id },
-    });
+    try {
+      const isDeleted = await this.prisma.panier.delete({
+        where: { id },
+      });
+      console.log(isDeleted);
+      return true;
+    } catch (error) {
+      console.log(error?.code);
+      return null;
+    }
   }
 
   async emptyCart(boutiqueId: number) {

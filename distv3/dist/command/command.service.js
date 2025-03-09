@@ -26,7 +26,27 @@ let CommandService = class CommandService {
     async create(createCommandDto) {
         try {
             const ligneCommandInfo = [];
-            const usr = await this.user.findOneById(createCommandDto.usetilisateurId);
+            const usr = await this.prisma.utilisateur.findFirst({
+                where: {
+                    id: createCommandDto.usetilisateurId,
+                    Adresse: {
+                        some: {
+                            id: createCommandDto.adresseId,
+                        },
+                    },
+                },
+                omit: {
+                    password: true,
+                    updatedAt: true,
+                },
+                include: {
+                    Adresse: {
+                        where: {
+                            id: createCommandDto.adresseId,
+                        },
+                    },
+                },
+            });
             if (!usr || !usr.id) {
                 throw new Error('Utilisateur non trouvé.');
             }
@@ -61,19 +81,22 @@ let CommandService = class CommandService {
                         select: {
                             quantiter: true,
                             id: true,
-                            boutiques: true,
+                            boutiques: {
+                                select: { id: true },
+                            },
                             produits: true,
                             prix: true,
                         },
-                    });
-                    ligneCommandInfo.push({
-                        ...prix,
                     });
                     if (!prix ||
                         prix.quantiter === undefined ||
                         prix.quantiter < element.quantiter) {
                         throw new Error(`Quantité insuffisante pour le prix ID ${element.prixId}.`);
                     }
+                    ligneCommandInfo.push({
+                        ...prix,
+                        boutiqueId: prix.boutiques?.id,
+                    });
                     await prisma.prix.update({
                         where: { id: element.prixId },
                         data: { quantiter: prix.quantiter - element.quantiter },
@@ -86,12 +109,13 @@ let CommandService = class CommandService {
                     utilisateurId: createCommandDto.usetilisateurId,
                 },
             });
-            this.prisma.notification.create({
+            await this.prisma.notification.create({
                 data: {
                     title: 'Création de commande',
                     type: 'INFO',
-                    message: `Nous avons le plaisir de vous confirmer que votre commande a été acceptée et est en cours de traitement. Vous recevrez prochainement un e-mail de confirmation avec les détails de votre commande et les informations de suivi.
-          Nous vous remercions pour votre confiance et restons à votre disposition pour toute question supplémentaire.`,
+                    message: `Nous avons le plaisir de vous confirmer que votre commande a été acceptée et est en cours de traitement.
+  Vous recevrez prochainement un e-mail de confirmation avec les détails de votre commande et les informations de suivi.
+  Nous vous remercions pour votre confiance.`,
                     data: {
                         commandNbr: createCommandDto.commandeNbr,
                         ligneCommand: ligneCommandInfo,
@@ -99,13 +123,45 @@ let CommandService = class CommandService {
                         createdAt: result.createdAt,
                     },
                     status: 'UNREAD',
-                    utilisateur: {
-                        connect: {
-                            id: createCommandDto.usetilisateurId,
-                        },
-                    },
+                    utilisateurId: createCommandDto.usetilisateurId,
                 },
             });
+            const commandesParBoutique = ligneCommandInfo.reduce((acc, ligne) => {
+                const boutiqueId = ligne.boutiqueId;
+                if (!boutiqueId)
+                    return acc;
+                if (!acc[boutiqueId]) {
+                    acc[boutiqueId] = [];
+                }
+                acc[boutiqueId].push(ligne);
+                return acc;
+            }, {});
+            for (const boutiqueId in commandesParBoutique) {
+                const boutique = await this.prisma.boutique.findUnique({
+                    where: { id: Number(boutiqueId) },
+                    select: { id: true, userId: true },
+                });
+                if (!boutique || !boutique.userId)
+                    continue;
+                await this.prisma.notification.create({
+                    data: {
+                        title: 'Nouvelle commande reçue',
+                        type: 'ORDER',
+                        message: `Une nouvelle commande contenant des produits pour votre boutique a été passée. Veuillez consulter les détails ci-dessous pour préparer l'expédition.`,
+                        data: {
+                            commandId: result.id,
+                            commandNbr: createCommandDto.commandeNbr,
+                            ligneCommand: commandesParBoutique[boutiqueId],
+                            etat: result.etat,
+                            createdAt: result.createdAt,
+                            client: { ...usr },
+                            adresse: { ...usr.Adresse[0] },
+                        },
+                        status: 'UNREAD',
+                        utilisateurId: boutique.userId,
+                    },
+                });
+            }
             return {
                 status: 201,
                 data: result,

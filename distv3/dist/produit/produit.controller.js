@@ -39,6 +39,9 @@ let ProduitController = class ProduitController {
     async findAll(query) {
         return this.produitService.findAllProduits(query);
     }
+    async findAllProductByCountryId(id) {
+        return this.produitService.findAllProduitsByCountryId(id);
+    }
     findAllByShop(id) {
         return this.produitService.findAllByShop(id);
     }
@@ -102,6 +105,14 @@ __decorate([
     __metadata("design:paramtypes", [SearchProduits_dto_1.SearchProduitsDto]),
     __metadata("design:returntype", Promise)
 ], ProduitController.prototype, "findAll", null);
+__decorate([
+    (0, constants_1.Public)(),
+    (0, common_1.Get)('country/:id'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], ProduitController.prototype, "findAllProductByCountryId", null);
 __decorate([
     (0, common_1.Get)('shop-products/:id'),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),

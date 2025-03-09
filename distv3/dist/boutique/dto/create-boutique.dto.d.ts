@@ -8,6 +8,7 @@ export declare enum CategorieBoutique {
 }
 export declare class CreateBoutiqueDto {
     nom: string;
+    email: string;
     categorie: CategorieBoutique;
     description: string;
     location: Location;

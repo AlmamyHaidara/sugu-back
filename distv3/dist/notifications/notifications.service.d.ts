@@ -12,9 +12,9 @@ export declare class NotificationsService {
         updatedAt: Date;
         data: import("@prisma/client/runtime/library").JsonValue | null;
         type: import(".prisma/client").$Enums.NotificationType;
-        utilisateurId: number;
         title: string | null;
         readAt: Date | null;
+        utilisateurId: number;
     }>;
     findAll(): Promise<{
         id: number;
@@ -24,9 +24,9 @@ export declare class NotificationsService {
         updatedAt: Date;
         data: import("@prisma/client/runtime/library").JsonValue | null;
         type: import(".prisma/client").$Enums.NotificationType;
-        utilisateurId: number;
         title: string | null;
         readAt: Date | null;
+        utilisateurId: number;
     }[]>;
     findOne(id: number): Promise<{
         id: number;
@@ -36,9 +36,9 @@ export declare class NotificationsService {
         updatedAt: Date;
         data: import("@prisma/client/runtime/library").JsonValue | null;
         type: import(".prisma/client").$Enums.NotificationType;
-        utilisateurId: number;
         title: string | null;
         readAt: Date | null;
+        utilisateurId: number;
     }>;
     update(id: number, updateNotificationDto: UpdateNotificationDto): Promise<{
         id: number;
@@ -48,9 +48,9 @@ export declare class NotificationsService {
         updatedAt: Date;
         data: import("@prisma/client/runtime/library").JsonValue | null;
         type: import(".prisma/client").$Enums.NotificationType;
-        utilisateurId: number;
         title: string | null;
         readAt: Date | null;
+        utilisateurId: number;
     }>;
     updateStatus(id: number, status: 'ARCHIVED' | 'READ' | 'UNREAD', date: Date): Promise<{
         id: number;
@@ -60,9 +60,9 @@ export declare class NotificationsService {
         updatedAt: Date;
         data: import("@prisma/client/runtime/library").JsonValue | null;
         type: import(".prisma/client").$Enums.NotificationType;
-        utilisateurId: number;
         title: string | null;
         readAt: Date | null;
+        utilisateurId: number;
     }>;
     remove(id: number): Promise<{
         id: number;
@@ -72,9 +72,9 @@ export declare class NotificationsService {
         updatedAt: Date;
         data: import("@prisma/client/runtime/library").JsonValue | null;
         type: import(".prisma/client").$Enums.NotificationType;
-        utilisateurId: number;
         title: string | null;
         readAt: Date | null;
+        utilisateurId: number;
     }>;
     findUnreadByUser(userId: number): Promise<{
         id: number;
@@ -84,9 +84,9 @@ export declare class NotificationsService {
         updatedAt: Date;
         data: import("@prisma/client/runtime/library").JsonValue | null;
         type: import(".prisma/client").$Enums.NotificationType;
-        utilisateurId: number;
         title: string | null;
         readAt: Date | null;
+        utilisateurId: number;
     }[]>;
     findByUser(userId: number): Promise<{
         id: number;
@@ -96,8 +96,8 @@ export declare class NotificationsService {
         updatedAt: Date;
         data: import("@prisma/client/runtime/library").JsonValue | null;
         type: import(".prisma/client").$Enums.NotificationType;
-        utilisateurId: number;
         title: string | null;
         readAt: Date | null;
+        utilisateurId: number;
     }[]>;
 }

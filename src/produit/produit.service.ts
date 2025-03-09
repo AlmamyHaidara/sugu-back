@@ -367,6 +367,75 @@ export class ProduitService {
     }
   }
 
+  async findAllProduitsByCountryId(countryId: number) {
+    const existingContry = await this.prisma.country.findUnique({
+      where: { id: Number(countryId) },
+    });
+    if (!existingContry) {
+      throw new NotFoundException(`Pays #${countryId} introuvable.`);
+    }
+    const produits = await this.prisma.produit.findMany({
+      where: {
+        Prix: {
+          some: {
+            boutiques: {
+              countryId: countryId,
+            },
+          },
+        },
+      },
+      include: {
+        categories: true,
+        Prix: {
+          include: {
+            boutiques: true,
+          },
+        },
+      },
+    });
+
+    const products = produits.filter((item) => {
+      // Vérification si l'article a des prix
+      if (item.Prix.length > 0) {
+        // Si une catégorie boutique est fournie, filtrer les prix associés à cette catégorie
+        return item;
+      }
+    });
+
+    const dataFiltered = products.map((res) => {
+      const filter = res.Prix.map((prix) => {
+        return {
+          prix: prix.prix,
+          boutique: {
+            id: prix.boutiques.id,
+            nom: prix.boutiques.nom,
+            location: prix.boutiques.location,
+            phone: prix.boutiques.phone,
+            categorie: prix.boutiques.categorie,
+          },
+        };
+      });
+
+      return filter.map((el) => {
+        const categorie = res?.categories?.nom;
+        delete res.Prix;
+        delete res.categories;
+        return {
+          ...res,
+          categorie,
+          prix: el.prix,
+          boutique: el.boutique,
+        };
+      })[0];
+    });
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: 'Liste des produits',
+      data: dataFiltered,
+    };
+  }
+
   // ========== RECHERCHE / PAGINATION ==========
   async findAllProduits(query: SearchProduitsDto) {
     const {

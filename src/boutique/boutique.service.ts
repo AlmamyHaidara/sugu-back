@@ -40,6 +40,8 @@ export class BoutiqueService {
         where: { nom: createBoutiqueDto.nom },
       });
 
+      console.log(existingByName);
+
       if (existingByName) {
         // vous pouvez lever une exception si vous ne voulez pas de doublon
         // throw new ConflictException('Une boutique avec ce nom existe déjà');
@@ -120,7 +122,11 @@ export class BoutiqueService {
   async findAllShopAndProducts() {
     try {
       // Récupérer toutes les boutiques
-      const boutiques = await this.prisma.boutique.findMany();
+      const boutiques = await this.prisma.boutique.findMany({
+        include: {
+          country: true,
+        },
+      });
 
       // Récupérer tous les produits (vous pouvez inclure plus de relations si besoin)
       const products = await this.prisma.produit.findMany({
@@ -236,7 +242,11 @@ export class BoutiqueService {
   // ========== FIND ALL (BASIC) ==========
   async findAll() {
     try {
-      const boutiques = await this.prisma.boutique.findMany();
+      const boutiques = await this.prisma.boutique.findMany({
+        include: {
+          country: true,
+        },
+      });
       return {
         statusCode: 200,
         data: boutiques,
@@ -296,6 +306,7 @@ export class BoutiqueService {
           },
         },
       });
+      // console.log(bo);
 
       const sales = this.getSalesStats(commandes);
 
@@ -332,6 +343,7 @@ export class BoutiqueService {
         // Logger l'erreur si besoin
       }
     }
+    console.log(updateBoutiqueDto);
 
     try {
       const updated = await this.prisma.boutique.update({
@@ -361,6 +373,8 @@ export class BoutiqueService {
         data: updated,
       };
     } catch (error) {
+      console.log(error);
+
       throw new InternalServerErrorException(
         'Erreur lors de la mise à jour de la boutique',
       );

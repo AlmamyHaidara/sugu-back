@@ -1,6 +1,8 @@
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
+import { Prisma, PrismaClient } from '@prisma/client';
+import { DefaultArgs } from '@prisma/client/runtime/library';
 export type User = any;
 export declare class UsersService {
     private readonly prisma;
@@ -8,8 +10,10 @@ export declare class UsersService {
     constructor(prisma: PrismaService);
     create(createUserDto: CreateUserDto): Promise<{
         status: number;
+        id: number;
         msg: string;
     }>;
+    createDb(createUserDto: CreateUserDto, db: Omit<PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>): Promise<number>;
     findAll(): string;
     findOne(user: {
         email?: string;

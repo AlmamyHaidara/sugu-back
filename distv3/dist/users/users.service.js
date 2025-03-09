@@ -25,19 +25,13 @@ let UsersService = UsersService_1 = class UsersService {
             const isExiste = (await this.findOne({
                 email: createUserDto.email,
             }));
+            console.log('eee', isExiste);
             if (isExiste) {
-                throw new common_1.HttpException({
+                throw new common_1.ConflictException({
                     status: common_1.HttpStatus.CONFLICT,
                     message: 'Utilisateur existe déjà.',
                     error: 'Conflict',
-                }, common_1.HttpStatus.CONFLICT);
-            }
-            if (createUserDto.password) {
-                throw new common_1.HttpException({
-                    status: common_1.HttpStatus.BAD_REQUEST,
-                    message: 'Mots de passe obligatoire',
-                    error: 'BAD_REQUEST',
-                }, common_1.HttpStatus.CONFLICT);
+                });
             }
             const passwordHash = await (0, bcrypt_1.hash)(createUserDto.password);
             const user = await this.prisma.$transaction(async (prisma) => {
@@ -62,8 +56,62 @@ let UsersService = UsersService_1 = class UsersService {
             });
             return {
                 status: 201,
+                id: user.id,
                 msg: `L'utilisateur ${user.nom} ${user.prenom} a a ete creer avec success`,
             };
+        }
+        catch (error) {
+            console.error(error.status);
+            switch (error.status) {
+                case 409:
+                    throw new common_1.HttpException({
+                        status: common_1.HttpStatus.CONFLICT,
+                        message: 'Utilisateur existe déjà.',
+                        error: 'Conflict',
+                    }, common_1.HttpStatus.CONFLICT);
+                    break;
+                case 500:
+                    throw Error("Une Erreur c'est produit lord de la creation d'un utilisateur");
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    async createDb(createUserDto, db) {
+        this.logger.log('Creating a new user');
+        try {
+            const isExiste = (await this.findOne({
+                email: createUserDto.email,
+            }));
+            console.log('eee', isExiste);
+            if (isExiste) {
+                throw new common_1.ConflictException({
+                    status: common_1.HttpStatus.CONFLICT,
+                    message: 'Utilisateur existe déjà.',
+                    error: 'Conflict',
+                });
+            }
+            const passwordHash = await (0, bcrypt_1.hash)(createUserDto.password);
+            const user = await this.prisma.utilisateur.create({
+                data: {
+                    nom: createUserDto.nom,
+                    prenom: createUserDto.prenom,
+                    email: createUserDto.email,
+                    telephone: createUserDto.telephone,
+                    password: passwordHash,
+                    profile: createUserDto.profile || 'CLIENT',
+                },
+                select: {
+                    id: true,
+                    nom: true,
+                    prenom: true,
+                    email: true,
+                    telephone: true,
+                    profile: true,
+                },
+            });
+            return user.id;
         }
         catch (error) {
             console.error(error.status);
@@ -89,13 +137,14 @@ let UsersService = UsersService_1 = class UsersService {
     async findOne(user) {
         this.logger.log(`Finding user with criteria: ${JSON.stringify(user)}`);
         try {
-            console.log(user);
+            console.log(user.email);
             if (user.email) {
                 const userExist = this.prisma.utilisateur.findUnique({
                     where: {
                         email: user.email,
                     },
                 });
+                console.log('ppppppppppppppppppppppppppppp');
                 return userExist;
             }
             else if (user.telephone) {

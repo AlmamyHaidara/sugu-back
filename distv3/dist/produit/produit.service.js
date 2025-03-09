@@ -308,6 +308,68 @@ let ProduitService = class ProduitService {
             throw new common_1.InternalServerErrorException('Erreur lors de la suppression du produit');
         }
     }
+    async findAllProduitsByCountryId(countryId) {
+        const existingContry = await this.prisma.country.findUnique({
+            where: { id: Number(countryId) },
+        });
+        if (!existingContry) {
+            throw new common_1.NotFoundException(`Pays #${countryId} introuvable.`);
+        }
+        const produits = await this.prisma.produit.findMany({
+            where: {
+                Prix: {
+                    some: {
+                        boutiques: {
+                            countryId: countryId,
+                        },
+                    },
+                },
+            },
+            include: {
+                categories: true,
+                Prix: {
+                    include: {
+                        boutiques: true,
+                    },
+                },
+            },
+        });
+        const products = produits.filter((item) => {
+            if (item.Prix.length > 0) {
+                return item;
+            }
+        });
+        const dataFiltered = products.map((res) => {
+            const filter = res.Prix.map((prix) => {
+                return {
+                    prix: prix.prix,
+                    boutique: {
+                        id: prix.boutiques.id,
+                        nom: prix.boutiques.nom,
+                        location: prix.boutiques.location,
+                        phone: prix.boutiques.phone,
+                        categorie: prix.boutiques.categorie,
+                    },
+                };
+            });
+            return filter.map((el) => {
+                const categorie = res?.categories?.nom;
+                delete res.Prix;
+                delete res.categories;
+                return {
+                    ...res,
+                    categorie,
+                    prix: el.prix,
+                    boutique: el.boutique,
+                };
+            })[0];
+        });
+        return {
+            statusCode: common_1.HttpStatus.OK,
+            message: 'Liste des produits',
+            data: dataFiltered,
+        };
+    }
     async findAllProduits(query) {
         const { nom, categorieBoutique, categorieId, prixMin, prixMax, countryId, location, page, limit, } = query;
         const whereClause = {};

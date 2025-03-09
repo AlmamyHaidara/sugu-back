@@ -75,6 +75,12 @@ export class ProduitController {
     return this.produitService.findAllProduits(query);
   }
 
+  @Public()
+  @Get('country/:id')
+  async findAllProductByCountryId(@Param('id', ParseIntPipe) id: number) {
+    return this.produitService.findAllProduitsByCountryId(id);
+  }
+
   @Get('shop-products/:id')
   findAllByShop(@Param('id', ParseIntPipe) id: number) {
     return this.produitService.findAllByShop(id);

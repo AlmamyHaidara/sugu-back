@@ -30,7 +30,7 @@ const country_controller_1 = require("./country/country.controller");
 const country_service_1 = require("./country/country.service");
 const notifications_module_1 = require("./notifications/notifications.module");
 const users_controller_1 = require("./users/users.controller");
-console.log('888888888888888888888888888888888:', (0, path_1.join)(__dirname, '..', 'uploads'));
+const mail_module_1 = require("./mail/mail.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -55,6 +55,7 @@ exports.AppModule = AppModule = __decorate([
             categorie_produit_module_1.CategorieProduitModule,
             search_module_1.SearchModule,
             notifications_module_1.NotificationsModule,
+            mail_module_1.MailModule,
         ],
         controllers: [app_controller_1.AppController, country_controller_1.CountryController, users_controller_1.UsersController],
         providers: [

@@ -11,6 +11,7 @@ export declare class AuthService {
     constructor(usersService: UsersService, prixService: PrixService, jwtService: JwtService);
     signUp(createUserDto: CreateUserDto): Promise<{
         status: number;
+        id: number;
         msg: string;
     }>;
     signIn(email: string, pass: string): Promise<{

@@ -10,6 +10,7 @@ export declare class AuthController {
     }>;
     signUp(createUserDto: CreateUserDto): Promise<{
         status: number;
+        id: number;
         msg: string;
     }>;
 }

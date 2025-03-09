@@ -43,14 +43,13 @@ let BoutiqueController = class BoutiqueController {
         this.boutiqueService = boutiqueService;
     }
     async create(file, createBoutiqueDto) {
+        console.log('ooooooooooooo');
         if (file) {
             createBoutiqueDto.img = file.path;
         }
+        console.log(file);
         const boutique = await this.boutiqueService.create(createBoutiqueDto);
-        return {
-            message: 'Boutique créée avec succès',
-            data: boutique,
-        };
+        return boutique;
     }
     async findAll() {
         return this.boutiqueService.findAll();

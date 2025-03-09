@@ -10,9 +10,9 @@ export declare class AdresseController {
             nom: string;
             telephone: string;
             id: number;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
-            description: string;
             userId: number;
             quartier: string;
         };
@@ -23,9 +23,9 @@ export declare class AdresseController {
             nom: string;
             telephone: string;
             id: number;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
-            description: string;
             userId: number;
             quartier: string;
         }[];
@@ -36,9 +36,9 @@ export declare class AdresseController {
             nom: string;
             telephone: string;
             id: number;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
-            description: string;
             userId: number;
             quartier: string;
         }[];
@@ -49,9 +49,9 @@ export declare class AdresseController {
             nom: string;
             telephone: string;
             id: number;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
-            description: string;
             userId: number;
             quartier: string;
         }[];
@@ -62,9 +62,9 @@ export declare class AdresseController {
             nom: string;
             telephone: string;
             id: number;
+            description: string;
             createdAt: Date;
             updatedAt: Date;
-            description: string;
             userId: number;
             quartier: string;
         };

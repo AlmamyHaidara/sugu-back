@@ -15,11 +15,169 @@ export class CommandService {
     private readonly notification: NotificationsService,
   ) {}
 
+  // async create(createCommandDto: CreateCommandDto) {
+  //   try {
+  //     const ligneCommandInfo = [];
+  //     // Vérification de l'utilisateur
+  //     const usr = await this.user.findOneById(createCommandDto.usetilisateurId);
+  //     if (!usr || !usr.id) {
+  //       throw new Error('Utilisateur non trouvé.');
+  //     }
+
+  //     // Vérification des prix associés aux lignes de commande
+  //     const prixIds = createCommandDto.ligneCommands.map((lc) => lc.prixId);
+  //     const prixExistants = await this.prisma.prix.findMany({
+  //       where: { id: { in: prixIds } },
+  //       select: { id: true },
+  //     });
+
+  //     if (prixExistants.length !== prixIds.length) {
+  //       throw new Error(
+  //         'Certains prix associés aux lignes de commande sont introuvables.',
+  //       );
+  //     }
+
+  //     // Utilisation d'une transaction pour assurer l'intégrité des données
+  //     const result = await this.prisma.$transaction(async (prisma) => {
+  //       // Création de la commande
+  //       const cmd = await prisma.commande.create({
+  //         data: {
+  //           utilisateurs: {
+  //             connect: {
+  //               id: createCommandDto.usetilisateurId,
+  //             },
+  //           },
+  //           etat: createCommandDto.etat,
+  //           commandeNbr: createCommandDto.commandeNbr,
+  //           LigneCommand: {
+  //             createMany: {
+  //               data: createCommandDto.ligneCommands || [],
+  //             },
+  //           },
+  //         },
+  //       });
+
+  //       // Mise à jour des quantités pour chaque ligne
+  //       for (const element of createCommandDto.ligneCommands) {
+  //         const prix = await prisma.prix.findUnique({
+  //           where: { id: element.prixId },
+  //           select: {
+  //             quantiter: true,
+  //             id: true,
+  //             boutiques: true,
+  //             produits: true,
+  //             prix: true,
+  //           },
+  //         });
+  //         ligneCommandInfo.push({
+  //           ...prix,
+  //         });
+  //         if (
+  //           !prix ||
+  //           prix.quantiter === undefined ||
+  //           prix.quantiter < element.quantiter
+  //         ) {
+  //           throw new Error(
+  //             `Quantité insuffisante pour le prix ID ${element.prixId}.`,
+  //           );
+  //         }
+
+  //         await prisma.prix.update({
+  //           where: { id: element.prixId },
+  //           data: { quantiter: prix.quantiter - element.quantiter },
+  //         });
+  //       }
+
+  //       return cmd;
+  //     });
+
+  //     await this.prisma.panier.deleteMany({
+  //       where: {
+  //         utilisateurId: createCommandDto.usetilisateurId,
+  //       },
+  //     });
+
+  //     const newNotification = await this.prisma.notification.create({
+  //       data: {
+  //         title: 'Création de commande',
+  //         type: 'INFO',
+  //         message: `Nous avons le plaisir de vous confirmer que votre commande a été acceptée et est en cours de traitement. Vous recevrez prochainement un e-mail de confirmation avec les détails de votre commande et les informations de suivi.
+  //         Nous vous remercions pour votre confiance et restons à votre disposition pour toute question supplémentaire.`,
+  //         data: {
+  //           commandNbr: createCommandDto.commandeNbr,
+  //           ligneCommand: ligneCommandInfo,
+  //           etat: result.etat,
+  //           createdAt: result.createdAt,
+  //         },
+  //         status: 'UNREAD',
+  //         utilisateurId: createCommandDto.usetilisateurId,
+  //         // utilisateur: {
+  //         //   connect: {
+  //         //     id: createCommandDto.usetilisateurId,
+  //         //   },
+  //         // },
+  //       },
+  //     });
+
+  //     const newNotificationBoutiquier = await this.prisma.notification.create({
+  //       data: {
+  //         title: 'Nouvelle commande reçue',
+  //         type: 'ORDER',
+  //         message: `Une nouvelle commande a été passée sur votre boutique. Veuillez consulter les détails ci-dessous pour préparer l'expédition.`,
+  //         data: {
+  //           commandNbr: createCommandDto.commandeNbr,
+  //           ligneCommand: ligneCommandInfo,
+  //           etat: result.etat,
+  //           createdAt: result.createdAt,
+  //         },
+  //         status: 'UNREAD',
+  //         utilisateurId: createCommandDto.usetilisateurId,
+  //         // utilisateur: {
+  //         //   connect: {
+  //         //     id: createCommandDto.usetilisateurId,
+  //         //   },
+  //         // },
+  //       },
+  //     });
+
+  //     console.log(newNotification);
+
+  //     return {
+  //       status: 201,
+  //       data: result,
+  //     };
+  //   } catch (error) {
+  //     console.error('Erreur lors de la création de la commande:', error);
+  //     throw error;
+  //   }
+  // }
+
   async create(createCommandDto: CreateCommandDto) {
     try {
-      const ligneCommandInfo = [];
+      const ligneCommandInfo: any[] = [];
       // Vérification de l'utilisateur
-      const usr = await this.user.findOneById(createCommandDto.usetilisateurId);
+      const usr = await this.prisma.utilisateur.findFirst({
+        where: {
+          id: createCommandDto.usetilisateurId,
+          Adresse: {
+            some: {
+              id: createCommandDto.adresseId,
+            },
+          },
+        },
+        omit: {
+          password: true,
+          updatedAt: true,
+        },
+        include: {
+          Adresse: {
+            where: {
+              id: createCommandDto.adresseId,
+            },
+          },
+        },
+      });
+      // const usr = await this.user.findOneById(createCommandDto.usetilisateurId);
       if (!usr || !usr.id) {
         throw new Error('Utilisateur non trouvé.');
       }
@@ -57,20 +215,20 @@ export class CommandService {
           },
         });
 
-        // Mise à jour des quantités pour chaque ligne
+        // Pour chaque ligne de commande, vérifier les quantités et mettre à jour le stock
         for (const element of createCommandDto.ligneCommands) {
           const prix = await prisma.prix.findUnique({
             where: { id: element.prixId },
             select: {
               quantiter: true,
               id: true,
-              boutiques: true,
+              // On récupère ici l'information de la boutique associée au prix
+              boutiques: {
+                select: { id: true },
+              },
               produits: true,
               prix: true,
             },
-          });
-          ligneCommandInfo.push({
-            ...prix,
           });
           if (
             !prix ||
@@ -82,6 +240,12 @@ export class CommandService {
             );
           }
 
+          // On enrichit la ligne avec l'identifiant de la boutique (en supposant que "boutiques" est un objet)
+          ligneCommandInfo.push({
+            ...prix,
+            boutiqueId: prix.boutiques?.id,
+          });
+
           await prisma.prix.update({
             where: { id: element.prixId },
             data: { quantiter: prix.quantiter - element.quantiter },
@@ -91,18 +255,21 @@ export class CommandService {
         return cmd;
       });
 
+      // Suppression des articles dans le panier
       await this.prisma.panier.deleteMany({
         where: {
           utilisateurId: createCommandDto.usetilisateurId,
         },
       });
 
-      this.prisma.notification.create({
+      // Notification destinée au client
+      await this.prisma.notification.create({
         data: {
           title: 'Création de commande',
           type: 'INFO',
-          message: `Nous avons le plaisir de vous confirmer que votre commande a été acceptée et est en cours de traitement. Vous recevrez prochainement un e-mail de confirmation avec les détails de votre commande et les informations de suivi.
-          Nous vous remercions pour votre confiance et restons à votre disposition pour toute question supplémentaire.`,
+          message: `Nous avons le plaisir de vous confirmer que votre commande a été acceptée et est en cours de traitement.
+  Vous recevrez prochainement un e-mail de confirmation avec les détails de votre commande et les informations de suivi.
+  Nous vous remercions pour votre confiance.`,
           data: {
             commandNbr: createCommandDto.commandeNbr,
             ligneCommand: ligneCommandInfo,
@@ -110,13 +277,53 @@ export class CommandService {
             createdAt: result.createdAt,
           },
           status: 'UNREAD',
-          utilisateur: {
-            connect: {
-              id: createCommandDto.usetilisateurId,
-            },
-          },
+          utilisateurId: createCommandDto.usetilisateurId,
         },
       });
+
+      // Regroupement des lignes de commande par boutique
+      const commandesParBoutique = ligneCommandInfo.reduce(
+        (acc, ligne) => {
+          const boutiqueId = ligne.boutiqueId;
+          if (!boutiqueId) return acc;
+          if (!acc[boutiqueId]) {
+            acc[boutiqueId] = [];
+          }
+          acc[boutiqueId].push(ligne);
+          return acc;
+        },
+        {} as Record<string, any[]>,
+      );
+
+      // Pour chaque boutique, envoyer une notification au boutiquier concerné
+      for (const boutiqueId in commandesParBoutique) {
+        // Récupérer les informations de la boutique (notamment l'identifiant du propriétaire/boutiquier)
+        const boutique = await this.prisma.boutique.findUnique({
+          where: { id: Number(boutiqueId) },
+          select: { id: true, userId: true },
+        });
+
+        if (!boutique || !boutique.userId) continue;
+
+        await this.prisma.notification.create({
+          data: {
+            title: 'Nouvelle commande reçue',
+            type: 'ORDER',
+            message: `Une nouvelle commande contenant des produits pour votre boutique a été passée. Veuillez consulter les détails ci-dessous pour préparer l'expédition.`,
+            data: {
+              commandId: result.id,
+              commandNbr: createCommandDto.commandeNbr,
+              ligneCommand: commandesParBoutique[boutiqueId],
+              etat: result.etat,
+              createdAt: result.createdAt,
+              client: { ...usr },
+              adresse: { ...usr.Adresse[0] },
+            },
+            status: 'UNREAD',
+            utilisateurId: boutique.userId,
+          },
+        });
+      }
 
       return {
         status: 201,
