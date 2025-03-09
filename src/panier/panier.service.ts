@@ -11,7 +11,6 @@ export class PanierService {
     boutiqueId: number;
     count: number;
   }) {
-    ``;
     try {
       const user = await this.prisma.utilisateur.findFirst({
         where: {
@@ -194,12 +193,13 @@ export class PanierService {
           select: {
             id: true,
             nom: true,
-            categorie: true,
+            categories: true,
             description: true,
             img: true,
             Prix: {
               select: {
                 prix: true,
+                id: true,
               },
             },
           },
@@ -213,6 +213,7 @@ export class PanierService {
         ...item,
         produits: {
           ...otherProduits,
+          prixId: Prix?.[0]?.id,
           prix: Prix?.[0]?.prix,
         },
       };
@@ -265,9 +266,16 @@ export class PanierService {
   }
 
   async removeFromCart(id: number) {
-    return this.prisma.panier.delete({
-      where: { id },
-    });
+    try {
+      const isDeleted = await this.prisma.panier.delete({
+        where: { id },
+      });
+      console.log(isDeleted);
+      return true;
+    } catch (error) {
+      console.log(error?.code);
+      return null;
+    }
   }
 
   async emptyCart(boutiqueId: number) {
