@@ -67,7 +67,7 @@ export declare class BoutiqueService {
             updatedAt: Date;
             description: string;
             img: string;
-            tags: string[];
+            tags: string;
             categorieId: number;
         }[];
     }>;
@@ -89,7 +89,7 @@ export declare class BoutiqueService {
             updatedAt: Date;
             description: string;
             img: string;
-            tags: string[];
+            tags: string;
             categorieId: number;
         }[];
     }>;

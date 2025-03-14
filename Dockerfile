@@ -7,7 +7,7 @@ WORKDIR /app
 
 # Étape 3 : Copier uniquement le build de l’application (dist/) et les fichiers essentiels
 COPY package.json package-lock.json ./
-COPY build ./dist
+COPY distv3/dist ./dist
 COPY ./uploads ./uploads
 COPY ./prisma ./prisma
 

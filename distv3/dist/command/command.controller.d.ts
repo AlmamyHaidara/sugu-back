@@ -23,7 +23,7 @@ export declare class CommandController {
                 updatedAt: Date;
                 description: string;
                 img: string;
-                tags: string[];
+                tags: string;
                 categorieId: number;
             };
             boutiques: {
@@ -49,7 +49,7 @@ export declare class CommandController {
                     updatedAt: Date;
                     description: string;
                     img: string;
-                    tags: string[];
+                    tags: string;
                     categorieId: number;
                 };
                 boutiques: {
@@ -118,7 +118,7 @@ export declare class CommandController {
                     updatedAt: Date;
                     description: string;
                     img: string;
-                    tags: string[];
+                    tags: string;
                     categorieId: number;
                 };
                 Prix: {
@@ -135,7 +135,7 @@ export declare class CommandController {
                         updatedAt: Date;
                         description: string;
                         img: string;
-                        tags: string[];
+                        tags: string;
                         categorieId: number;
                     };
                 } & {

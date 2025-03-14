@@ -124,7 +124,7 @@ export declare class BoutiqueController {
             updatedAt: Date;
             description: string;
             img: string;
-            tags: string[];
+            tags: string;
             categorieId: number;
         }[];
     }>;
@@ -146,7 +146,7 @@ export declare class BoutiqueController {
             updatedAt: Date;
             description: string;
             img: string;
-            tags: string[];
+            tags: string;
             categorieId: number;
         }[];
     }>;

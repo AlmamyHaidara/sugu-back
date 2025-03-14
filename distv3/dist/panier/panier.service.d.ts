@@ -24,7 +24,7 @@ export declare class PanierService {
             updatedAt: Date;
             description: string;
             img: string;
-            tags: string[];
+            tags: string;
             categorieId: number;
         };
         boutiques: {

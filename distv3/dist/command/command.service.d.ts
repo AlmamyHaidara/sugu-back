@@ -29,7 +29,7 @@ export declare class CommandService {
                 updatedAt: Date;
                 description: string;
                 img: string;
-                tags: string[];
+                tags: string;
                 categorieId: number;
             };
             boutiques: {
@@ -55,7 +55,7 @@ export declare class CommandService {
                     updatedAt: Date;
                     description: string;
                     img: string;
-                    tags: string[];
+                    tags: string;
                     categorieId: number;
                 };
                 boutiques: {
@@ -124,7 +124,7 @@ export declare class CommandService {
                     updatedAt: Date;
                     description: string;
                     img: string;
-                    tags: string[];
+                    tags: string;
                     categorieId: number;
                 };
                 Prix: {
@@ -141,7 +141,7 @@ export declare class CommandService {
                         updatedAt: Date;
                         description: string;
                         img: string;
-                        tags: string[];
+                        tags: string;
                         categorieId: number;
                     };
                 } & {

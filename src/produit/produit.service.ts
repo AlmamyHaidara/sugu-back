@@ -43,7 +43,8 @@ export class ProduitService {
           nom: createProduitDto.nom,
           description: createProduitDto.description,
           img: createProduitDto.img,
-          tags: JSON.parse(createProduitDto.tags),
+          tags: createProduitDto.tags,
+          // tags: JSON.parse(createProduitDto.tags),
           categories: {
             connect: { id: Number(createProduitDto.categorie) },
           },
@@ -115,7 +116,8 @@ export class ProduitService {
           nom: createProduitDto.nom,
           description: createProduitDto.description,
           img: createProduitDto.img,
-          tags: JSON.parse(createProduitDto.tags),
+          tags: createProduitDto.tags,
+          // tags: JSON.parse(createProduitDto.tags),
           categories: {
             connect: { id: Number(createProduitDto.categorie) },
           },
@@ -351,7 +353,8 @@ export class ProduitService {
           nom: updateProduitDto.nom,
           description: updateProduitDto.description,
           img: updateProduitDto.img,
-          tags: JSON.parse(updateProduitDto.tags),
+          tags: updateProduitDto.tags,
+          // tags: JSON.parse(updateProduitDto.tags),
           categories: {
             connect: { id: Number(updateProduitDto.categorie) },
           },
@@ -528,8 +531,8 @@ export class ProduitService {
 
     // Filtre par nom
     if (nom) {
-      // whereClause.nom = { contains: nom };
-      whereClause.nom = { contains: nom, mode: 'insensitive' };
+      whereClause.nom = { contains: nom };
+      // whereClause.nom = { contains: nom, mode: 'insensitive' };
     }
 
     // Filtre par catégorie

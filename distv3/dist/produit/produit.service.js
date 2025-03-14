@@ -37,7 +37,7 @@ let ProduitService = class ProduitService {
                     nom: createProduitDto.nom,
                     description: createProduitDto.description,
                     img: createProduitDto.img,
-                    tags: JSON.parse(createProduitDto.tags),
+                    tags: createProduitDto.tags,
                     categories: {
                         connect: { id: Number(createProduitDto.categorie) },
                     },
@@ -99,7 +99,7 @@ let ProduitService = class ProduitService {
                     nom: createProduitDto.nom,
                     description: createProduitDto.description,
                     img: createProduitDto.img,
-                    tags: JSON.parse(createProduitDto.tags),
+                    tags: createProduitDto.tags,
                     categories: {
                         connect: { id: Number(createProduitDto.categorie) },
                     },
@@ -295,7 +295,7 @@ let ProduitService = class ProduitService {
                     nom: updateProduitDto.nom,
                     description: updateProduitDto.description,
                     img: updateProduitDto.img,
-                    tags: JSON.parse(updateProduitDto.tags),
+                    tags: updateProduitDto.tags,
                     categories: {
                         connect: { id: Number(updateProduitDto.categorie) },
                     },
@@ -437,7 +437,7 @@ let ProduitService = class ProduitService {
         const whereClause = {};
         const whereBoutiqueClause = {};
         if (nom) {
-            whereClause.nom = { contains: nom, mode: 'insensitive' };
+            whereClause.nom = { contains: nom };
         }
         if (categorieId) {
             whereClause.categorieId = Number(categorieId);
