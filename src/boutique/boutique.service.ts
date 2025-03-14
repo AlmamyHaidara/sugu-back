@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   InternalServerErrorException,
+  ConflictException,
 } from '@nestjs/common';
 import { CreateBoutiqueDto } from './dto/create-boutique.dto';
 import { UpdateBoutiqueDto } from './dto/update-boutique.dto';
@@ -12,6 +13,8 @@ import { AuthService } from 'src/auth/auth.service';
 import { Profile } from '@prisma/client';
 import { genererMotDePasse } from 'src/utils/functions';
 import { UsersService } from 'src/users/users.service';
+import { templateToSendShopidentyMail } from 'src/mail/data';
+import { hash } from 'bcrypt';
 
 @Injectable()
 export class BoutiqueService {
@@ -24,17 +27,6 @@ export class BoutiqueService {
   // ========== CREATE ==========
   async create(createBoutiqueDto: CreateBoutiqueDto) {
     try {
-      // this.prisma.$transaction(async (tx) => {
-      // Vérifier l'utilisateur
-      // const user = await this.prisma.utilisateur.findUnique({
-      //   where: { id: Number(createBoutiqueDto.userId) },
-      // });
-      // if (!user) {
-      //   throw new NotFoundException(
-      //     `Utilisateur #${createBoutiqueDto.userId} introuvable`,
-      //   );
-      // }
-
       // Vérifier si la boutique existe déjà par nom (optionnel)
       const existingByName = await this.prisma.boutique.findFirst({
         where: { nom: createBoutiqueDto.nom },
@@ -59,11 +51,6 @@ export class BoutiqueService {
 
       const password = genererMotDePasse(8);
 
-      // await this.mailService.sendShopLogin(
-      //   createBoutiqueDto.email,
-      //   password,
-      //   createBoutiqueDto.nom,
-      // );
       const boutique = await this.prisma.boutique.create({
         data: {
           nom: createBoutiqueDto.nom,
@@ -83,7 +70,7 @@ export class BoutiqueService {
                 email: createBoutiqueDto.email,
                 telephone: createBoutiqueDto.phone,
                 avatar: createBoutiqueDto.img,
-                password: password,
+                password: await hash(password, 10),
                 profile: Profile.BOUTIQUIER,
               },
             },
@@ -96,11 +83,15 @@ export class BoutiqueService {
         },
       });
 
-      // await this.mailService.sendShopLogin(
-      //   createBoutiqueDto.email,
-      //   password,
-      //   createBoutiqueDto.nom,
-      // );
+      await this.mailService.sendMail(
+        [createBoutiqueDto.email],
+        'Les identifiant de votre boutique',
+        templateToSendShopidentyMail(
+          password,
+          createBoutiqueDto.nom,
+          createBoutiqueDto.email,
+        ),
+      );
 
       return {
         statusCode: 201,

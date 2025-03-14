@@ -9,8 +9,8 @@ export declare class CommandController {
             id: number;
             createdAt: Date;
             updatedAt: Date | null;
-            utilisateurId: number;
             commandeNbr: string;
+            utilisateurId: number;
             etat: import(".prisma/client").$Enums.EtatCommand;
         };
     }>;
@@ -19,12 +19,12 @@ export declare class CommandController {
             produits: {
                 nom: string;
                 id: number;
-                description: string;
-                img: string;
-                tags: string[];
-                categorieId: number;
                 createdAt: Date;
                 updatedAt: Date;
+                description: string;
+                img: string;
+                tags: string;
+                categorieId: number;
             };
             boutiques: {
                 nom: string;
@@ -36,21 +36,21 @@ export declare class CommandController {
             };
             prix: import("@prisma/client/runtime/library").Decimal;
             id: number;
+            createdAt: Date;
+            updatedAt: Date;
             quantiter: number;
             produitId: number;
             boutiqueId: number;
-            createdAt: Date;
-            updatedAt: Date;
             Prix: {
                 produits: {
                     nom: string;
                     id: number;
-                    description: string;
-                    img: string;
-                    tags: string[];
-                    categorieId: number;
                     createdAt: Date;
                     updatedAt: Date;
+                    description: string;
+                    img: string;
+                    tags: string;
+                    categorieId: number;
                 };
                 boutiques: {
                     nom: string;
@@ -63,11 +63,11 @@ export declare class CommandController {
             } & {
                 prix: import("@prisma/client/runtime/library").Decimal;
                 id: number;
+                createdAt: Date;
+                updatedAt: Date;
                 quantiter: number;
                 produitId: number;
                 boutiqueId: number;
-                createdAt: Date;
-                updatedAt: Date;
             };
             prixId: number | null;
             commandeId: number | null;
@@ -95,9 +95,9 @@ export declare class CommandController {
                     nom: string;
                     telephone: string;
                     id: number;
-                    description: string;
                     createdAt: Date;
                     updatedAt: Date;
+                    description: string;
                     userId: number;
                     quartier: string;
                 }[];
@@ -114,12 +114,12 @@ export declare class CommandController {
                     };
                     nom: string;
                     id: number;
-                    description: string;
-                    img: string;
-                    tags: string[];
-                    categorieId: number;
                     createdAt: Date;
                     updatedAt: Date;
+                    description: string;
+                    img: string;
+                    tags: string;
+                    categorieId: number;
                 };
                 Prix: {
                     produits: {
@@ -131,26 +131,26 @@ export declare class CommandController {
                     } & {
                         nom: string;
                         id: number;
-                        description: string;
-                        img: string;
-                        tags: string[];
-                        categorieId: number;
                         createdAt: Date;
                         updatedAt: Date;
+                        description: string;
+                        img: string;
+                        tags: string;
+                        categorieId: number;
                     };
                 } & {
                     prix: import("@prisma/client/runtime/library").Decimal;
                     id: number;
+                    createdAt: Date;
+                    updatedAt: Date;
                     quantiter: number;
                     produitId: number;
                     boutiqueId: number;
-                    createdAt: Date;
-                    updatedAt: Date;
                 };
                 id: number;
-                quantiter: number;
                 createdAt: Date;
                 updatedAt: Date;
+                quantiter: number;
                 prixId: number | null;
                 commandeId: number | null;
             }[];
@@ -166,9 +166,9 @@ export declare class CommandController {
                     nom: string;
                     telephone: string;
                     id: number;
-                    description: string;
                     createdAt: Date;
                     updatedAt: Date;
+                    description: string;
                     userId: number;
                     quartier: string;
                 }[];

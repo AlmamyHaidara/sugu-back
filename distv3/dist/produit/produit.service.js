@@ -37,7 +37,7 @@ let ProduitService = class ProduitService {
                     nom: createProduitDto.nom,
                     description: createProduitDto.description,
                     img: createProduitDto.img,
-                    tags: JSON.parse(createProduitDto.tags),
+                    tags: createProduitDto.tags,
                     categories: {
                         connect: { id: Number(createProduitDto.categorie) },
                     },
@@ -47,6 +47,68 @@ let ProduitService = class ProduitService {
                             quantiter: Number(createProduitDto.quantiter),
                             boutiques: {
                                 connect: { id: boutiqueId },
+                            },
+                        },
+                    },
+                },
+                include: {
+                    categories: true,
+                    Prix: {
+                        select: {
+                            id: true,
+                            prix: true,
+                            quantiter: true,
+                        },
+                    },
+                },
+            });
+            const prixId = produit.Prix[0].id;
+            delete produit.Prix[0].id;
+            const productFiltered = { ...produit, ...produit.Prix[0], prixId };
+            delete productFiltered.Prix;
+            return {
+                statusCode: common_1.HttpStatus.CREATED,
+                message: 'Produit créé avec succès',
+                data: productFiltered,
+            };
+        }
+        catch (error) {
+            console.error(error);
+            throw new common_1.InternalServerErrorException('Une erreur est survenue lors de la création du produit.');
+        }
+    }
+    async createA(createProduitDto) {
+        try {
+            const categorie = await this.prisma.categorieProduit.findUnique({
+                where: { id: Number(createProduitDto.categorie) },
+            });
+            if (!categorie) {
+                throw new common_1.NotFoundException('Catégorie inexistante');
+            }
+            const boutiqueId = Number(createProduitDto.boutique);
+            console.log('boutiqueIdboutiqueIdboutiqueIdboutiqueId');
+            console.log(boutiqueId);
+            const boutique = await this.prisma.boutique.findFirst({
+                where: { userId: boutiqueId },
+            });
+            if (!boutique) {
+                throw new common_1.NotFoundException(`Boutique #${createProduitDto.boutique} introuvable`);
+            }
+            const produit = await this.prisma.produit.create({
+                data: {
+                    nom: createProduitDto.nom,
+                    description: createProduitDto.description,
+                    img: createProduitDto.img,
+                    tags: createProduitDto.tags,
+                    categories: {
+                        connect: { id: Number(createProduitDto.categorie) },
+                    },
+                    Prix: {
+                        create: {
+                            prix: createProduitDto.prix,
+                            quantiter: Number(createProduitDto.quantiter),
+                            boutiques: {
+                                connect: { id: boutique.id },
                             },
                         },
                     },
@@ -233,7 +295,7 @@ let ProduitService = class ProduitService {
                     nom: updateProduitDto.nom,
                     description: updateProduitDto.description,
                     img: updateProduitDto.img,
-                    tags: JSON.parse(updateProduitDto.tags),
+                    tags: updateProduitDto.tags,
                     categories: {
                         connect: { id: Number(updateProduitDto.categorie) },
                     },
@@ -375,7 +437,7 @@ let ProduitService = class ProduitService {
         const whereClause = {};
         const whereBoutiqueClause = {};
         if (nom) {
-            whereClause.nom = { contains: nom, mode: 'insensitive' };
+            whereClause.nom = { contains: nom };
         }
         if (categorieId) {
             whereClause.categorieId = Number(categorieId);

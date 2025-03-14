@@ -26,12 +26,39 @@ export declare class ProduitService {
                 quantiter: number;
             }[];
             nom: string;
-            description: string;
-            img: string;
-            tags: string[];
-            categorieId: number;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            img: string;
+            tags: string;
+            categorieId: number;
+        };
+    }>;
+    createA(createProduitDto: CreateProduitDto): Promise<{
+        statusCode: HttpStatus;
+        message: string;
+        data: {
+            prixId: number;
+            prix: Prisma.Decimal;
+            id: number;
+            quantiter: number;
+            categories: {
+                nom: string;
+                id: number;
+                description: string | null;
+            };
+            Prix: {
+                prix: Prisma.Decimal;
+                id: number;
+                quantiter: number;
+            }[];
+            nom: string;
+            createdAt: Date;
+            updatedAt: Date;
+            description: string;
+            img: string;
+            tags: string;
+            categorieId: number;
         };
     }>;
     findAll(): Promise<{
@@ -40,12 +67,12 @@ export declare class ProduitService {
         data: {
             nom: string;
             id: number;
-            description: string;
-            img: string;
-            tags: string[];
-            categorieId: number;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            img: string;
+            tags: string;
+            categorieId: number;
         }[];
     }>;
     findAllByShop(shopId: number): Promise<{
@@ -58,12 +85,12 @@ export declare class ProduitService {
             produitId: number;
             boutiqueId: number;
             nom: string;
-            description: string;
-            img: string;
-            tags: string[];
-            categorieId: number;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            img: string;
+            tags: string;
+            categorieId: number;
         }[];
     }>;
     findOne(id: number): Promise<{
@@ -72,12 +99,12 @@ export declare class ProduitService {
         data: {
             nom: string;
             id: number;
-            description: string;
-            img: string;
-            tags: string[];
-            categorieId: number;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            img: string;
+            tags: string;
+            categorieId: number;
         };
     }>;
     findByUserIdAndShopId(shopId: number, userId: number): Promise<{
@@ -88,7 +115,7 @@ export declare class ProduitService {
             id: number;
             description: string;
             img: string;
-            tags: string[];
+            tags: string;
             categorieId: number;
             categories: {
                 nom: string;
@@ -101,7 +128,7 @@ export declare class ProduitService {
                 id: number;
                 description: string;
                 img: string;
-                tags: string[];
+                tags: string;
                 categorieId: number;
                 categories: {
                     nom: string;
@@ -110,11 +137,11 @@ export declare class ProduitService {
                 };
             };
             prix: Prisma.Decimal;
+            createdAt: Date;
+            updatedAt: Date;
             quantiter: number;
             produitId: number;
             boutiqueId: number;
-            createdAt: Date;
-            updatedAt: Date;
         }[];
     }>;
     update(id: number, updateProduitDto: UpdateProduitDto, file?: Express.Multer.File): Promise<{
@@ -136,12 +163,12 @@ export declare class ProduitService {
                 quantiter: number;
             }[];
             nom: string;
-            description: string;
-            img: string;
-            tags: string[];
-            categorieId: number;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            img: string;
+            tags: string;
+            categorieId: number;
         };
     }>;
     remove(id: number): Promise<{
@@ -171,10 +198,10 @@ export declare class ProduitService {
                     nom: string;
                     email: string | null;
                     id: number;
-                    description: string;
-                    img: string | null;
                     createdAt: Date;
                     updatedAt: Date;
+                    description: string;
+                    img: string | null;
                     categorie: import(".prisma/client").$Enums.CategorieBoutique;
                     location: import(".prisma/client").$Enums.Location;
                     phone: string | null;
@@ -184,20 +211,20 @@ export declare class ProduitService {
             } & {
                 prix: Prisma.Decimal;
                 id: number;
+                createdAt: Date;
+                updatedAt: Date;
                 quantiter: number;
                 produitId: number;
                 boutiqueId: number;
-                createdAt: Date;
-                updatedAt: Date;
             })[];
             nom: string;
             id: number;
-            description: string;
-            img: string;
-            tags: string[];
-            categorieId: number;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            img: string;
+            tags: string;
+            categorieId: number;
         }[];
     }>;
     findAllProduits(query: SearchProduitsDto): Promise<{
@@ -223,10 +250,10 @@ export declare class ProduitService {
                     nom: string;
                     email: string | null;
                     id: number;
-                    description: string;
-                    img: string | null;
                     createdAt: Date;
                     updatedAt: Date;
+                    description: string;
+                    img: string | null;
                     categorie: import(".prisma/client").$Enums.CategorieBoutique;
                     location: import(".prisma/client").$Enums.Location;
                     phone: string | null;
@@ -236,20 +263,20 @@ export declare class ProduitService {
             } & {
                 prix: Prisma.Decimal;
                 id: number;
+                createdAt: Date;
+                updatedAt: Date;
                 quantiter: number;
                 produitId: number;
                 boutiqueId: number;
-                createdAt: Date;
-                updatedAt: Date;
             })[];
             nom: string;
             id: number;
-            description: string;
-            img: string;
-            tags: string[];
-            categorieId: number;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            img: string;
+            tags: string;
+            categorieId: number;
         }[];
         totalCount: number;
         currentPage: number;

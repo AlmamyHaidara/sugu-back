@@ -11,7 +11,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -75,12 +75,12 @@ model Adresse {
 }
 
 model Produit {
-  id          Int      @id @default(autoincrement())
+  id          Int    @id @default(autoincrement())
   nom         String
-  description String
+  description String @db.Text
   img         String
   // Tableau de mots-clés pour la recherche avancée (facultatif)
-  tags        String[]
+  tags        String
 
   categorieId Int
   categories  CategorieProduit @relation(fields: [categorieId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -101,7 +101,7 @@ model Boutique {
 
   // Ajout d'un champ facultatif pour l'image
   img         String?
-  description String
+  description String  @db.Text
   phone       String?
 
   // L'utilisateur à qui appartient la boutique
@@ -167,7 +167,7 @@ model LigneCommand {
 model CategorieProduit {
   id          Int     @id @default(autoincrement())
   nom         String
-  description String?
+  description String? @db.Text
 
   produits Produit[]
 }

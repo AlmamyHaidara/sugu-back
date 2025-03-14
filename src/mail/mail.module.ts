@@ -7,19 +7,18 @@ import { MailService } from './mail.service';
   imports: [
     MailerModule.forRoot({
       transport: {
-        host: 'smtp.mail.yahoo.com',
+        service: 'yahoo',
+        host: process.env.YAHOO_HOST,
+        port: 465,
+        secure: true,
         auth: {
-          user: process.env.YAHOO_USER, // Votre adresse Yahoo
-          pass: process.env.YAHOO_PASS, // Votre mot de passe ou mot de passe d'application Yahoo
+          user: process.env.YAHOO_USER,
+          pass: process.env.YAHOO_PASS, // Utilisez le mot de passe d'application généré
         },
       },
-      // defaults: {
-      //   from: `"Sugu market place" ${process.env.YAHOO_USER}`,
-      // },
-      // template: {
-      //   dir: join(__dirname, 'templates'),
-      //   // Vous pouvez configurer un adaptateur de template si nécessaire
-      // },
+      defaults: {
+        from: `"Sugu" <${process.env.YAHOO_USER}>`,
+      },
     }),
   ],
   providers: [MailService],

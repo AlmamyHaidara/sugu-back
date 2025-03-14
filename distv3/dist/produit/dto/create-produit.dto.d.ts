@@ -6,5 +6,5 @@ export declare class CreateProduitDto {
     prix: string;
     quantiter: string;
     tags: string;
-    boutique: string;
+    boutique?: string;
 }
