@@ -23,57 +23,57 @@ export declare class CommandService {
     findAll(userId: number): Promise<{
         LigneCommand: {
             produits: {
-                nom: string;
                 id: number;
                 createdAt: Date;
                 updatedAt: Date;
-                description: string;
+                nom: string;
                 img: string;
+                description: string;
                 tags: string;
                 categorieId: number;
             };
             boutiques: {
-                nom: string;
                 id: number;
-                description: string;
+                nom: string;
                 categorie: import(".prisma/client").$Enums.CategorieBoutique;
                 location: import(".prisma/client").$Enums.Location;
+                description: string;
                 phone: string;
             };
             prix: import("@prisma/client/runtime/library").Decimal;
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
             quantiter: number;
             produitId: number;
             boutiqueId: number;
+            createdAt: Date;
+            updatedAt: Date;
             Prix: {
                 produits: {
-                    nom: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    description: string;
+                    nom: string;
                     img: string;
+                    description: string;
                     tags: string;
                     categorieId: number;
                 };
                 boutiques: {
-                    nom: string;
                     id: number;
-                    description: string;
+                    nom: string;
                     categorie: import(".prisma/client").$Enums.CategorieBoutique;
                     location: import(".prisma/client").$Enums.Location;
+                    description: string;
                     phone: string;
                 };
             } & {
                 prix: import("@prisma/client/runtime/library").Decimal;
                 id: number;
-                createdAt: Date;
-                updatedAt: Date;
                 quantiter: number;
                 produitId: number;
                 boutiqueId: number;
+                createdAt: Date;
+                updatedAt: Date;
             };
             prixId: number | null;
             commandeId: number | null;
@@ -92,19 +92,19 @@ export declare class CommandService {
         status: number;
         data: {
             utilisateur: {
+                id: number;
                 nom: string;
-                prenom: string;
                 email: string;
                 telephone: string;
-                id: number;
+                prenom: string;
                 Adresse: {
-                    nom: string;
-                    telephone: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
+                    nom: string;
                     description: string;
                     userId: number;
+                    telephone: string;
                     quartier: string;
                 }[];
             };
@@ -114,68 +114,68 @@ export declare class CommandService {
                     quantiter: number;
                     prixId: number;
                     categories: {
-                        nom: string;
                         id: number;
+                        nom: string;
                         description: string | null;
                     };
-                    nom: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    description: string;
+                    nom: string;
                     img: string;
+                    description: string;
                     tags: string;
                     categorieId: number;
                 };
                 Prix: {
                     produits: {
                         categories: {
-                            nom: string;
                             id: number;
+                            nom: string;
                             description: string | null;
                         };
                     } & {
-                        nom: string;
                         id: number;
                         createdAt: Date;
                         updatedAt: Date;
-                        description: string;
+                        nom: string;
                         img: string;
+                        description: string;
                         tags: string;
                         categorieId: number;
                     };
                 } & {
                     prix: import("@prisma/client/runtime/library").Decimal;
                     id: number;
-                    createdAt: Date;
-                    updatedAt: Date;
                     quantiter: number;
                     produitId: number;
                     boutiqueId: number;
+                    createdAt: Date;
+                    updatedAt: Date;
                 };
                 id: number;
+                quantiter: number;
                 createdAt: Date;
                 updatedAt: Date;
-                quantiter: number;
                 prixId: number | null;
                 commandeId: number | null;
             }[];
             id: number;
             createdAt: Date;
             utilisateurs: {
+                id: number;
                 nom: string;
-                prenom: string;
                 email: string;
                 telephone: string;
-                id: number;
+                prenom: string;
                 Adresse: {
-                    nom: string;
-                    telephone: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
+                    nom: string;
                     description: string;
                     userId: number;
+                    telephone: string;
                     quartier: string;
                 }[];
             };

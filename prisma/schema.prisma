@@ -222,7 +222,7 @@ model Notification {
 
   title String?
 
-  message String
+  message String @db.Text
 
   data Json?
 

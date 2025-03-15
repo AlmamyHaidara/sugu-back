@@ -271,6 +271,8 @@ export class BoutiqueService {
 
   async getStatistic(id: number) {
     try {
+      console.log('====================');
+
       const today = new Date();
       const startDate = new Date(today.getFullYear(), today.getMonth() - 4, 1); // Début du 5e mois
       const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Fin du mois en cours

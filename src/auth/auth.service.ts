@@ -45,6 +45,7 @@ export class AuthService {
         username: user.username,
         roles: user?.profile ? [user.profile.toLowerCase()] : [],
       };
+
       let currentUser = await this.usersService.getCurrentUser(email);
       if (!currentUser) {
         this.logger.warn(`Current user not found: ${email}`);

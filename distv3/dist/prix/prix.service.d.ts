@@ -9,11 +9,11 @@ export declare class PrixService {
         data: {
             prix: import("@prisma/client/runtime/library").Decimal;
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
             quantiter: number;
             produitId: number;
             boutiqueId: number;
+            createdAt: Date;
+            updatedAt: Date;
         };
     }>;
     findAll(): Promise<{
@@ -21,11 +21,11 @@ export declare class PrixService {
         data: {
             prix: import("@prisma/client/runtime/library").Decimal;
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
             quantiter: number;
             produitId: number;
             boutiqueId: number;
+            createdAt: Date;
+            updatedAt: Date;
         }[];
     }>;
     findOne(id: number, productId: number, boutiqueId: number): Promise<{
@@ -37,11 +37,11 @@ export declare class PrixService {
         data: {
             prix: import("@prisma/client/runtime/library").Decimal;
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
             quantiter: number;
             produitId: number;
             boutiqueId: number;
+            createdAt: Date;
+            updatedAt: Date;
         };
     }>;
     findOneManyById(ids: number[]): Promise<{

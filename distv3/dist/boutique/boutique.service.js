@@ -289,6 +289,7 @@ let BoutiqueService = class BoutiqueService {
     }
     async getStatistic(id) {
         try {
+            console.log('====================');
             const today = new Date();
             const startDate = new Date(today.getFullYear(), today.getMonth() - 4, 1);
             const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);

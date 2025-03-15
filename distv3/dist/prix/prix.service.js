@@ -225,20 +225,26 @@ let PrixService = class PrixService {
     }
     async findOneByUserId(id) {
         try {
+            const isShop = await this.prisma.boutique.findFirst({
+                where: {
+                    userId: id,
+                },
+            });
+            const boutique = isShop.id > 0 && isShop;
             const userExist = await this.prisma.prix.findFirst({
                 where: {
-                    boutiques: {
-                        userId: id,
-                    },
+                    boutiqueId: isShop.id,
                 },
                 select: {
                     id: true,
                     boutiques: true,
                 },
             });
-            const boutique = userExist.id > 0 && userExist.boutiques;
-            delete userExist.boutiques;
-            return userExist.id > 0 ? { ...userExist, ...boutique } : null;
+            if (userExist?.id) {
+                delete userExist.boutiques;
+                return userExist.id > 0 ? { ...userExist, ...boutique } : null;
+            }
+            return isShop.id > 0 ? { ...boutique } : null;
         }
         catch (error) {
             console.error('Error in findOneManyById:', error);

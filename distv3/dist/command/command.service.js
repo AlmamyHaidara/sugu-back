@@ -47,6 +47,11 @@ let CommandService = class CommandService {
                     },
                 },
             });
+            console.log(await this.prisma.utilisateur.findFirst({
+                where: {
+                    id: createCommandDto.usetilisateurId,
+                },
+            }));
             if (!usr || !usr.id) {
                 throw new Error('Utilisateur non trouvé.');
             }

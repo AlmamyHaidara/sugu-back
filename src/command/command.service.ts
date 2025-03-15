@@ -177,6 +177,15 @@ export class CommandService {
           },
         },
       });
+
+      console.log(
+        await this.prisma.utilisateur.findFirst({
+          where: {
+            id: createCommandDto.usetilisateurId,
+          },
+        }),
+      );
+
       // const usr = await this.user.findOneById(createCommandDto.usetilisateurId);
       if (!usr || !usr.id) {
         throw new Error('Utilisateur non trouvé.');
