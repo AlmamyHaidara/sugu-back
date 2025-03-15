@@ -213,6 +213,72 @@ export class PrixService {
     }
   }
 
+  async findOneManyById(ids: number[]): Promise<{ id: number }[] | null> {
+    try {
+      const userExist = await this.prisma.prix.findMany({
+        where: {
+          id: {
+            in: ids, // Filtrer les enregistrements correspondant aux ID
+          },
+        },
+        select: {
+          id: true, // Récupérer uniquement le champ 'id'
+        },
+      });
+
+      return userExist.length > 0 ? userExist : null; // Retourne null si aucun résultat
+    } catch (error) {
+      console.error('Error in findOneManyById:', error);
+      return null;
+    }
+  }
+
+  async findOneById(id: number): Promise<{ id: number } | null> {
+    try {
+      const userExist = await this.prisma.prix.findUnique({
+        where: {
+          id: id,
+        },
+        select: {
+          id: true, // Récupérer uniquement le champ 'id'
+        },
+      });
+
+      return userExist.id > 0 ? userExist : null; // Retourne null si aucun résultat
+    } catch (error) {
+      console.error('Error in findOneManyById:', error);
+      return null;
+    }
+  }
+
+  async findOneByUserId(id: number): Promise<{ id: number } | null> {
+    try {
+      const isShop = await this.prisma.boutique.findFirst({
+        where: {
+          userId: id,
+        },
+      });
+      const boutique = isShop.id > 0 && isShop;
+      const userExist = await this.prisma.prix.findFirst({
+        where: {
+          boutiqueId: isShop.id,
+        },
+        select: {
+          id: true,
+          boutiques: true,
+        },
+      });
+      if (userExist?.id) {
+        delete userExist.boutiques;
+        return userExist.id > 0 ? { ...userExist, ...boutique } : null; // Retourne null si aucun résultat
+      }
+      return isShop.id > 0 ? { ...boutique } : null;
+    } catch (error) {
+      console.error('Error in findOneManyById:', error);
+      return null;
+    }
+  }
+
   async remove(id: number) {
     try {
       const isExiste = await this.prisma.prix.findFirst({
