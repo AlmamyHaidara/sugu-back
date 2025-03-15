@@ -6,6 +6,7 @@ import { compare } from 'src/utils/bcrypt';
 import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 import { Utilisateur } from '@prisma/client';
 import { PrixService } from 'src/prix/prix.service';
+import { PasswordUpdate } from './constants';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,15 @@ export class AuthService {
   async signUp(createUserDto: CreateUserDto) {
     this.logger.log('Signing up a new user');
     return this.usersService.create(createUserDto);
+  }
+
+  async updatePassword(createUserDto: PasswordUpdate) {
+    this.logger.log('Signing up a new user');
+    return this.usersService.passwordUpdate(
+      createUserDto.userId,
+      createUserDto.newPassword,
+      createUserDto.currentPassword,
+    );
   }
 
   async signIn(

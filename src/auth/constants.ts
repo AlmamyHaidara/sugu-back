@@ -8,3 +8,9 @@ export const jwtConstants = {
 
 export const IS_PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
+
+export type PasswordUpdate = {
+  userId: number;
+  newPassword: string;
+  currentPassword: string;
+};
