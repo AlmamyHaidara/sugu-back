@@ -146,10 +146,11 @@ export class ProduitController {
     @Param('shopId', ParseIntPipe) shopId: number,
     @Param('userId', ParseIntPipe) userId: number,
   ) {
-    const produitSupprimé = await this.produitService.findByUserIdAndShopId(
-      shopId,
-      userId,
-    );
-    return produitSupprimé;
+    return await this.produitService.findByUserIdAndShopId(shopId, userId);
+  }
+
+  @Get('by-shop-id/:shopId/')
+  async getByShopId(@Param('shopId', ParseIntPipe) shopId: number) {
+    return await this.produitService.findByShopId(shopId);
   }
 }

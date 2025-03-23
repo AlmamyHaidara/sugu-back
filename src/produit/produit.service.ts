@@ -10,7 +10,7 @@ import { UpdateProduitDto } from './dto/update-produit.dto';
 import { SearchProduitsDto } from './dto/SearchProduits.dto';
 import { CategorieBoutique, Prisma } from '@prisma/client';
 import { Location } from 'src/boutique/dto/create-boutique.dto';
-import fs from 'fs';
+import * as fs from 'fs';
 @Injectable()
 export class ProduitService {
   constructor(private readonly prisma: PrismaService) {}
@@ -252,6 +252,52 @@ export class ProduitService {
     }
   }
 
+  async findByShopId(shopId: number) {
+    try {
+      const prixs = await this.prisma.prix.findMany({
+        where: {
+          boutiqueId: shopId,
+        },
+        include: {
+          produits: {
+            select: {
+              id: true,
+              categorieId: true,
+              description: true,
+              img: true,
+              nom: true,
+              tags: true,
+              categories: true,
+            },
+          },
+        },
+      });
+
+      const products = prixs.flatMap((prix) => {
+        const prixId = prix.id;
+        const products = {
+          ...prix.produits,
+          tags: JSON.parse(prix.produits.tags),
+        };
+        delete prix.boutiqueId;
+        delete prix.produitId;
+        delete prix.produits;
+        return { ...prix, prixId, ...products };
+      });
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: `La liste des produits`,
+        data: products,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException(
+        'Erreur lors de la récupération du produit',
+      );
+    }
+  }
+
   async findByUserIdAndShopId(shopId: number, userId: number) {
     try {
       const prixs = await this.prisma.prix.findMany({
@@ -325,14 +371,16 @@ export class ProduitService {
       }
 
       if (file && existingProduit.img) {
-        // fs.unlinkSync ou fs/promises.unlink (avec try/catch)
         try {
-          // Supprimez l'ancien fichier du disque
-          // Attention : vérifiez que existingProduit.img est un path (et pas une URL externe)
-          fs.unlinkSync(existingProduit.img);
+          fs.access(existingProduit.img, fs.constants.F_OK, (err) => {
+            if (err) {
+              console.log("Le fichier n'existe pas.");
+            } else {
+              fs.unlinkSync(existingProduit.img);
+            }
+          });
         } catch (error) {
           console.error(`Erreur de suppression de l'ancien fichier :`, error);
-          // Vous pouvez ignorer l'erreur ou lever une exception, selon votre logique
         }
       }
 
@@ -345,6 +393,8 @@ export class ProduitService {
       if (file) {
         dataToUpdate.img = file.path; // ou construire une URL publique
       }
+      console.log(updateProduitDto);
+      console.log(dataToUpdate.img);
 
       // Mise à jour du produit
       const updatedProduit = await this.prisma.produit.update({
@@ -352,9 +402,8 @@ export class ProduitService {
         data: {
           nom: updateProduitDto.nom,
           description: updateProduitDto.description,
-          img: updateProduitDto.img,
+          img: dataToUpdate.img,
           tags: updateProduitDto.tags,
-          // tags: JSON.parse(updateProduitDto.tags),
           categories: {
             connect: { id: Number(updateProduitDto.categorie) },
           },
@@ -387,6 +436,7 @@ export class ProduitService {
       const productFiltered = {
         ...updatedProduit,
         ...updatedProduit.Prix[0],
+
         prixId,
       };
       delete productFiltered.Prix;
@@ -416,7 +466,13 @@ export class ProduitService {
 
       if (existingProduit.img) {
         try {
-          fs.unlinkSync(existingProduit.img);
+          fs.access(existingProduit.img, fs.constants.F_OK, (err) => {
+            if (err) {
+              console.log("Le fichier n'existe pas.");
+            } else {
+              fs.unlinkSync(existingProduit.img);
+            }
+          });
         } catch (error) {
           console.error(`Erreur de suppression de l'image :`, error);
           // vous pouvez ignorer ou lever une exception selon votre logique

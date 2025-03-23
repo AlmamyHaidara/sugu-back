@@ -64,8 +64,10 @@ let ProduitController = class ProduitController {
         };
     }
     async getByShopIdAndUserId(shopId, userId) {
-        const produitSupprimé = await this.produitService.findByUserIdAndShopId(shopId, userId);
-        return produitSupprimé;
+        return await this.produitService.findByUserIdAndShopId(shopId, userId);
+    }
+    async getByShopId(shopId) {
+        return await this.produitService.findByShopId(shopId);
     }
 };
 exports.ProduitController = ProduitController;
@@ -167,6 +169,13 @@ __decorate([
     __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", Promise)
 ], ProduitController.prototype, "getByShopIdAndUserId", null);
+__decorate([
+    (0, common_1.Get)('by-shop-id/:shopId/'),
+    __param(0, (0, common_1.Param)('shopId', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], ProduitController.prototype, "getByShopId", null);
 exports.ProduitController = ProduitController = __decorate([
     (0, common_1.Controller)('produit'),
     __metadata("design:paramtypes", [produit_service_1.ProduitService])

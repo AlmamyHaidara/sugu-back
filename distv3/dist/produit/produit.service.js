@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProduitService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
-const fs_1 = require("fs");
+const fs = require("fs");
 let ProduitService = class ProduitService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -216,6 +216,48 @@ let ProduitService = class ProduitService {
             throw new common_1.InternalServerErrorException('Erreur lors de la récupération du produit');
         }
     }
+    async findByShopId(shopId) {
+        try {
+            const prixs = await this.prisma.prix.findMany({
+                where: {
+                    boutiqueId: shopId,
+                },
+                include: {
+                    produits: {
+                        select: {
+                            id: true,
+                            categorieId: true,
+                            description: true,
+                            img: true,
+                            nom: true,
+                            tags: true,
+                            categories: true,
+                        },
+                    },
+                },
+            });
+            const products = prixs.flatMap((prix) => {
+                const prixId = prix.id;
+                const products = {
+                    ...prix.produits,
+                    tags: JSON.parse(prix.produits.tags),
+                };
+                delete prix.boutiqueId;
+                delete prix.produitId;
+                delete prix.produits;
+                return { ...prix, prixId, ...products };
+            });
+            return {
+                statusCode: common_1.HttpStatus.OK,
+                message: `La liste des produits`,
+                data: products,
+            };
+        }
+        catch (error) {
+            console.error(error);
+            throw new common_1.InternalServerErrorException('Erreur lors de la récupération du produit');
+        }
+    }
     async findByUserIdAndShopId(shopId, userId) {
         try {
             const prixs = await this.prisma.prix.findMany({
@@ -277,7 +319,14 @@ let ProduitService = class ProduitService {
             }
             if (file && existingProduit.img) {
                 try {
-                    fs_1.default.unlinkSync(existingProduit.img);
+                    fs.access(existingProduit.img, fs.constants.F_OK, (err) => {
+                        if (err) {
+                            console.log("Le fichier n'existe pas.");
+                        }
+                        else {
+                            fs.unlinkSync(existingProduit.img);
+                        }
+                    });
                 }
                 catch (error) {
                     console.error(`Erreur de suppression de l'ancien fichier :`, error);
@@ -289,12 +338,14 @@ let ProduitService = class ProduitService {
             if (file) {
                 dataToUpdate.img = file.path;
             }
+            console.log(updateProduitDto);
+            console.log(dataToUpdate.img);
             const updatedProduit = await this.prisma.produit.update({
                 where: { id: Number(id) },
                 data: {
                     nom: updateProduitDto.nom,
                     description: updateProduitDto.description,
-                    img: updateProduitDto.img,
+                    img: dataToUpdate.img,
                     tags: updateProduitDto.tags,
                     categories: {
                         connect: { id: Number(updateProduitDto.categorie) },
@@ -351,7 +402,14 @@ let ProduitService = class ProduitService {
             }
             if (existingProduit.img) {
                 try {
-                    fs_1.default.unlinkSync(existingProduit.img);
+                    fs.access(existingProduit.img, fs.constants.F_OK, (err) => {
+                        if (err) {
+                            console.log("Le fichier n'existe pas.");
+                        }
+                        else {
+                            fs.unlinkSync(existingProduit.img);
+                        }
+                    });
                 }
                 catch (error) {
                     console.error(`Erreur de suppression de l'image :`, error);

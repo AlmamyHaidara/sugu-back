@@ -10,26 +10,26 @@ export declare class ProduitController {
         message: string;
         data: {
             prixId: number;
-            prix: import("@prisma/client/runtime/library").Decimal;
             id: number;
+            prix: import("@prisma/client/runtime/library").Decimal;
             quantiter: number;
             categories: {
-                nom: string;
                 id: number;
+                nom: string;
                 description: string | null;
             };
             Prix: {
-                prix: import("@prisma/client/runtime/library").Decimal;
                 id: number;
+                prix: import("@prisma/client/runtime/library").Decimal;
                 quantiter: number;
             }[];
             nom: string;
-            createdAt: Date;
-            updatedAt: Date;
             description: string;
             img: string;
             tags: string;
             categorieId: number;
+            createdAt: Date;
+            updatedAt: Date;
         };
     }>;
     findAll(query: SearchProduitsDto): Promise<{
@@ -46,19 +46,19 @@ export declare class ProduitController {
                 categorie: import(".prisma/client").$Enums.CategorieBoutique;
             };
             categories: {
-                nom: string;
                 id: number;
+                nom: string;
                 description: string | null;
             };
             Prix: ({
                 boutiques: {
-                    nom: string;
-                    email: string | null;
                     id: number;
-                    createdAt: Date;
-                    updatedAt: Date;
+                    nom: string;
                     description: string;
                     img: string | null;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    email: string | null;
                     categorie: import(".prisma/client").$Enums.CategorieBoutique;
                     location: import(".prisma/client").$Enums.Location;
                     phone: string | null;
@@ -66,22 +66,22 @@ export declare class ProduitController {
                     countryId: number | null;
                 };
             } & {
-                prix: import("@prisma/client/runtime/library").Decimal;
                 id: number;
                 createdAt: Date;
                 updatedAt: Date;
+                prix: import("@prisma/client/runtime/library").Decimal;
                 quantiter: number;
-                produitId: number;
                 boutiqueId: number;
+                produitId: number;
             })[];
-            nom: string;
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
+            nom: string;
             description: string;
             img: string;
             tags: string;
             categorieId: number;
+            createdAt: Date;
+            updatedAt: Date;
         }[];
         totalCount: number;
         currentPage: number;
@@ -101,19 +101,19 @@ export declare class ProduitController {
                 categorie: import(".prisma/client").$Enums.CategorieBoutique;
             };
             categories: {
-                nom: string;
                 id: number;
+                nom: string;
                 description: string | null;
             };
             Prix: ({
                 boutiques: {
-                    nom: string;
-                    email: string | null;
                     id: number;
-                    createdAt: Date;
-                    updatedAt: Date;
+                    nom: string;
                     description: string;
                     img: string | null;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    email: string | null;
                     categorie: import(".prisma/client").$Enums.CategorieBoutique;
                     location: import(".prisma/client").$Enums.Location;
                     phone: string | null;
@@ -121,54 +121,54 @@ export declare class ProduitController {
                     countryId: number | null;
                 };
             } & {
-                prix: import("@prisma/client/runtime/library").Decimal;
                 id: number;
                 createdAt: Date;
                 updatedAt: Date;
+                prix: import("@prisma/client/runtime/library").Decimal;
                 quantiter: number;
-                produitId: number;
                 boutiqueId: number;
+                produitId: number;
             })[];
-            nom: string;
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
+            nom: string;
             description: string;
             img: string;
             tags: string;
             categorieId: number;
+            createdAt: Date;
+            updatedAt: Date;
         }[];
     }>;
     findAllByShop(id: number): Promise<{
         statusCode: import("@nestjs/common").HttpStatus;
         message: string;
         data: {
-            prix: import("@prisma/client/runtime/library").Decimal;
             id: number;
+            prix: import("@prisma/client/runtime/library").Decimal;
             quantiter: number;
-            produitId: number;
             boutiqueId: number;
+            produitId: number;
             nom: string;
-            createdAt: Date;
-            updatedAt: Date;
             description: string;
             img: string;
             tags: string;
             categorieId: number;
+            createdAt: Date;
+            updatedAt: Date;
         }[];
     }>;
     findOne(id: number): Promise<{
         statusCode: import("@nestjs/common").HttpStatus;
         message: string;
         data: {
-            nom: string;
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
+            nom: string;
             description: string;
             img: string;
             tags: string;
             categorieId: number;
+            createdAt: Date;
+            updatedAt: Date;
         };
     }>;
     update(id: number, file: Express.Multer.File, updateProduitDto: UpdateProduitDto): Promise<{
@@ -176,26 +176,26 @@ export declare class ProduitController {
         message: string;
         data: {
             prixId: number;
-            prix: import("@prisma/client/runtime/library").Decimal;
             id: number;
+            prix: import("@prisma/client/runtime/library").Decimal;
             quantiter: number;
             categories: {
-                nom: string;
                 id: number;
+                nom: string;
                 description: string | null;
             };
             Prix: {
-                prix: import("@prisma/client/runtime/library").Decimal;
                 id: number;
+                prix: import("@prisma/client/runtime/library").Decimal;
                 quantiter: number;
             }[];
             nom: string;
-            createdAt: Date;
-            updatedAt: Date;
             description: string;
             img: string;
             tags: string;
             categorieId: number;
+            createdAt: Date;
+            updatedAt: Date;
         };
     }>;
     remove(id: number): Promise<{
@@ -209,37 +209,74 @@ export declare class ProduitController {
         statusCode: import("@nestjs/common").HttpStatus;
         message: string;
         data: {
-            nom: string;
             id: number;
+            nom: string;
             description: string;
             img: string;
             tags: string;
             categorieId: number;
             categories: {
-                nom: string;
                 id: number;
+                nom: string;
                 description: string | null;
             };
             prixId: number;
             produits: {
-                nom: string;
                 id: number;
+                nom: string;
                 description: string;
                 img: string;
                 tags: string;
                 categorieId: number;
                 categories: {
-                    nom: string;
                     id: number;
+                    nom: string;
                     description: string | null;
                 };
             };
-            prix: import("@prisma/client/runtime/library").Decimal;
             createdAt: Date;
             updatedAt: Date;
+            prix: import("@prisma/client/runtime/library").Decimal;
             quantiter: number;
-            produitId: number;
             boutiqueId: number;
+            produitId: number;
+        }[];
+    }>;
+    getByShopId(shopId: number): Promise<{
+        statusCode: import("@nestjs/common").HttpStatus;
+        message: string;
+        data: {
+            tags: any;
+            id: number;
+            nom: string;
+            description: string;
+            img: string;
+            categorieId: number;
+            categories: {
+                id: number;
+                nom: string;
+                description: string | null;
+            };
+            prixId: number;
+            produits: {
+                id: number;
+                nom: string;
+                description: string;
+                img: string;
+                tags: string;
+                categorieId: number;
+                categories: {
+                    id: number;
+                    nom: string;
+                    description: string | null;
+                };
+            };
+            createdAt: Date;
+            updatedAt: Date;
+            prix: import("@prisma/client/runtime/library").Decimal;
+            quantiter: number;
+            boutiqueId: number;
+            produitId: number;
         }[];
     }>;
 }
