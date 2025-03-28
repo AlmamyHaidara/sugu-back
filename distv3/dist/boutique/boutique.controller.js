@@ -52,6 +52,7 @@ let BoutiqueController = class BoutiqueController {
         return boutique;
     }
     async findAll() {
+        console.log('pppp');
         return this.boutiqueService.findAll();
     }
     async findOne(id) {

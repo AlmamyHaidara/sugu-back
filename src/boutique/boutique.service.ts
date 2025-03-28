@@ -15,6 +15,7 @@ import { genererMotDePasse } from 'src/utils/functions';
 import { UsersService } from 'src/users/users.service';
 import { templateToSendShopidentyMail } from 'src/mail/data';
 import { hash } from 'bcrypt';
+import { Produit } from 'src/produit/entities/produit.entity';
 
 @Injectable()
 export class BoutiqueService {
@@ -236,8 +237,25 @@ export class BoutiqueService {
       const boutiques = await this.prisma.boutique.findMany({
         include: {
           country: true,
+          Prix: {
+            include: {
+              produits: true,
+            },
+          },
         },
       });
+
+      // const customeBoutique = boutiques.map((bt) => {
+      //   const Prix = bt.Prix.map((prix) => {
+      //     const prixId = prix.id;
+      //     const produits = { ...prix.produits, quantiter: prix.quantiter };
+
+      //     return { ...bt, prix: prix.prix, produits, prixId };
+      //   });
+      //   // delete bt.Prix;
+
+      //   return [...Prix];
+      // });
       return {
         statusCode: 200,
         data: boutiques,

@@ -259,6 +259,11 @@ let BoutiqueService = class BoutiqueService {
             const boutiques = await this.prisma.boutique.findMany({
                 include: {
                     country: true,
+                    Prix: {
+                        include: {
+                            produits: true,
+                        },
+                    },
                 },
             });
             return {

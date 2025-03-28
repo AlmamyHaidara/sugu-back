@@ -68,6 +68,8 @@ export class BoutiqueController {
   @Roles('boutiquier')
   @Get()
   async findAll() {
+    console.log('pppp');
+
     return this.boutiqueService.findAll();
   }
 

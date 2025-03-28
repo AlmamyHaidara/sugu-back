@@ -39,6 +39,7 @@ export declare class ProduitService {
         message: string;
         data: {
             prixId: number;
+            tags: any;
             prix: Prisma.Decimal;
             id: number;
             quantiter: number;
@@ -57,7 +58,6 @@ export declare class ProduitService {
             updatedAt: Date;
             description: string;
             img: string;
-            tags: string;
             categorieId: number;
         };
     }>;

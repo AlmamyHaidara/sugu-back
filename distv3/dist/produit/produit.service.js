@@ -126,7 +126,12 @@ let ProduitService = class ProduitService {
             });
             const prixId = produit.Prix[0].id;
             delete produit.Prix[0].id;
-            const productFiltered = { ...produit, ...produit.Prix[0], prixId };
+            const productFiltered = {
+                ...produit,
+                ...produit.Prix[0],
+                prixId,
+                tags: JSON.parse(produit.tags),
+            };
             delete productFiltered.Prix;
             return {
                 statusCode: common_1.HttpStatus.CREATED,
