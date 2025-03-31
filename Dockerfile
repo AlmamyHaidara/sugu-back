@@ -10,7 +10,6 @@ COPY package.json package-lock.json ./
 COPY distv3/dist ./dist
 COPY prisma ./prisma
 COPY entrypoint.sh ./
-COPY .env ./
 
 # Étape 4 : Installer les dépendances et configurer les permissions
 RUN npm install -f --omit=dev && \
