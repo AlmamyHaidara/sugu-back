@@ -266,25 +266,30 @@ let BoutiqueService = class BoutiqueService {
                     },
                 },
             });
-            const customeBoutique = boutiques.filter((bt) => {
+            const customeBoutique = boutiques.flatMap((bt) => {
                 let Prix = [];
-                let temp = [];
                 if (bt.Prix.length != 0) {
                     if (bt.location == 'NATIONAL') {
-                        temp = bt.Prix.map((prix) => {
+                        Prix = bt.Prix.map((prix) => {
                             const prixId = prix.id;
                             const produits = { ...prix.produits, quantiter: prix.quantiter };
                             delete bt.Prix;
-                            return { ...bt, prix: prix.prix, ...produits, prixId };
+                            const tt = {
+                                ...bt,
+                                prix: prix.prix,
+                                ...produits,
+                                prixId,
+                                boutique: { ...bt },
+                            };
+                            return tt;
                         });
-                        Prix = temp;
                     }
                     return Prix;
                 }
             });
             return {
                 statusCode: 200,
-                data: customeBoutique,
+                data: customeBoutique.filter((rr) => rr != null),
             };
         }
         catch (error) {

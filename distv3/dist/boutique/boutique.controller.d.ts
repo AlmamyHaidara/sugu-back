@@ -24,48 +24,7 @@ export declare class BoutiqueController {
     }>;
     findAll(): Promise<{
         statusCode: number;
-        data: ({
-            country: {
-                id: number;
-                createdAt: Date;
-                updatedAt: Date | null;
-                name: string;
-                isoCode: string | null;
-            };
-            Prix: ({
-                produits: {
-                    id: number;
-                    nom: string;
-                    img: string;
-                    description: string;
-                    createdAt: Date;
-                    updatedAt: Date;
-                    tags: string;
-                    categorieId: number;
-                };
-            } & {
-                id: number;
-                createdAt: Date;
-                updatedAt: Date;
-                prix: import("@prisma/client/runtime/library").Decimal;
-                quantiter: number;
-                produitId: number;
-                boutiqueId: number;
-            })[];
-        } & {
-            id: number;
-            nom: string;
-            email: string | null;
-            categorie: import(".prisma/client").$Enums.CategorieBoutique;
-            location: import(".prisma/client").$Enums.Location;
-            img: string | null;
-            description: string;
-            phone: string | null;
-            userId: number;
-            countryId: number | null;
-            createdAt: Date;
-            updatedAt: Date;
-        })[];
+        data: any[];
     }>;
     findOne(id: number): Promise<{
         statusCode: number;
