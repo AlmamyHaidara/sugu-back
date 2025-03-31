@@ -262,8 +262,10 @@ export class BoutiqueService {
               };
               return tt;
             });
+            return Prix;
+          } else {
+            return bt;
           }
-          return Prix;
         }
       });
       return {
