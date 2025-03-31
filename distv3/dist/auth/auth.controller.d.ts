@@ -17,13 +17,13 @@ export declare class AuthController {
     updatePassword(createUserDto: PasswordUpdate): Promise<{
         status: number;
         data: {
-            id: number;
             nom: string;
             prenom: string;
-            telephone: string;
             email: string;
+            telephone: string;
             profile: import(".prisma/client").$Enums.Profile;
             avatar: string;
+            id: number;
         };
         msg: string;
     }>;

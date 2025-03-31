@@ -266,9 +266,14 @@ let BoutiqueService = class BoutiqueService {
                     },
                 },
             });
+            const customeBoutique = boutiques.filter((bt) => {
+                if (bt.Prix.length != 0) {
+                    return bt;
+                }
+            });
             return {
                 statusCode: 200,
-                data: boutiques,
+                data: customeBoutique,
             };
         }
         catch (error) {

@@ -17,21 +17,21 @@ export declare class CommandController {
     findAll(userId: string): Promise<{
         LigneCommand: {
             produits: {
-                id: number;
                 nom: string;
+                id: number;
                 createdAt: Date;
                 updatedAt: Date;
-                img: string;
                 description: string;
+                img: string;
                 tags: string;
                 categorieId: number;
             };
             boutiques: {
-                id: number;
                 nom: string;
+                id: number;
+                description: string;
                 categorie: import(".prisma/client").$Enums.CategorieBoutique;
                 location: import(".prisma/client").$Enums.Location;
-                description: string;
                 phone: string;
             };
             prix: import("@prisma/client/runtime/library").Decimal;
@@ -43,21 +43,21 @@ export declare class CommandController {
             boutiqueId: number;
             Prix: {
                 produits: {
-                    id: number;
                     nom: string;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    img: string;
                     description: string;
+                    img: string;
                     tags: string;
                     categorieId: number;
                 };
                 boutiques: {
-                    id: number;
                     nom: string;
+                    id: number;
+                    description: string;
                     categorie: import(".prisma/client").$Enums.CategorieBoutique;
                     location: import(".prisma/client").$Enums.Location;
-                    description: string;
                     phone: string;
                 };
             } & {
@@ -86,15 +86,15 @@ export declare class CommandController {
         status: number;
         data: {
             utilisateur: {
-                id: number;
                 nom: string;
                 prenom: string;
-                telephone: string;
                 email: string;
+                telephone: string;
+                id: number;
                 Adresse: {
-                    id: number;
                     nom: string;
                     telephone: string;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
                     description: string;
@@ -108,33 +108,33 @@ export declare class CommandController {
                     quantiter: number;
                     prixId: number;
                     categories: {
-                        id: number;
                         nom: string;
+                        id: number;
                         description: string | null;
                     };
-                    id: number;
                     nom: string;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    img: string;
                     description: string;
+                    img: string;
                     tags: string;
                     categorieId: number;
                 };
                 Prix: {
                     produits: {
                         categories: {
-                            id: number;
                             nom: string;
+                            id: number;
                             description: string | null;
                         };
                     } & {
-                        id: number;
                         nom: string;
+                        id: number;
                         createdAt: Date;
                         updatedAt: Date;
-                        img: string;
                         description: string;
+                        img: string;
                         tags: string;
                         categorieId: number;
                     };
@@ -156,18 +156,16 @@ export declare class CommandController {
             }[];
             id: number;
             createdAt: Date;
-            commandeNbr: string;
-            etat: import(".prisma/client").$Enums.EtatCommand;
             utilisateurs: {
-                id: number;
                 nom: string;
                 prenom: string;
-                telephone: string;
                 email: string;
+                telephone: string;
+                id: number;
                 Adresse: {
-                    id: number;
                     nom: string;
                     telephone: string;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
                     description: string;
@@ -175,6 +173,8 @@ export declare class CommandController {
                     quartier: string;
                 }[];
             };
+            commandeNbr: string;
+            etat: import(".prisma/client").$Enums.EtatCommand;
         }[];
     }>;
     updateCommandeEtat(id: string, updateCammandDto: {
