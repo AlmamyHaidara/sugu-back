@@ -5,7 +5,8 @@ import * as dotenv from 'dotenv';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
-
+import express from 'express';
+import { join } from 'path';
 dotenv.config({ path: process.cwd() + '/.env.development' });
 
 async function bootstrap() {
@@ -34,6 +35,7 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter());
 
   app.enableCors(); // Enable CORS if you're dealing with cross-origin requests
+  app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
 
   await app.listen(process.env.PORT ?? 4000);
 }
