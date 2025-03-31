@@ -51,11 +51,9 @@ export class BoutiqueController {
     @UploadedFile() file: Express.Multer.File,
     @Body() createBoutiqueDto: CreateBoutiqueDto,
   ) {
-    console.log('ooooooooooooo');
-
     // Si un fichier est présent, on stocke son chemin dans le DTO
     if (file) {
-      createBoutiqueDto.img = file.path;
+      createBoutiqueDto.img = file.path.split('uploads/')[1];
     }
     console.log(file);
 
@@ -115,7 +113,7 @@ export class BoutiqueController {
   ) {
     // Si un fichier est présent, on le met dans le DTO
     if (file) {
-      updateBoutiqueDto.img = file.path;
+      updateBoutiqueDto.img = file.path.split('uploads/')[1];
     }
     const updated = await this.boutiqueService.update(id, updateBoutiqueDto);
     return {

@@ -43,9 +43,8 @@ let BoutiqueController = class BoutiqueController {
         this.boutiqueService = boutiqueService;
     }
     async create(file, createBoutiqueDto) {
-        console.log('ooooooooooooo');
         if (file) {
-            createBoutiqueDto.img = file.path;
+            createBoutiqueDto.img = file.path.split('uploads/')[1];
         }
         console.log(file);
         const boutique = await this.boutiqueService.create(createBoutiqueDto);
@@ -72,7 +71,7 @@ let BoutiqueController = class BoutiqueController {
     }
     async update(id, updateBoutiqueDto, file) {
         if (file) {
-            updateBoutiqueDto.img = file.path;
+            updateBoutiqueDto.img = file.path.split('uploads/')[1];
         }
         const updated = await this.boutiqueService.update(id, updateBoutiqueDto);
         return {

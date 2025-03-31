@@ -309,7 +309,7 @@ export class UsersService {
       }
 
       if (file) {
-        updateProduitDto.avatar = file.path;
+        updateProduitDto.avatar = file.path.split('uploads/')[1];
       }
 
       // delete updateProduitDto?.password;

@@ -324,12 +324,12 @@ let ProduitService = class ProduitService {
             }
             if (file && existingProduit.img) {
                 try {
-                    fs.access(existingProduit.img, fs.constants.F_OK, (err) => {
+                    fs.access('uploads/' + existingProduit.img, fs.constants.F_OK, (err) => {
                         if (err) {
                             console.log("Le fichier n'existe pas.");
                         }
                         else {
-                            fs.unlinkSync(existingProduit.img);
+                            fs.unlinkSync('uploads/' + existingProduit.img);
                         }
                     });
                 }
@@ -341,10 +341,8 @@ let ProduitService = class ProduitService {
                 ...updateProduitDto,
             };
             if (file) {
-                dataToUpdate.img = file.path;
+                dataToUpdate.img = file.path.split('uploads/')[1];
             }
-            console.log(updateProduitDto);
-            console.log(dataToUpdate.img);
             const updatedProduit = await this.prisma.produit.update({
                 where: { id: Number(id) },
                 data: {
@@ -412,7 +410,7 @@ let ProduitService = class ProduitService {
                             console.log("Le fichier n'existe pas.");
                         }
                         else {
-                            fs.unlinkSync(existingProduit.img);
+                            fs.unlinkSync('uploads/' + existingProduit.img);
                         }
                     });
                 }

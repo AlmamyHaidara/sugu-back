@@ -377,13 +377,17 @@ export class ProduitService {
 
       if (file && existingProduit.img) {
         try {
-          fs.access(existingProduit.img, fs.constants.F_OK, (err) => {
-            if (err) {
-              console.log("Le fichier n'existe pas.");
-            } else {
-              fs.unlinkSync(existingProduit.img);
-            }
-          });
+          fs.access(
+            'uploads/' + existingProduit.img,
+            fs.constants.F_OK,
+            (err) => {
+              if (err) {
+                console.log("Le fichier n'existe pas.");
+              } else {
+                fs.unlinkSync('uploads/' + existingProduit.img);
+              }
+            },
+          );
         } catch (error) {
           console.error(`Erreur de suppression de l'ancien fichier :`, error);
         }
@@ -396,11 +400,8 @@ export class ProduitService {
 
       // 4. Si on a un nouveau fichier, mettre à jour le champ img
       if (file) {
-        dataToUpdate.img = file.path; // ou construire une URL publique
+        dataToUpdate.img = file.path.split('uploads/')[1]; // ou construire une URL publique
       }
-      console.log(updateProduitDto);
-      console.log(dataToUpdate.img);
-
       // Mise à jour du produit
       const updatedProduit = await this.prisma.produit.update({
         where: { id: Number(id) },
@@ -475,7 +476,7 @@ export class ProduitService {
             if (err) {
               console.log("Le fichier n'existe pas.");
             } else {
-              fs.unlinkSync(existingProduit.img);
+              fs.unlinkSync('uploads/' + existingProduit.img);
             }
           });
         } catch (error) {

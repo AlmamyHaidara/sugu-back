@@ -349,7 +349,7 @@ export class BoutiqueService {
     // Si on a un nouveau champ img => on supprime l'ancien fichier
     if (updateBoutiqueDto.img && existing.img) {
       try {
-        fs.unlinkSync(existing.img);
+        fs.unlinkSync('uploads/' + existing.img);
       } catch (err) {
         // Logger l'erreur si besoin
       }
@@ -405,7 +405,7 @@ export class BoutiqueService {
     // Supprimer l'image si nécessaire
     if (boutique.img) {
       try {
-        fs.unlinkSync(boutique.img);
+        fs.unlinkSync('uploads/' + boutique.img);
       } catch (err) {
         // Logger l'erreur si besoin
       }

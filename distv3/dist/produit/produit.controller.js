@@ -32,7 +32,7 @@ let ProduitController = class ProduitController {
         }
         const created = await this.produitService.create({
             ...createProduitDto,
-            img: file.path,
+            img: file.path.split('uploads/')[1],
         });
         return created;
     }

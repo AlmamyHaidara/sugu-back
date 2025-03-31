@@ -63,7 +63,7 @@ export class ProduitController {
     }
     const created = await this.produitService.create({
       ...createProduitDto,
-      img: file.path, // ou construire une URL si besoin
+      img: file.path.split('uploads/')[1], // ou construire une URL si besoin
     });
 
     return created;

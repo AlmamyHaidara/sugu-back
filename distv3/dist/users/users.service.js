@@ -218,7 +218,7 @@ let UsersService = UsersService_1 = class UsersService {
                 }, common_1.HttpStatus.CONFLICT);
             }
             if (file) {
-                updateProduitDto.avatar = file.path;
+                updateProduitDto.avatar = file.path.split('uploads/')[1];
             }
             const user = await this.prisma.$transaction(async (prisma) => {
                 return await prisma.utilisateur.update({

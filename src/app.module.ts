@@ -24,6 +24,8 @@ import { UsersController } from './users/users.controller';
 import { MailModule } from './mail/mail.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { FilesController } from './files/files.controller';
+import { FilesService } from './files/files.service';
 
 @Module({
   imports: [
@@ -51,7 +53,7 @@ import { diskStorage } from 'multer';
     NotificationsModule,
     MailModule,
   ],
-  controllers: [AppController, CountryController, UsersController],
+  controllers: [AppController, CountryController, UsersController, FilesController],
   providers: [
     AppService,
     {
@@ -60,6 +62,7 @@ import { diskStorage } from 'multer';
     },
     PrismaService,
     CountryService,
+    FilesService,
   ],
 })
 export class AppModule {}

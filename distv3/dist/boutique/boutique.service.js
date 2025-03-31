@@ -341,7 +341,7 @@ let BoutiqueService = class BoutiqueService {
         }
         if (updateBoutiqueDto.img && existing.img) {
             try {
-                fs.unlinkSync(existing.img);
+                fs.unlinkSync('uploads/' + existing.img);
             }
             catch (err) {
             }
@@ -388,7 +388,7 @@ let BoutiqueService = class BoutiqueService {
         }
         if (boutique.img) {
             try {
-                fs.unlinkSync(boutique.img);
+                fs.unlinkSync('uploads/' + boutique.img);
             }
             catch (err) {
             }
