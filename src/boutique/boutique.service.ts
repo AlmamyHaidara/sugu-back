@@ -245,18 +245,22 @@ export class BoutiqueService {
         },
       });
       const customeBoutique = boutiques.filter((bt) => {
+        let Prix = [];
+        let temp = [];
         if (bt.Prix.length != 0) {
-          return bt;
+          if (bt.location == 'NATIONAL') {
+            temp = bt.Prix.map((prix) => {
+              const prixId = prix.id;
+              const produits = { ...prix.produits, quantiter: prix.quantiter };
+
+              delete bt.Prix;
+              return { ...bt, prix: prix.prix, ...produits, prixId };
+            });
+            Prix = temp;
+          }
+
+          return Prix;
         }
-
-        // const Prix = bt.Prix.map((prix) => {
-        //   const prixId = prix.id;
-        //   const produits = { ...prix.produits, quantiter: prix.quantiter };
-
-        //   return { ...bt, prix: prix.prix, produits, prixId };
-        // });
-        // // delete bt.Prix;
-        // return [...Prix];
       });
       return {
         statusCode: 200,
