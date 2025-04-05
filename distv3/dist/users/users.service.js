@@ -139,7 +139,7 @@ let UsersService = UsersService_1 = class UsersService {
         try {
             console.log(user.email);
             if (user.email) {
-                const userExist = this.prisma.utilisateur.findUnique({
+                const userExist = await this.prisma.utilisateur.findUnique({
                     where: {
                         email: user.email,
                     },
