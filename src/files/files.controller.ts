@@ -38,7 +38,6 @@ export class FilesController {
     @Res() res: Response,
   ) {
     const filePath = resolve(this.baseUploadDir, folder, filename);
-
     // Sécurité : on vérifie bien que le fichier est dans le dossier "uploads"
     if (!filePath.startsWith(this.baseUploadDir)) {
       return res.status(400).send('Invalid path');

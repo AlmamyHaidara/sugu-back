@@ -266,30 +266,25 @@ let BoutiqueService = class BoutiqueService {
                     },
                 },
             });
-            const customeBoutique = boutiques.flatMap((bt) => {
+            const btp = [];
+            const customeBoutique = boutiques.filter((bt) => {
                 let Prix = [];
-                if (bt.Prix.length != 0) {
-                    if (bt.location == 'NATIONAL') {
-                        Prix = bt.Prix.map((prix) => {
-                            const prixId = prix.id;
-                            const produits = { ...prix.produits, quantiter: prix.quantiter };
-                            delete bt.Prix;
-                            const tt = {
-                                ...bt,
-                                prix: prix.prix,
-                                ...produits,
-                                prixId,
-                                boutique: { ...bt },
-                            };
-                            return tt;
-                        });
-                        return Prix;
-                    }
-                    else {
-                        return bt;
-                    }
-                }
+                Prix = bt.Prix.map((prix) => {
+                    const prixId = prix.id;
+                    const produits = { ...prix.produits, quantiter: prix.quantiter };
+                    const tt = {
+                        ...bt,
+                        prix: prix.prix,
+                        ...produits,
+                        prixId,
+                        boutique: { ...bt },
+                    };
+                    return tt;
+                });
+                btp.push(bt);
+                return true;
             });
+            console.log(btp);
             return {
                 statusCode: 200,
                 data: customeBoutique.filter((rr) => rr != null),
@@ -370,7 +365,6 @@ let BoutiqueService = class BoutiqueService {
             catch (err) {
             }
         }
-        console.log(updateBoutiqueDto);
         try {
             const updated = await this.prisma.boutique.update({
                 where: { id: Number(id) },
@@ -393,6 +387,8 @@ let BoutiqueService = class BoutiqueService {
                     },
                 },
             });
+            console.log(updateBoutiqueDto.img, '|', existing.img);
+            console.log(updateBoutiqueDto.img, '|', updated.img, '|', existing.img);
             return {
                 statusCode: 200,
                 data: updated,

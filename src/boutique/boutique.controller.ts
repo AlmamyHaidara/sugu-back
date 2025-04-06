@@ -112,9 +112,11 @@ export class BoutiqueController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     // Si un fichier est présent, on le met dans le DTO
+    console.log('updateBoutiqueDto', updateBoutiqueDto.img);
     if (file) {
       updateBoutiqueDto.img = file.path.split('uploads/')[1];
     }
+    console.log('updateBoutiqueDto', updateBoutiqueDto.img);
     const updated = await this.boutiqueService.update(id, updateBoutiqueDto);
     return {
       message: 'Boutique mise à jour avec succès',

@@ -35,7 +35,7 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter());
 
   app.enableCors(); // Enable CORS if you're dealing with cross-origin requests
-  app.use('/files', express.static(join(__dirname, '..', 'uploads')));
+  app.use('/files', express.static(join(process.cwd(), 'uploads')));
 
   await app.listen(process.env.PORT ?? 4000);
 }

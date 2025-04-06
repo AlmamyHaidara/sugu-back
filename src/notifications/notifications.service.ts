@@ -17,7 +17,6 @@ export class NotificationsService {
   // CREATE
   async create(createNotificationDto: CreateNotificationDto) {
     try {
-      console.log('ppppppppppppppppp', createNotificationDto);
 
       // Validate that the utilisateur exists
       const utilisateur = await this.prisma.utilisateur.findUnique({
@@ -77,11 +76,20 @@ export class NotificationsService {
   async findOne(id: number) {
     const notification = await this.prisma.notification.findUnique({
       where: { id },
+      include:{
+        utilisateur:{
+          include:{
+            Boutique:true,
+            
+          }
+        }
+      }
     });
 
     if (!notification) {
       throw new NotFoundException(`Notification #${id} introuvable.`);
     }
+    console.log('notification', notification);
 
     return notification;
   }
@@ -176,6 +184,10 @@ export class NotificationsService {
       const notifications = await this.prisma.notification.findMany({
         where: {
           utilisateurId: userId,
+
+        },
+        orderBy: {
+          createdAt: 'desc',
         },
         take: 20,
       });

@@ -1,0 +1,13 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+// Règles d'organisation des dossiers
+src/
+├── auth/           // Authentification et autorisation
+├── users/          // Gestion des utilisateurs
+├── common/         // Utilitaires et configurations communes
+├── prisma/         // Configuration et schéma de base de données
+├── utils/          // Fonctions utilitaires
+└── [feature]/      // Modules fonctionnels (ex: produit, panier, etc.)

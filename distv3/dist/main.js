@@ -29,7 +29,7 @@ async function bootstrap() {
     app.useGlobalPipes(new common_1.ValidationPipe());
     app.useGlobalFilters(new all_exceptions_filter_1.AllExceptionsFilter());
     app.enableCors();
-    app.use('/files', express.static((0, path_1.join)(__dirname, '..', 'uploads')));
+    app.use('/files', express.static((0, path_1.join)(process.cwd(), 'uploads')));
     await app.listen(process.env.PORT ?? 4000);
 }
 bootstrap();

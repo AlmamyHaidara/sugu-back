@@ -51,7 +51,7 @@ exports.AppModule = AppModule = __decorate([
                 dest: './uploads',
             }),
             serve_static_1.ServeStaticModule.forRoot({
-                rootPath: (0, path_1.join)(__dirname, '..', 'uploads'),
+                rootPath: (0, path_1.join)(process.cwd(), 'uploads'),
                 serveRoot: '/uploads',
             }),
             prix_module_1.PrixModule,

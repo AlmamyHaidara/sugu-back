@@ -39,4 +39,11 @@ export class AuthController {
   updatePassword(@Body() createUserDto: PasswordUpdate) {
     return this.authService.updatePassword(createUserDto);
   }
+
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('fetch-token')
+  async refreshToken(@Request() req) {
+    return this.authService.refreshToken(req.user.sub);
+  }
 }

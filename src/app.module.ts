@@ -41,7 +41,7 @@ import { FilesService } from './files/files.service';
       dest: './uploads',
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
+      rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
     }),
     PrixModule,

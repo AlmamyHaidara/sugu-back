@@ -11,8 +11,6 @@ export declare class BoutiqueController {
             id: number;
             nom: string;
             email: string | null;
-            createdAt: Date;
-            updatedAt: Date;
             categorie: import(".prisma/client").$Enums.CategorieBoutique;
             location: import(".prisma/client").$Enums.Location;
             img: string | null;
@@ -20,11 +18,54 @@ export declare class BoutiqueController {
             phone: string | null;
             userId: number;
             countryId: number | null;
+            createdAt: Date;
+            updatedAt: Date;
         };
     }>;
     findAll(): Promise<{
         statusCode: number;
-        data: any[];
+        data: ({
+            country: {
+                id: number;
+                createdAt: Date;
+                updatedAt: Date | null;
+                name: string;
+                isoCode: string | null;
+            };
+            Prix: ({
+                produits: {
+                    id: number;
+                    nom: string;
+                    img: string;
+                    description: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    tags: string;
+                    categorieId: number;
+                };
+            } & {
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                prix: import("@prisma/client/runtime/library").Decimal;
+                quantiter: number;
+                produitId: number;
+                boutiqueId: number;
+            })[];
+        } & {
+            id: number;
+            nom: string;
+            email: string | null;
+            categorie: import(".prisma/client").$Enums.CategorieBoutique;
+            location: import(".prisma/client").$Enums.Location;
+            img: string | null;
+            description: string;
+            phone: string | null;
+            userId: number;
+            countryId: number | null;
+            createdAt: Date;
+            updatedAt: Date;
+        })[];
     }>;
     findOne(id: number): Promise<{
         statusCode: number;
@@ -32,8 +73,6 @@ export declare class BoutiqueController {
             id: number;
             nom: string;
             email: string | null;
-            createdAt: Date;
-            updatedAt: Date;
             categorie: import(".prisma/client").$Enums.CategorieBoutique;
             location: import(".prisma/client").$Enums.Location;
             img: string | null;
@@ -41,6 +80,8 @@ export declare class BoutiqueController {
             phone: string | null;
             userId: number;
             countryId: number | null;
+            createdAt: Date;
+            updatedAt: Date;
         };
     }>;
     getStatistic(id: number): Promise<{
@@ -66,18 +107,16 @@ export declare class BoutiqueController {
         statusCode: number;
         boutiques: ({
             country: {
-                name: string;
                 id: number;
                 createdAt: Date;
                 updatedAt: Date | null;
+                name: string;
                 isoCode: string | null;
             };
         } & {
             id: number;
             nom: string;
             email: string | null;
-            createdAt: Date;
-            updatedAt: Date;
             categorie: import(".prisma/client").$Enums.CategorieBoutique;
             location: import(".prisma/client").$Enums.Location;
             img: string | null;
@@ -85,6 +124,8 @@ export declare class BoutiqueController {
             phone: string | null;
             userId: number;
             countryId: number | null;
+            createdAt: Date;
+            updatedAt: Date;
         })[];
         products: {
             categorie: string;
@@ -99,10 +140,10 @@ export declare class BoutiqueController {
             };
             id: number;
             nom: string;
-            createdAt: Date;
-            updatedAt: Date;
             img: string;
             description: string;
+            createdAt: Date;
+            updatedAt: Date;
             tags: string;
             categorieId: number;
         }[];
@@ -121,10 +162,10 @@ export declare class BoutiqueController {
             };
             id: number;
             nom: string;
-            createdAt: Date;
-            updatedAt: Date;
             img: string;
             description: string;
+            createdAt: Date;
+            updatedAt: Date;
             tags: string;
             categorieId: number;
         }[];
@@ -135,8 +176,6 @@ export declare class BoutiqueController {
             id: number;
             nom: string;
             email: string | null;
-            createdAt: Date;
-            updatedAt: Date;
             categorie: import(".prisma/client").$Enums.CategorieBoutique;
             location: import(".prisma/client").$Enums.Location;
             img: string | null;
@@ -144,6 +183,8 @@ export declare class BoutiqueController {
             phone: string | null;
             userId: number;
             countryId: number | null;
+            createdAt: Date;
+            updatedAt: Date;
         }[];
     }>;
     update(id: number, updateBoutiqueDto: UpdateBoutiqueDto, file: Express.Multer.File): Promise<{
@@ -154,8 +195,6 @@ export declare class BoutiqueController {
                 id: number;
                 nom: string;
                 email: string | null;
-                createdAt: Date;
-                updatedAt: Date;
                 categorie: import(".prisma/client").$Enums.CategorieBoutique;
                 location: import(".prisma/client").$Enums.Location;
                 img: string | null;
@@ -163,6 +202,8 @@ export declare class BoutiqueController {
                 phone: string | null;
                 userId: number;
                 countryId: number | null;
+                createdAt: Date;
+                updatedAt: Date;
             };
         };
     }>;
@@ -174,8 +215,6 @@ export declare class BoutiqueController {
                 id: number;
                 nom: string;
                 email: string | null;
-                createdAt: Date;
-                updatedAt: Date;
                 categorie: import(".prisma/client").$Enums.CategorieBoutique;
                 location: import(".prisma/client").$Enums.Location;
                 img: string | null;
@@ -183,6 +222,8 @@ export declare class BoutiqueController {
                 phone: string | null;
                 userId: number;
                 countryId: number | null;
+                createdAt: Date;
+                updatedAt: Date;
             };
         };
     }>;

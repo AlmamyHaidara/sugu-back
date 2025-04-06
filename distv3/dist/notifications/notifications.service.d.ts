@@ -29,6 +29,34 @@ export declare class NotificationsService {
         readAt: Date | null;
     }[]>;
     findOne(id: number): Promise<{
+        utilisateur: {
+            Boutique: {
+                nom: string;
+                email: string | null;
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                description: string;
+                img: string | null;
+                categorie: import(".prisma/client").$Enums.CategorieBoutique;
+                location: import(".prisma/client").$Enums.Location;
+                phone: string | null;
+                userId: number;
+                countryId: number | null;
+            }[];
+        } & {
+            nom: string;
+            prenom: string | null;
+            email: string;
+            telephone: string;
+            password: string;
+            profile: import(".prisma/client").$Enums.Profile;
+            avatar: string | null;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+        };
+    } & {
         id: number;
         createdAt: Date;
         updatedAt: Date;

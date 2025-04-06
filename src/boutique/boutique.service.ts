@@ -244,17 +244,18 @@ export class BoutiqueService {
           },
         },
       });
-      const customeBoutique = boutiques.flatMap((bt) => {
+      const btp = []
+      const customeBoutique = boutiques.filter((bt) => {
         let Prix = [];
-        if (bt.Prix.length != 0) {
-          if (bt.location == 'NATIONAL') {
-            Prix = bt.Prix.map((prix) => {
+        // if (bt.Prix.length != 0) {
+          // if (bt.location == 'NATIONAL') {
+          Prix = bt.Prix.map((prix) => {
               const prixId = prix.id;
               const produits = { ...prix.produits, quantiter: prix.quantiter };
-
-              delete bt.Prix;
+              // delete bt.Prix;
               const tt = {
                 ...bt,
+                // location: bt.location,
                 prix: prix.prix,
                 ...produits,
                 prixId,
@@ -262,16 +263,34 @@ export class BoutiqueService {
               };
               return tt;
             });
-            return Prix;
-          } else {
-            return bt;
-          }
-        }
+            btp.push(bt);
+            return true;
+          // } 
+          // else {
+          //   // Prix = bt.Prix.map((prix) => {
+          //   //   const prixId = prix.id;
+          //   //   const produits = { ...prix.produits, quantiter: prix.quantiter };
+
+          //   //   // delete bt.Prix;
+          //   //   const tt = {
+          //   //     ...bt,
+          //   //     prix: prix.prix,
+          //   //     ...produits,
+          //   //     prixId,
+          //   //     boutique: { ...bt },
+          //   //   };
+          //   //   return tt;
+          //   // });
+          //   // return Prix;
+          //   return bt;
+          // }
+        // }
       });
+      console.log(btp);
       return {
         statusCode: 200,
         data: customeBoutique.filter((rr) => rr != null),
-      };
+  };
     } catch (error) {
       throw new InternalServerErrorException(
         'Erreur lors de la récupération de toutes les boutiques',
@@ -366,8 +385,7 @@ export class BoutiqueService {
         // Logger l'erreur si besoin
       }
     }
-    console.log(updateBoutiqueDto);
-
+    
     try {
       const updated = await this.prisma.boutique.update({
         where: { id: Number(id) },
@@ -390,7 +408,9 @@ export class BoutiqueService {
           },
         },
       });
-
+      console.log(updateBoutiqueDto.img, '|', existing.img);
+      console.log(updateBoutiqueDto.img, '|', updated.img, '|', existing.img);
+      
       return {
         statusCode: 200,
         data: updated,

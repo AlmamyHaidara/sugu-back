@@ -18,17 +18,22 @@ export declare class AuthService {
     updatePassword(createUserDto: PasswordUpdate): Promise<{
         status: number;
         data: {
-            id: number;
             nom: string;
             prenom: string;
-            telephone: string;
             email: string;
+            telephone: string;
             profile: import(".prisma/client").$Enums.Profile;
             avatar: string;
+            id: number;
         };
         msg: string;
     }>;
     signIn(email: string, pass: string): Promise<{
+        access_token: string;
+        data: UpdateUserDto;
+        date: string;
+    }>;
+    refreshToken(email: string): Promise<{
         access_token: string;
         data: UpdateUserDto;
         date: string;

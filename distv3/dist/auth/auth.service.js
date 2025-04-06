@@ -69,6 +69,40 @@ let AuthService = AuthService_1 = class AuthService {
             console.error(error);
         }
     }
+    async refreshToken(email) {
+        try {
+            this.logger.log(`Refreshing token for user ID: ${email}`);
+            const user = await this.usersService.findOne({ email: email });
+            if (!user) {
+                this.logger.warn(`User not found for refresh token: ${email}`);
+                throw new common_1.UnauthorizedException('User not found');
+            }
+            const payload = {
+                sub: user.userId,
+                username: user.username,
+                roles: user?.profile ? [user.profile.toLowerCase()] : [],
+            };
+            let currentUser = await this.usersService.getCurrentUser(user.email);
+            if (!currentUser) {
+                this.logger.warn(`Current user not found for refresh: ${user.email}`);
+                throw new common_1.UnauthorizedException('User not found');
+            }
+            const accessToken = await this.jwtService.signAsync(payload);
+            const boutique = await this.prixService.findOneByUserId(user?.id);
+            if (boutique) {
+                currentUser = { ...currentUser, boutique };
+            }
+            return {
+                access_token: accessToken,
+                data: currentUser,
+                date: new Date().toString(),
+            };
+        }
+        catch (error) {
+            this.logger.error(`Error refreshing token: ${error.message}`);
+            throw new common_1.UnauthorizedException('Failed to refresh token');
+        }
+    }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = AuthService_1 = __decorate([
