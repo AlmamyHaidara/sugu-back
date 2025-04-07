@@ -209,19 +209,44 @@ let CommandService = class CommandService {
                     },
                 },
             });
-            const isFiltered = cmd.flatMap((res) => {
-                const filter = res.LigneCommand.map((lc) => {
-                    const newLc = { ...lc, ...lc.Prix };
-                    delete newLc.Prix;
-                    return newLc;
-                });
-                const total = filter.reduce((acc, prev) => {
-                    return (prev.prix += acc);
-                }, 0);
-                console.log(total);
-                return { ...res, LigneCommand: [...filter], total };
+            const userIsExist = await this.prisma.utilisateur.findFirst({
+                where: {
+                    id: userId
+                }
             });
-            return isFiltered || [];
+            if (userIsExist.id && userIsExist.profile == "BOUTIQUIER" || userIsExist.profile == "ADMIN") {
+                const isFiltered = cmd.flatMap((res) => {
+                    const filter = res.LigneCommand.map((lc) => {
+                        const newLc = { ...lc, ...lc.Prix };
+                        newLc.quantiter = lc.quantiter;
+                        newLc.quantiterTotal = lc.Prix.quantiter;
+                        delete newLc.Prix;
+                        return newLc;
+                    });
+                    const total = filter.reduce((acc, prev) => {
+                        return (prev.prix += acc);
+                    }, 0);
+                    console.log(total);
+                    return { ...res, LigneCommand: [...filter], total };
+                });
+                return isFiltered || [];
+            }
+            else {
+                const isFiltered = cmd.flatMap((res) => {
+                    const filter = res.LigneCommand.map((lc) => {
+                        const newLc = { ...lc, ...lc.Prix };
+                        newLc.quantiter = lc.quantiter;
+                        delete newLc.Prix;
+                        return newLc;
+                    });
+                    const total = filter.reduce((acc, prev) => {
+                        return (prev.prix += acc);
+                    }, 0);
+                    console.log(total);
+                    return { ...res, LigneCommand: [...filter], total };
+                });
+                return isFiltered || [];
+            }
         }
         catch (error) {
             console.error(error);

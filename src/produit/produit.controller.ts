@@ -123,6 +123,7 @@ export class ProduitController {
     @UploadedFile() file: Express.Multer.File, // <-- Récupérer le nouveau fichier
     @Body() updateProduitDto: UpdateProduitDto,
   ) {
+    console.log(updateProduitDto);
     // Si file existe, c’est qu’on upload une nouvelle image
     const updatedProduit = await this.produitService.update(
       id,

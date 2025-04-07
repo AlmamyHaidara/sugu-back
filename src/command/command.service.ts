@@ -376,23 +376,50 @@ export class CommandService {
           },
         },
       });
-
-      const isFiltered = cmd.flatMap((res) => {
-        const filter = res.LigneCommand.map((lc) => {
-          const newLc = { ...lc, ...lc.Prix };
-          delete newLc.Prix;
-
-          return newLc;
+    const userIsExist =  await  this.prisma.utilisateur.findFirst({
+        where:{
+          id:userId
+        }
+      })
+      if(userIsExist.id && userIsExist.profile=="BOUTIQUIER" ||  userIsExist.profile=="ADMIN"){
+        const isFiltered = cmd.flatMap((res) => {
+          const filter = res.LigneCommand.map((lc) => {
+            const newLc = { ...lc, ...lc.Prix } as any;
+            newLc.quantiter=lc.quantiter  
+            newLc.quantiterTotal=lc.Prix.quantiter
+            delete newLc.Prix;
+  
+            return newLc;
+          });
+  
+          const total = filter.reduce((acc: any, prev) => {
+            return (prev.prix += acc);
+          }, 0);
+          console.log(total);
+          return { ...res, LigneCommand: [...filter], total };
         });
+        return isFiltered || [];
 
-        const total = filter.reduce((acc: any, prev) => {
-          return (prev.prix += acc);
-        }, 0);
-        console.log(total);
-        return { ...res, LigneCommand: [...filter], total };
-      });
+      }else{
+        const isFiltered = cmd.flatMap((res) => {
+          const filter = res.LigneCommand.map((lc) => {
+            const newLc = { ...lc, ...lc.Prix };
+            newLc.quantiter=lc.quantiter  
+            delete newLc.Prix;
+  
+            return newLc;
+          });
+  
+          const total = filter.reduce((acc: any, prev) => {
+            return (prev.prix += acc);
+          }, 0);
+          console.log(total);
+          return { ...res, LigneCommand: [...filter], total };
+        });
+        return isFiltered || [];
+      }
+      
 
-      return isFiltered || [];
     } catch (error) {
       console.error(error);
       ExeceptionCase(error);

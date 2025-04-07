@@ -53,6 +53,7 @@ let ProduitController = class ProduitController {
         return produit;
     }
     async update(id, file, updateProduitDto) {
+        console.log(updateProduitDto);
         const updatedProduit = await this.produitService.update(id, updateProduitDto, file);
         return updatedProduit;
     }
