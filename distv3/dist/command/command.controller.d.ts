@@ -6,6 +6,8 @@ export declare class CommandController {
     create(createCammandDto: CreateCommandDto): Promise<{
         status: number;
         data: {
+            ligneCommandInfo: any[];
+            prixTotal: number;
             id: number;
             commandeNbr: string;
             utilisateurId: number;

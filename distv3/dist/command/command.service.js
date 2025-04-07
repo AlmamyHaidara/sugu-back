@@ -26,6 +26,7 @@ let CommandService = class CommandService {
     async create(createCommandDto) {
         try {
             const ligneCommandInfo = [];
+            let prixTotal = 0;
             const usr = await this.prisma.utilisateur.findFirst({
                 where: {
                     id: createCommandDto.usetilisateurId,
@@ -81,6 +82,9 @@ let CommandService = class CommandService {
                     },
                 });
                 for (const element of createCommandDto.ligneCommands) {
+                    if (element.quantiter <= 0) {
+                        throw new Error(`La quantité doit être positive pour le prix ID ${element.prixId}`);
+                    }
                     const prix = await prisma.prix.findUnique({
                         where: { id: element.prixId },
                         select: {
@@ -93,14 +97,20 @@ let CommandService = class CommandService {
                             prix: true,
                         },
                     });
-                    if (!prix ||
-                        prix.quantiter === undefined ||
-                        prix.quantiter < element.quantiter) {
-                        throw new Error(`Quantité insuffisante pour le prix ID ${element.prixId}.`);
+                    if (!prix || prix.quantiter === undefined) {
+                        throw new Error(`Prix non trouvé pour l'ID ${element.prixId}`);
                     }
+                    if (prix.quantiter < element.quantiter) {
+                        throw new Error(`Stock insuffisant pour le prix ID ${element.prixId}. Disponible: ${prix.quantiter}, Demandé: ${element.quantiter}`);
+                    }
+                    const prixLigne = Number(prix.prix) * element.quantiter;
+                    prixTotal += prixLigne;
                     ligneCommandInfo.push({
                         ...prix,
                         boutiqueId: prix.boutiques?.id,
+                        quantiteCommandee: element.quantiter,
+                        prixUnitaire: Number(prix.prix),
+                        prixLigne: prixLigne
                     });
                     await prisma.prix.update({
                         where: { id: element.prixId },
@@ -119,11 +129,13 @@ let CommandService = class CommandService {
                     title: 'Création de commande',
                     type: 'INFO',
                     message: `Nous avons le plaisir de vous confirmer que votre commande a été acceptée et est en cours de traitement.
-  Vous recevrez prochainement un e-mail de confirmation avec les détails de votre commande et les informations de suivi.
-  Nous vous remercions pour votre confiance.`,
+Le montant total de votre commande est de ${prixTotal} FCFA.
+Vous recevrez prochainement un e-mail de confirmation avec les détails de votre commande et les informations de suivi.
+Nous vous remercions pour votre confiance.`,
                     data: {
                         commandNbr: createCommandDto.commandeNbr,
                         ligneCommand: ligneCommandInfo,
+                        prixTotal: prixTotal,
                         etat: result.etat,
                         createdAt: result.createdAt,
                     },
@@ -136,12 +148,17 @@ let CommandService = class CommandService {
                 if (!boutiqueId)
                     return acc;
                 if (!acc[boutiqueId]) {
-                    acc[boutiqueId] = [];
+                    acc[boutiqueId] = {
+                        lignes: [],
+                        prixTotalBoutique: 0
+                    };
                 }
-                acc[boutiqueId].push(ligne);
+                acc[boutiqueId].lignes.push(ligne);
+                acc[boutiqueId].prixTotalBoutique += ligne.prixLigne;
                 return acc;
             }, {});
             for (const boutiqueId in commandesParBoutique) {
+                const infosBoutique = commandesParBoutique[boutiqueId];
                 const boutique = await this.prisma.boutique.findUnique({
                     where: { id: Number(boutiqueId) },
                     select: { id: true, userId: true },
@@ -152,11 +169,12 @@ let CommandService = class CommandService {
                     data: {
                         title: 'Nouvelle commande reçue',
                         type: 'ORDER',
-                        message: `Une nouvelle commande contenant des produits pour votre boutique a été passée. Veuillez consulter les détails ci-dessous pour préparer l'expédition.`,
+                        message: `Une nouvelle commande d'un montant de ${infosBoutique.prixTotalBoutique} FCFA a été passée pour votre boutique.`,
                         data: {
                             commandId: result.id,
                             commandNbr: createCommandDto.commandeNbr,
-                            ligneCommand: commandesParBoutique[boutiqueId],
+                            ligneCommand: infosBoutique.lignes,
+                            prixTotalBoutique: infosBoutique.prixTotalBoutique,
                             etat: result.etat,
                             createdAt: result.createdAt,
                             client: { ...usr },
@@ -169,7 +187,11 @@ let CommandService = class CommandService {
             }
             return {
                 status: 201,
-                data: result,
+                data: {
+                    ...result,
+                    ligneCommandInfo,
+                    prixTotal
+                },
             };
         }
         catch (error) {
@@ -214,7 +236,7 @@ let CommandService = class CommandService {
                     id: userId
                 }
             });
-            if (userIsExist.id && userIsExist.profile == "BOUTIQUIER" || userIsExist.profile == "ADMIN") {
+            if (userIsExist.id && userIsExist.profile == "BOUTIQUIER") {
                 const isFiltered = cmd.flatMap((res) => {
                     const filter = res.LigneCommand.map((lc) => {
                         const newLc = { ...lc, ...lc.Prix };
@@ -223,8 +245,9 @@ let CommandService = class CommandService {
                         delete newLc.Prix;
                         return newLc;
                     });
-                    const total = filter.reduce((acc, prev) => {
-                        return (prev.prix += acc);
+                    console.log(filter);
+                    const total = filter.reduce((acc, item) => {
+                        return acc + (Number(item.prix) * item.quantiter);
                     }, 0);
                     console.log(total);
                     return { ...res, LigneCommand: [...filter], total };
@@ -239,8 +262,8 @@ let CommandService = class CommandService {
                         delete newLc.Prix;
                         return newLc;
                     });
-                    const total = filter.reduce((acc, prev) => {
-                        return (prev.prix += acc);
+                    const total = filter.reduce((acc, item) => {
+                        return acc + (Number(item.prix) * item.quantiter);
                     }, 0);
                     console.log(total);
                     return { ...res, LigneCommand: [...filter], total };
@@ -298,8 +321,8 @@ let CommandService = class CommandService {
                 delete ligne.Prix;
                 return { ...ligne, products: products };
             });
-            const total = LigneCommand?.reduce((acc, el) => {
-                return acc + (parseFloat(String(el.products.prix)) || 0);
+            const total = LigneCommand.reduce((acc, prev) => {
+                return acc + (Number(prev.products.prix) * prev.quantiter);
             }, 0);
             const utilisateur = resultes.utilisateurs;
             delete resultes.utilisateurs;

@@ -12,6 +12,8 @@ export declare class CommandService {
     create(createCommandDto: CreateCommandDto): Promise<{
         status: number;
         data: {
+            ligneCommandInfo: any[];
+            prixTotal: number;
             id: number;
             commandeNbr: string;
             utilisateurId: number;

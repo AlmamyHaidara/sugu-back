@@ -155,6 +155,8 @@ export class CommandService {
   async create(createCommandDto: CreateCommandDto) {
     try {
       const ligneCommandInfo: any[] = [];
+      let prixTotal = 0;
+
       // Vérification de l'utilisateur
       const usr = await this.prisma.utilisateur.findFirst({
         where: {
@@ -226,12 +228,16 @@ export class CommandService {
 
         // Pour chaque ligne de commande, vérifier les quantités et mettre à jour le stock
         for (const element of createCommandDto.ligneCommands) {
+          // Validation de la quantité
+          if (element.quantiter <= 0) {
+            throw new Error(`La quantité doit être positive pour le prix ID ${element.prixId}`);
+          }
+
           const prix = await prisma.prix.findUnique({
             where: { id: element.prixId },
             select: {
               quantiter: true,
               id: true,
-              // On récupère ici l'information de la boutique associée au prix
               boutiques: {
                 select: { id: true },
               },
@@ -239,22 +245,31 @@ export class CommandService {
               prix: true,
             },
           });
-          if (
-            !prix ||
-            prix.quantiter === undefined ||
-            prix.quantiter < element.quantiter
-          ) {
+
+          if (!prix || prix.quantiter === undefined) {
+            throw new Error(`Prix non trouvé pour l'ID ${element.prixId}`);
+          }
+
+          if (prix.quantiter < element.quantiter) {
             throw new Error(
-              `Quantité insuffisante pour le prix ID ${element.prixId}.`,
+              `Stock insuffisant pour le prix ID ${element.prixId}. Disponible: ${prix.quantiter}, Demandé: ${element.quantiter}`,
             );
           }
 
-          // On enrichit la ligne avec l'identifiant de la boutique (en supposant que "boutiques" est un objet)
+          // Calcul du prix pour cette ligne
+          const prixLigne = Number(prix.prix) * element.quantiter;
+          prixTotal += prixLigne;
+
+          // Stockage des informations de la ligne avec son prix
           ligneCommandInfo.push({
             ...prix,
             boutiqueId: prix.boutiques?.id,
+            quantiteCommandee: element.quantiter,
+            prixUnitaire: Number(prix.prix),
+            prixLigne: prixLigne
           });
 
+          // Mise à jour du stock
           await prisma.prix.update({
             where: { id: element.prixId },
             data: { quantiter: prix.quantiter - element.quantiter },
@@ -277,11 +292,13 @@ export class CommandService {
           title: 'Création de commande',
           type: 'INFO',
           message: `Nous avons le plaisir de vous confirmer que votre commande a été acceptée et est en cours de traitement.
-  Vous recevrez prochainement un e-mail de confirmation avec les détails de votre commande et les informations de suivi.
-  Nous vous remercions pour votre confiance.`,
+Le montant total de votre commande est de ${prixTotal} FCFA.
+Vous recevrez prochainement un e-mail de confirmation avec les détails de votre commande et les informations de suivi.
+Nous vous remercions pour votre confiance.`,
           data: {
             commandNbr: createCommandDto.commandeNbr,
             ligneCommand: ligneCommandInfo,
+            prixTotal: prixTotal,
             etat: result.etat,
             createdAt: result.createdAt,
           },
@@ -290,23 +307,24 @@ export class CommandService {
         },
       });
 
-      // Regroupement des lignes de commande par boutique
-      const commandesParBoutique = ligneCommandInfo.reduce(
-        (acc, ligne) => {
-          const boutiqueId = ligne.boutiqueId;
-          if (!boutiqueId) return acc;
-          if (!acc[boutiqueId]) {
-            acc[boutiqueId] = [];
-          }
-          acc[boutiqueId].push(ligne);
-          return acc;
-        },
-        {} as Record<string, any[]>,
-      );
+      // Regroupement et calcul des prix par boutique
+      const commandesParBoutique = ligneCommandInfo.reduce((acc, ligne) => {
+        const boutiqueId = ligne.boutiqueId;
+        if (!boutiqueId) return acc;
+        if (!acc[boutiqueId]) {
+          acc[boutiqueId] = {
+            lignes: [],
+            prixTotalBoutique: 0
+          };
+        }
+        acc[boutiqueId].lignes.push(ligne);
+        acc[boutiqueId].prixTotalBoutique += ligne.prixLigne;
+        return acc;
+      }, {} as Record<string, { lignes: any[], prixTotalBoutique: number }>);
 
-      // Pour chaque boutique, envoyer une notification au boutiquier concerné
+      // Notifications aux boutiquiers avec les prix détaillés
       for (const boutiqueId in commandesParBoutique) {
-        // Récupérer les informations de la boutique (notamment l'identifiant du propriétaire/boutiquier)
+        const infosBoutique = commandesParBoutique[boutiqueId];
         const boutique = await this.prisma.boutique.findUnique({
           where: { id: Number(boutiqueId) },
           select: { id: true, userId: true },
@@ -318,11 +336,12 @@ export class CommandService {
           data: {
             title: 'Nouvelle commande reçue',
             type: 'ORDER',
-            message: `Une nouvelle commande contenant des produits pour votre boutique a été passée. Veuillez consulter les détails ci-dessous pour préparer l'expédition.`,
+            message: `Une nouvelle commande d'un montant de ${infosBoutique.prixTotalBoutique} FCFA a été passée pour votre boutique.`,
             data: {
               commandId: result.id,
               commandNbr: createCommandDto.commandeNbr,
-              ligneCommand: commandesParBoutique[boutiqueId],
+              ligneCommand: infosBoutique.lignes,
+              prixTotalBoutique: infosBoutique.prixTotalBoutique,
               etat: result.etat,
               createdAt: result.createdAt,
               client: { ...usr },
@@ -336,7 +355,11 @@ export class CommandService {
 
       return {
         status: 201,
-        data: result,
+        data: {
+          ...result,
+          ligneCommandInfo,
+          prixTotal
+        },
       };
     } catch (error) {
       console.error('Erreur lors de la création de la commande:', error);
@@ -381,7 +404,7 @@ export class CommandService {
           id:userId
         }
       })
-      if(userIsExist.id && userIsExist.profile=="BOUTIQUIER" ||  userIsExist.profile=="ADMIN"){
+      if(userIsExist.id && userIsExist.profile=="BOUTIQUIER"){
         const isFiltered = cmd.flatMap((res) => {
           const filter = res.LigneCommand.map((lc) => {
             const newLc = { ...lc, ...lc.Prix } as any;
@@ -392,14 +415,16 @@ export class CommandService {
             return newLc;
           });
   
-          const total = filter.reduce((acc: any, prev) => {
-            return (prev.prix += acc);
+          console.log(filter);
+          
+          const total = filter.reduce((acc: number, item) => {
+            return acc + (Number(item.prix) * item.quantiter);
           }, 0);
+
           console.log(total);
           return { ...res, LigneCommand: [...filter], total };
         });
         return isFiltered || [];
-
       }else{
         const isFiltered = cmd.flatMap((res) => {
           const filter = res.LigneCommand.map((lc) => {
@@ -410,8 +435,8 @@ export class CommandService {
             return newLc;
           });
   
-          const total = filter.reduce((acc: any, prev) => {
-            return (prev.prix += acc);
+          const total = filter.reduce((acc: number, item) => {
+            return acc + (Number(item.prix) * item.quantiter);
           }, 0);
           console.log(total);
           return { ...res, LigneCommand: [...filter], total };
@@ -475,8 +500,10 @@ export class CommandService {
         return { ...ligne, products: products };
       });
 
-      const total = LigneCommand?.reduce((acc, el) => {
-        return acc + (parseFloat(String(el.products.prix)) || 0);
+     
+      
+      const total = LigneCommand.reduce((acc: number, prev) => {
+        return acc + (Number(prev.products.prix ) * prev.quantiter);
       }, 0);
       const utilisateur = resultes.utilisateurs;
       delete resultes.utilisateurs;
