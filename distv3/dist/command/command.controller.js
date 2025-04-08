@@ -29,6 +29,9 @@ let CommandController = class CommandController {
     findOne(id, userId) {
         return this.commandService.findOne(+id, +userId);
     }
+    findOneByShopId(id, shopId) {
+        return this.commandService.findOneByShopId(+id, +shopId);
+    }
     findByShopId(shopId) {
         return this.commandService.findByShopId(+shopId);
     }
@@ -59,6 +62,14 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], CommandController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Get)(':id/shop/:shopId'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Param)('shopId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], CommandController.prototype, "findOneByShopId", null);
 __decorate([
     (0, common_1.Get)('by-shop-id/:shopId'),
     __param(0, (0, common_1.Param)('shopId')),

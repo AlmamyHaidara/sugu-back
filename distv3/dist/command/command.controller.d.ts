@@ -28,6 +28,10 @@ export declare class CommandController {
         status: number;
         data: {};
     }>;
+    findOneByShopId(id: string, shopId: string): Promise<{
+        status: number;
+        data: {};
+    }>;
     findByShopId(shopId: string): Promise<{
         status: number;
         data: {

@@ -504,7 +504,82 @@ Nous vous remercions pour votre confiance.`,
       
       const total = LigneCommand.reduce((acc: number, prev) => {
         return acc + (Number(prev.products.prix ) * prev.quantiter);
-      }, 0);
+      }, 0);      
+      const utilisateur = resultes.utilisateurs;
+      delete resultes.utilisateurs;
+
+      const command = { ...resultes, utilisateur, LigneCommand, total };
+
+      return {
+        status: 200,
+        data: command || {},
+      };
+    } catch (error) {
+      console.error(error);
+      ExeceptionCase(error);
+    }
+  }
+
+  async findOneByShopId(id: number, shopId: number) {
+    try {
+      const resultes = await this.prisma.commande.findFirst({
+        where: {
+          id: id,
+          LigneCommand:{
+            some:{
+              Prix:{
+                boutiqueId:shopId
+              }
+            }
+          }
+        },
+        select: {
+          id: true,
+          commandeNbr: true,
+          utilisateurs: {
+            select: {
+              id: true,
+              Adresse: true,
+              email: true,
+              nom: true,
+              prenom: true,
+              telephone: true,
+            },
+          },
+          createdAt: true,
+
+          etat: true,
+          LigneCommand: {
+            include: {
+              Prix: {
+                include: {
+                  produits: {
+                    include: {
+                      categories: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const LigneCommand = resultes.LigneCommand.map((ligne) => {
+        const prix = ligne.Prix.prix;
+        const prixId = ligne.Prix.id;
+        const quantiter = ligne.Prix.quantiter;
+        const products = { ...ligne.Prix.produits, prix, quantiter, prixId };
+
+        delete ligne.Prix;
+        return { ...ligne, products: products };
+      });
+
+     
+      
+      const total = LigneCommand.reduce((acc: number, prev) => {
+        return acc + (Number(prev.products.prix ) * prev.quantiter);
+      }, 0);      
       const utilisateur = resultes.utilisateurs;
       delete resultes.utilisateurs;
 

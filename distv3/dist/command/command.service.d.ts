@@ -34,6 +34,10 @@ export declare class CommandService {
         status: number;
         data: {};
     }>;
+    findOneByShopId(id: number, shopId: number): Promise<{
+        status: number;
+        data: {};
+    }>;
     findByShopId(shopId: number): Promise<{
         status: number;
         data: {

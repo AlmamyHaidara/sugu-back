@@ -129,7 +129,7 @@ model Prix {
   boutiqueId Int
 
   produits  Produit  @relation(fields: [produitId], references: [id], onDelete: Cascade)
-  boutiques Boutique @relation(fields: [boutiqueId], references: [id])
+  boutiques Boutique @relation(fields: [boutiqueId], references: [id], onDelete: Cascade)
 
   LigneCommand LigneCommand[]
 
@@ -157,7 +157,7 @@ model LigneCommand {
   commandeId Int?
   quantiter  Int
 
-  Prix     Prix?     @relation(fields: [prixId], references: [id])
+  Prix     Prix?     @relation(fields: [prixId], references: [id], onDelete: SetNull)
   Commande Commande? @relation(fields: [commandeId], references: [id])
 
   createdAt DateTime @default(now())
@@ -181,7 +181,7 @@ model Panier {
   boutiqueId    Int
 
   utilisateurs Utilisateur @relation(fields: [utilisateurId], references: [id])
-  boutiques    Boutique    @relation(fields: [boutiqueId], references: [id])
+  boutiques    Boutique    @relation(fields: [boutiqueId], references: [id], onDelete: Cascade)
   produits     Produit     @relation(fields: [produitId], references: [id])
 
   createdAt DateTime @default(now())

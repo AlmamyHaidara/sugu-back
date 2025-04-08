@@ -211,20 +211,7 @@ export declare class BoutiqueController {
         message: string;
         data: {
             statusCode: number;
-            data: {
-                nom: string;
-                email: string | null;
-                id: number;
-                createdAt: Date;
-                updatedAt: Date;
-                description: string;
-                img: string | null;
-                categorie: import(".prisma/client").$Enums.CategorieBoutique;
-                location: import(".prisma/client").$Enums.Location;
-                phone: string | null;
-                userId: number;
-                countryId: number | null;
-            };
+            data: import(".prisma/client").Prisma.BatchPayload;
         };
     }>;
 }

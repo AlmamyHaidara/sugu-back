@@ -434,7 +434,13 @@ export class BoutiqueService {
       throw new NotFoundException(`Boutique #${id} introuvable`);
     }
 
-    // Supprimer l'image si nécessaire
+
+    try {
+      const deleted = await this.prisma.boutique.deleteMany({
+        where: { id: Number(id) },
+      });
+
+      // Supprimer l'image si nécessaire
     if (boutique.img) {
       try {
         fs.unlinkSync('uploads/' + boutique.img);
@@ -442,17 +448,12 @@ export class BoutiqueService {
         // Logger l'erreur si besoin
       }
     }
-
-    try {
-      const deleted = await this.prisma.boutique.delete({
-        where: { id: Number(id) },
-      });
       return {
         statusCode: 200,
         data: deleted,
       };
     } catch (error) {
-      throw new InternalServerErrorException(
+       throw new InternalServerErrorException(
         'Erreur lors de la suppression de la boutique',
       );
     }

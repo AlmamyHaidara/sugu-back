@@ -406,17 +406,17 @@ let BoutiqueService = class BoutiqueService {
         if (!boutique) {
             throw new common_1.NotFoundException(`Boutique #${id} introuvable`);
         }
-        if (boutique.img) {
-            try {
-                fs.unlinkSync('uploads/' + boutique.img);
-            }
-            catch (err) {
-            }
-        }
         try {
-            const deleted = await this.prisma.boutique.delete({
+            const deleted = await this.prisma.boutique.deleteMany({
                 where: { id: Number(id) },
             });
+            if (boutique.img) {
+                try {
+                    fs.unlinkSync('uploads/' + boutique.img);
+                }
+                catch (err) {
+                }
+            }
             return {
                 statusCode: 200,
                 data: deleted,
