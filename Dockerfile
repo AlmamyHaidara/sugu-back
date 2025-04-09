@@ -24,7 +24,7 @@ USER node
 # Étape 6 : Variables d'environnement
 ENV PORT=5000
 ENV NODE_ENV=production
-ENV DATABASE_URL="mysql://aviplus:aviplus@mltdev.ml:3306/sugu_db"
+# ENV DATABASE_URL="mysql://aviplus:aviplus@mltdev.ml:3306/sugu_db"
 
 # Étape 7 : Exposer le port
 EXPOSE 5000
