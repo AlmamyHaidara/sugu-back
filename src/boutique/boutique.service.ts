@@ -16,6 +16,7 @@ import { UsersService } from 'src/users/users.service';
 import { templateToSendShopidentyMail } from 'src/mail/data';
 import { hash } from 'bcrypt';
 import { Produit } from 'src/produit/entities/produit.entity';
+import { UpdateBoutiqueProfileDto } from './dto/update-boutique-profile.dto';
 
 @Injectable()
 export class BoutiqueService {
@@ -424,6 +425,60 @@ export class BoutiqueService {
     }
   }
 
+  // ========== UPDATE PROFILE ==========
+  async updateProfile(id: number, updateBoutiqueDto: UpdateBoutiqueProfileDto) {
+    // On récupère d'abord la boutique
+    const existing = await this.prisma.boutique.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(`Boutique #${id} introuvable`);
+    }
+
+    // Si on a un nouveau champ img => on supprime l'ancien fichier
+    if (updateBoutiqueDto.img && existing.img) {
+      try {
+        fs.unlinkSync('uploads/' + existing.img);
+      } catch (err) {
+        // Logger l'erreur si besoin
+      }
+    }
+    
+    try {
+      const updated = await this.prisma.boutique.update({
+        where: { id: Number(id) },
+        data: {
+          nom: updateBoutiqueDto.nom,
+          phone: updateBoutiqueDto.phone,
+          img: updateBoutiqueDto.img,
+          description: updateBoutiqueDto.description,
+
+          utilisateurs: {
+            update: {
+              nom: updateBoutiqueDto.nom,
+              telephone: updateBoutiqueDto.phone,
+              avatar: updateBoutiqueDto.img,
+
+            },
+          },
+        },
+      });
+      console.log(updateBoutiqueDto.img, '|', existing.img);
+      console.log(updateBoutiqueDto.img, '|', updated.img, '|', existing.img);
+      
+      return {
+        statusCode: 200,
+        data: updated,
+      };
+    } catch (error) {
+      console.log(error);
+
+      throw new InternalServerErrorException(
+        'Erreur lors de la mise à jour de la boutique',
+      );
+    }
+  }
   // ========== REMOVE ==========
   async remove(id: number) {
     // Vérifier l'existence

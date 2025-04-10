@@ -3,6 +3,7 @@ import { UpdateBoutiqueDto } from './dto/update-boutique.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MailService } from 'src/mail/mail.service';
 import { UsersService } from 'src/users/users.service';
+import { UpdateBoutiqueProfileDto } from './dto/update-boutique-profile.dto';
 export declare class BoutiqueService {
     private readonly prisma;
     private readonly mailService;
@@ -192,6 +193,23 @@ export declare class BoutiqueService {
         };
     }>;
     update(id: number, updateBoutiqueDto: UpdateBoutiqueDto): Promise<{
+        statusCode: number;
+        data: {
+            nom: string;
+            email: string | null;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            description: string;
+            img: string | null;
+            categorie: import(".prisma/client").$Enums.CategorieBoutique;
+            location: import(".prisma/client").$Enums.Location;
+            phone: string | null;
+            userId: number;
+            countryId: number | null;
+        };
+    }>;
+    updateProfile(id: number, updateBoutiqueDto: UpdateBoutiqueProfileDto): Promise<{
         statusCode: number;
         data: {
             nom: string;

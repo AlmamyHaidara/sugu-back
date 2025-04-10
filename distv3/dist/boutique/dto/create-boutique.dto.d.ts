@@ -13,7 +13,7 @@ export declare class CreateBoutiqueDto {
     description: string;
     location: Location;
     phone: string;
-    img: string;
+    img?: string;
     countryId: number;
     userId: number;
 }

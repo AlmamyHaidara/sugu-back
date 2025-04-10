@@ -399,6 +399,49 @@ let BoutiqueService = class BoutiqueService {
             throw new common_1.InternalServerErrorException('Erreur lors de la mise à jour de la boutique');
         }
     }
+    async updateProfile(id, updateBoutiqueDto) {
+        const existing = await this.prisma.boutique.findUnique({
+            where: { id: Number(id) },
+        });
+        if (!existing) {
+            throw new common_1.NotFoundException(`Boutique #${id} introuvable`);
+        }
+        if (updateBoutiqueDto.img && existing.img) {
+            try {
+                fs.unlinkSync('uploads/' + existing.img);
+            }
+            catch (err) {
+            }
+        }
+        try {
+            const updated = await this.prisma.boutique.update({
+                where: { id: Number(id) },
+                data: {
+                    nom: updateBoutiqueDto.nom,
+                    phone: updateBoutiqueDto.phone,
+                    img: updateBoutiqueDto.img,
+                    description: updateBoutiqueDto.description,
+                    utilisateurs: {
+                        update: {
+                            nom: updateBoutiqueDto.nom,
+                            telephone: updateBoutiqueDto.phone,
+                            avatar: updateBoutiqueDto.img,
+                        },
+                    },
+                },
+            });
+            console.log(updateBoutiqueDto.img, '|', existing.img);
+            console.log(updateBoutiqueDto.img, '|', updated.img, '|', existing.img);
+            return {
+                statusCode: 200,
+                data: updated,
+            };
+        }
+        catch (error) {
+            console.log(error);
+            throw new common_1.InternalServerErrorException('Erreur lors de la mise à jour de la boutique');
+        }
+    }
     async remove(id) {
         const boutique = await this.prisma.boutique.findUnique({
             where: { id: Number(id) },

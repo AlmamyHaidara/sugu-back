@@ -1,6 +1,7 @@
 import { BoutiqueService } from './boutique.service';
 import { CreateBoutiqueDto } from './dto/create-boutique.dto';
 import { UpdateBoutiqueDto } from './dto/update-boutique.dto';
+import { UpdateBoutiqueProfileDto } from './dto/update-boutique-profile.dto';
 export declare class BoutiqueController {
     private readonly boutiqueService;
     constructor(boutiqueService: BoutiqueService);
@@ -188,6 +189,26 @@ export declare class BoutiqueController {
         }[];
     }>;
     update(id: number, updateBoutiqueDto: UpdateBoutiqueDto, file: Express.Multer.File): Promise<{
+        message: string;
+        data: {
+            statusCode: number;
+            data: {
+                nom: string;
+                email: string | null;
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                description: string;
+                img: string | null;
+                categorie: import(".prisma/client").$Enums.CategorieBoutique;
+                location: import(".prisma/client").$Enums.Location;
+                phone: string | null;
+                userId: number;
+                countryId: number | null;
+            };
+        };
+    }>;
+    updateProfile(id: number, updateBoutiqueDto: UpdateBoutiqueProfileDto, file: Express.Multer.File): Promise<{
         message: string;
         data: {
             statusCode: number;
