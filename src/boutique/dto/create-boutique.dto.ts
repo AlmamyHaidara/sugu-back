@@ -2,6 +2,7 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MinLength,
 } from 'class-validator';
@@ -48,7 +49,9 @@ export class CreateBoutiqueDto {
   @MinLength(8)
   phone: string;
 
-  img: string;
+  @IsOptional()
+  @IsString()
+  img?: string;
 
   @IsNotEmpty()
   @IsString()
