@@ -3,6 +3,7 @@ import {
   NotFoundException,
   InternalServerErrorException,
   ConflictException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateBoutiqueDto } from './dto/create-boutique.dto';
 import { UpdateBoutiqueDto } from './dto/update-boutique.dto';
@@ -17,13 +18,19 @@ import { templateToSendShopidentyMail } from 'src/mail/data';
 import { hash } from 'bcrypt';
 import { Produit } from 'src/produit/entities/produit.entity';
 import { UpdateBoutiqueProfileDto } from './dto/update-boutique-profile.dto';
+import { JwtService } from '@nestjs/jwt';
+import { PrixService } from 'src/prix/prix.service';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class BoutiqueService {
+  private readonly logger = new Logger(BoutiqueService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly mailService: MailService,
     private readonly usersService: UsersService,
+    private readonly prixService: PrixService,
   ) {}
 
   // ========== CREATE ==========
@@ -467,9 +474,21 @@ export class BoutiqueService {
       console.log(updateBoutiqueDto.img, '|', existing.img);
       console.log(updateBoutiqueDto.img, '|', updated.img, '|', existing.img);
       
+
+      let currentUser = await this.usersService.getCurrentUser(updateBoutiqueDto.email);
+      if (!currentUser) {
+        this.logger.warn(`Current user not found for refresh: ${updateBoutiqueDto.email}`);
+        throw new UnauthorizedException('User not found');
+      }
+
+      const boutique = await this.prixService.findOneByUserId(updated?.userId);
+
+      if (boutique) {
+        currentUser = { ...currentUser, boutique };
+      }
       return {
         statusCode: 200,
-        data: updated,
+        data: currentUser,
       };
     } catch (error) {
       console.log(error);

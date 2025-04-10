@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var BoutiqueService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BoutiqueService = void 0;
 const common_1 = require("@nestjs/common");
@@ -19,11 +20,15 @@ const functions_1 = require("../utils/functions");
 const users_service_1 = require("../users/users.service");
 const data_1 = require("../mail/data");
 const bcrypt_1 = require("bcrypt");
-let BoutiqueService = class BoutiqueService {
-    constructor(prisma, mailService, usersService) {
+const prix_service_1 = require("../prix/prix.service");
+const common_2 = require("@nestjs/common");
+let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
+    constructor(prisma, mailService, usersService, prixService) {
         this.prisma = prisma;
         this.mailService = mailService;
         this.usersService = usersService;
+        this.prixService = prixService;
+        this.logger = new common_2.Logger(BoutiqueService_1.name);
         this.getSalesStats = (commandes) => {
             const today = new Date();
             const currentMonth = today.getMonth();
@@ -432,9 +437,18 @@ let BoutiqueService = class BoutiqueService {
             });
             console.log(updateBoutiqueDto.img, '|', existing.img);
             console.log(updateBoutiqueDto.img, '|', updated.img, '|', existing.img);
+            let currentUser = await this.usersService.getCurrentUser(updateBoutiqueDto.email);
+            if (!currentUser) {
+                this.logger.warn(`Current user not found for refresh: ${updateBoutiqueDto.email}`);
+                throw new common_1.UnauthorizedException('User not found');
+            }
+            const boutique = await this.prixService.findOneByUserId(updated?.userId);
+            if (boutique) {
+                currentUser = { ...currentUser, boutique };
+            }
             return {
                 statusCode: 200,
-                data: updated,
+                data: currentUser,
             };
         }
         catch (error) {
@@ -471,10 +485,11 @@ let BoutiqueService = class BoutiqueService {
     }
 };
 exports.BoutiqueService = BoutiqueService;
-exports.BoutiqueService = BoutiqueService = __decorate([
+exports.BoutiqueService = BoutiqueService = BoutiqueService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         mail_service_1.MailService,
-        users_service_1.UsersService])
+        users_service_1.UsersService,
+        prix_service_1.PrixService])
 ], BoutiqueService);
 //# sourceMappingURL=boutique.service.js.map
