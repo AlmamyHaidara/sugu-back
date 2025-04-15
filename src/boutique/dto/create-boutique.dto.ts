@@ -10,6 +10,7 @@ import {
 export enum Location {
   NATIONAL = 'NATIONAL',
   INTERNATIONAL = 'INTERNATIONAL',
+  PARTICULIER = 'PARTICULIER',
 }
 
 export enum CategorieBoutique {

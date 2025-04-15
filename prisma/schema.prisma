@@ -26,6 +26,7 @@ enum Profile {
 enum Location {
   NATIONAL
   INTERNATIONAL
+  PARTICULIER
 }
 
 enum CategorieBoutique {
