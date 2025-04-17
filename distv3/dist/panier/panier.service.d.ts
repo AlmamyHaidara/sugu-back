@@ -18,13 +18,14 @@ export declare class PanierService {
     }>;
     getCart(boutiqueId: number): Promise<({
         produits: {
+            isPublic: boolean | null;
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
             img: string;
-            tags: string;
+            tags: string | null;
             categorieId: number;
         };
         boutiques: {

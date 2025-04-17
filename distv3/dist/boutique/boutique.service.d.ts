@@ -4,11 +4,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { MailService } from 'src/mail/mail.service';
 import { UsersService } from 'src/users/users.service';
 import { UpdateBoutiqueProfileDto } from './dto/update-boutique-profile.dto';
+import { PrixService } from 'src/prix/prix.service';
 export declare class BoutiqueService {
     private readonly prisma;
     private readonly mailService;
     private readonly usersService;
-    constructor(prisma: PrismaService, mailService: MailService, usersService: UsersService);
+    private readonly prixService;
+    private readonly logger;
+    constructor(prisma: PrismaService, mailService: MailService, usersService: UsersService, prixService: PrixService);
     create(createBoutiqueDto: CreateBoutiqueDto): Promise<{
         statusCode: number;
         message: string;
@@ -62,13 +65,14 @@ export declare class BoutiqueService {
                 prix: import("@prisma/client/runtime/library").Decimal;
                 boutiqueId: number;
             }[];
+            isPublic: boolean | null;
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
             img: string;
-            tags: string;
+            tags: string | null;
             categorieId: number;
         }[];
     }>;
@@ -84,13 +88,14 @@ export declare class BoutiqueService {
                 id: number;
                 description: string | null;
             };
+            isPublic: boolean | null;
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
             img: string;
-            tags: string;
+            tags: string | null;
             categorieId: number;
         }[];
     }>;
@@ -123,13 +128,14 @@ export declare class BoutiqueService {
             };
             Prix: ({
                 produits: {
+                    isPublic: boolean | null;
                     nom: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
                     description: string;
                     img: string;
-                    tags: string;
+                    tags: string | null;
                     categorieId: number;
                 };
             } & {
@@ -139,7 +145,8 @@ export declare class BoutiqueService {
                 updatedAt: Date;
                 quantiter: number;
                 produitId: number;
-                boutiqueId: number;
+                boutiqueId: number | null;
+                particularId: number | null;
             })[];
         } & {
             nom: string;
@@ -211,20 +218,7 @@ export declare class BoutiqueService {
     }>;
     updateProfile(id: number, updateBoutiqueDto: UpdateBoutiqueProfileDto): Promise<{
         statusCode: number;
-        data: {
-            nom: string;
-            email: string | null;
-            id: number;
-            createdAt: Date;
-            updatedAt: Date;
-            description: string;
-            img: string | null;
-            categorie: import(".prisma/client").$Enums.CategorieBoutique;
-            location: import(".prisma/client").$Enums.Location;
-            phone: string | null;
-            userId: number;
-            countryId: number | null;
-        };
+        data: any;
     }>;
     remove(id: number): Promise<{
         statusCode: number;

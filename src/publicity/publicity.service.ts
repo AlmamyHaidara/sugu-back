@@ -1,0 +1,115 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { CreatePublicityDto } from './dto/create-publicity.dto';
+import { UpdatePublicityDto } from './dto/update-publicity.dto';
+import { PrismaService } from 'src/prisma/prisma.service copy';
+
+@Injectable()
+export class PublicityService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly logger: Logger,
+  ) {}
+
+  create(createPublicityDto: CreatePublicityDto) {
+    return 'This action adds a new publicity';
+  }
+
+  async validateProduct(
+    adminId: number,
+    produitId: number,
+    isApproved: boolean,
+    comment?: string,
+  ) {
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        // 1. Vérifier que l'admin existe
+        const admin = await tx.utilisateur.findFirst({
+          where: {
+            id: adminId,
+            profile: 'ADMIN',
+          },
+        });
+
+        if (!admin) {
+          throw new Error('Administrateur non autorisé');
+        }
+
+        // 2. Récupérer le produit et ses informations associées
+        const produit = await tx.produit.findUnique({
+          where: { id: produitId },
+          include: {
+            Prix: {
+              include: {
+                particular: {
+                  include: {
+                    utilisateur: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        if (!produit) {
+          throw new Error('Produit non trouvé');
+        }
+
+        // 3. Mettre à jour le statut du produit
+        const updatedProduit = await tx.produit.update({
+          where: { id: produitId },
+          data: {
+            isPublic: isApproved,
+            updatedAt: new Date(),
+          },
+        });
+
+        // 4. Créer une notification pour le particulier
+        const utilisateurId = produit.Prix[0]?.particular?.utilisateur?.id;
+        if (utilisateurId) {
+          await tx.notification.create({
+            data: {
+              utilisateurId: utilisateurId,
+              type: isApproved ? 'INFO' : 'WARNING',
+              title: isApproved ? 'Produit approuvé' : 'Produit refusé',
+              message: isApproved
+                ? `Votre produit "${produit.nom}" a été approuvé et est maintenant public`
+                : `Votre produit "${produit.nom}" a été refusé. ${comment || ''}`,
+              status: 'UNREAD',
+              data: {
+                produitId: produit.id,
+                adminId: admin.id,
+                decision: isApproved ? 'APPROVED' : 'REJECTED',
+                comment,
+              },
+            },
+          });
+        }
+
+        this.logger.log(
+          `Produit ${produitId} ${isApproved ? 'approuvé' : 'refusé'} par admin ${adminId}`,
+        );
+
+        return updatedProduit;
+      });
+    } catch (error) {
+      this.logger.error(`Erreur lors de la validation: ${error.message}`);
+      throw new Error('Erreur lors de la validation du produit');
+    }
+  }
+
+  findAll() {
+    return `This action returns all publicity`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} publicity`;
+  }
+
+  update(id: number, updatePublicityDto: UpdatePublicityDto) {
+    return `This action updates a #${id} publicity`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} publicity`;
+  }
+}

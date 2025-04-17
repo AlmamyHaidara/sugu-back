@@ -35,13 +35,14 @@ export declare class BoutiqueController {
             };
             Prix: ({
                 produits: {
+                    isPublic: boolean | null;
                     nom: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
                     description: string;
                     img: string;
-                    tags: string;
+                    tags: string | null;
                     categorieId: number;
                 };
             } & {
@@ -51,7 +52,8 @@ export declare class BoutiqueController {
                 updatedAt: Date;
                 quantiter: number;
                 produitId: number;
-                boutiqueId: number;
+                boutiqueId: number | null;
+                particularId: number | null;
             })[];
         } & {
             nom: string;
@@ -139,13 +141,14 @@ export declare class BoutiqueController {
                 prix: import("@prisma/client/runtime/library").Decimal;
                 boutiqueId: number;
             }[];
+            isPublic: boolean | null;
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
             img: string;
-            tags: string;
+            tags: string | null;
             categorieId: number;
         }[];
     }>;
@@ -161,13 +164,14 @@ export declare class BoutiqueController {
                 id: number;
                 description: string | null;
             };
+            isPublic: boolean | null;
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
             img: string;
-            tags: string;
+            tags: string | null;
             categorieId: number;
         }[];
     }>;
@@ -212,20 +216,7 @@ export declare class BoutiqueController {
         message: string;
         data: {
             statusCode: number;
-            data: {
-                nom: string;
-                email: string | null;
-                id: number;
-                createdAt: Date;
-                updatedAt: Date;
-                description: string;
-                img: string | null;
-                categorie: import(".prisma/client").$Enums.CategorieBoutique;
-                location: import(".prisma/client").$Enums.Location;
-                phone: string | null;
-                userId: number;
-                countryId: number | null;
-            };
+            data: any;
         };
     }>;
     remove(id: number): Promise<{

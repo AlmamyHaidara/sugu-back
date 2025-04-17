@@ -68,13 +68,14 @@ export declare class CommandService {
                         id: number;
                         description: string | null;
                     };
+                    isPublic: boolean | null;
                     nom: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
                     description: string;
                     img: string;
-                    tags: string;
+                    tags: string | null;
                     categorieId: number;
                 };
                 Prix: {
@@ -85,13 +86,14 @@ export declare class CommandService {
                             description: string | null;
                         };
                     } & {
+                        isPublic: boolean | null;
                         nom: string;
                         id: number;
                         createdAt: Date;
                         updatedAt: Date;
                         description: string;
                         img: string;
-                        tags: string;
+                        tags: string | null;
                         categorieId: number;
                     };
                 } & {
@@ -101,7 +103,8 @@ export declare class CommandService {
                     updatedAt: Date;
                     quantiter: number;
                     produitId: number;
-                    boutiqueId: number;
+                    boutiqueId: number | null;
+                    particularId: number | null;
                 };
                 id: number;
                 createdAt: Date;
