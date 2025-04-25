@@ -5,6 +5,6 @@ export declare class CreateParticulierDto {
     prodName: string;
     prodDescription: string;
     prodImg: string;
-    isPublic: boolean;
+    published: boolean;
     categorieId: number;
 }

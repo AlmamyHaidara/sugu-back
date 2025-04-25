@@ -28,7 +28,12 @@ enum Location {
   INTERNATIONAL
   PARTICULIER
 }
-
+enum PubliciteStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
 enum CategorieBoutique {
   DETAILLANT
   GROSSISTE
@@ -40,6 +45,12 @@ enum EtatCommand {
   ATTENTE
   LIVRER
 }
+enum ProduitStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 
 // ====================== MODELS ======================
 
@@ -62,6 +73,8 @@ model Utilisateur {
   notifications Notification[]
 
   Particular Particular[]
+
+  ProduitValidationLog ProduitValidationLog[]
 }
 
 model Adresse {
@@ -84,7 +97,9 @@ model Produit {
   img         String
   // Tableau de mots-clés pour la recherche avancée (facultatif)
   tags        String?
-
+  
+  status       ProduitStatus @default(PENDING)
+rejectionComment String?   @db.Text 
   categorieId Int
   categories  CategorieProduit @relation(fields: [categorieId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -95,6 +110,8 @@ model Produit {
   Panier Panier[]
 
   Publicite Publicite[]
+    validationLogs ProduitValidationLog[]
+
 }
 
 model Particular {
@@ -106,12 +123,38 @@ model Particular {
   updatedAt DateTime @updatedAt
 }
 
+model ProduitValidationLog {
+  id            Int      @id @default(autoincrement())
+  produitId     Int
+  adminId       Int      // Utilisateur avec profil ADMIN
+  action        ProduitStatus // Action effectuée (APPROVED ou REJECTED)
+  comment       String?  @db.Text // Commentaire, obligatoire en cas de REJECTED
+  createdAt     DateTime @default(now())
+
+  produit       Produit     @relation(fields: [produitId], references: [id], onDelete: Cascade)
+  admin         Utilisateur @relation(fields: [adminId], references: [id], onDelete: Cascade)
+}
+
 model Publicite {
   id        Int               @id @default(autoincrement())
   startDate DateTime
   endDate   DateTime
   produitId Int?
+  status PubliciteStatus @default(PENDING)
+
   produit   Produit? @relation(fields: [produitId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OffreSpeciale {
+  id        Int               @id @default(autoincrement())
+  titre     String
+  description String @db.Text
+  img String?
+  pourcentage Int
+  dateFin DateTime
+  dateDebut DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

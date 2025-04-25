@@ -8,7 +8,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProduitDto } from './dto/create-produit.dto';
 import { UpdateProduitDto } from './dto/update-produit.dto';
 import { SearchProduitsDto } from './dto/SearchProduits.dto';
-import { CategorieBoutique, Prisma } from '@prisma/client';
+import { CategorieBoutique, Prisma, ProduitStatus } from '@prisma/client';
 import { Location } from 'src/boutique/dto/create-boutique.dto';
 import * as fs from 'fs';
 @Injectable()
@@ -44,6 +44,9 @@ export class ProduitService {
           description: createProduitDto.description,
           img: createProduitDto.img,
           tags: createProduitDto.tags,
+          isPublic: true,
+          status: ProduitStatus.APPROVED,
+
           // tags: JSON.parse(createProduitDto.tags),
           categories: {
             connect: { id: Number(createProduitDto.categorie) },
@@ -116,6 +119,8 @@ export class ProduitService {
           description: createProduitDto.description,
           img: createProduitDto.img,
           tags: createProduitDto.tags,
+          status: ProduitStatus.PENDING,
+
           // tags: JSON.parse(createProduitDto.tags),
           categories: {
             connect: { id: Number(createProduitDto.categorie) },
@@ -189,6 +194,9 @@ export class ProduitService {
           description: createProduitDto.description,
           img: createProduitDto.img,
           tags: createProduitDto.tags,
+          status: ProduitStatus.APPROVED,
+          isPublic: true,
+
           // tags: JSON.parse(createProduitDto.tags),
           categories: {
             connect: { id: Number(createProduitDto.categorie) },
@@ -240,7 +248,13 @@ export class ProduitService {
   // ========== FIND ALL ==========
   async findAll() {
     try {
-      const produits = await this.prisma.produit.findMany();
+      const produits = await this.prisma.produit.findMany({
+        where: {
+          status: ProduitStatus.APPROVED,
+          isPublic: true,
+
+        },
+      });
       return {
         statusCode: HttpStatus.OK,
         message: 'Liste de tous les produits',
@@ -482,6 +496,7 @@ export class ProduitService {
           description: updateProduitDto.description,
           img: dataToUpdate.img,
           tags: updateProduitDto.tags,
+          
           categories: {
             connect: { id: Number(updateProduitDto.categorie) },
           },

@@ -17,9 +17,16 @@ const common_1 = require("@nestjs/common");
 const publicity_service_1 = require("./publicity.service");
 const create_publicity_dto_1 = require("./dto/create-publicity.dto");
 const update_publicity_dto_1 = require("./dto/update-publicity.dto");
+const create_publicity_approved_product_dto_1 = require("./dto/create-publicity-approved-product.dto");
+const platform_express_1 = require("@nestjs/platform-express");
+const multer_1 = require("multer");
+const path_1 = require("path");
 let PublicityController = class PublicityController {
     constructor(publicityService) {
         this.publicityService = publicityService;
+    }
+    approved(createPublicityDto) {
+        return this.publicityService.validateProduct(createPublicityDto.adminId, createPublicityDto.produitId, createPublicityDto.isApproved, createPublicityDto.comment);
     }
     create(createPublicityDto) {
         return this.publicityService.create(createPublicityDto);
@@ -39,7 +46,34 @@ let PublicityController = class PublicityController {
 };
 exports.PublicityController = PublicityController;
 __decorate([
+    (0, common_1.Post)('/approved'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [create_publicity_approved_product_dto_1.CreatePublicityApprovedProductDto]),
+    __metadata("design:returntype", void 0)
+], PublicityController.prototype, "approved", null);
+__decorate([
     (0, common_1.Post)(),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('img', {
+        storage: (0, multer_1.diskStorage)({
+            destination: (req, file, callback) => {
+                const uploadPath = process.env.PUBLICITY_UPLOAD_DIR || './uploads/publicity';
+                callback(null, uploadPath);
+            },
+            filename: (req, file, callback) => {
+                const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+                const ext = (0, path_1.extname)(file.originalname).toLowerCase();
+                const filename = `publicity-${uniqueSuffix}${ext}`;
+                callback(null, filename);
+            },
+        }),
+        fileFilter: (req, file, callback) => {
+            if (!file.mimetype.match(/\/(jpg|jpeg|png)$/i)) {
+                return callback(new Error('Seuls les fichiers JPG, JPEG et PNG sont autorisés !'), false);
+            }
+            callback(null, true);
+        },
+    })),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_publicity_dto_1.CreatePublicityDto]),

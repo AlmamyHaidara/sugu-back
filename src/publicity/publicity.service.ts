@@ -1,4 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { CreatePublicityDto } from './dto/create-publicity.dto';
 import { UpdatePublicityDto } from './dto/update-publicity.dto';
 import { PrismaService } from 'src/prisma/prisma.service copy';
@@ -10,7 +15,31 @@ export class PublicityService {
     private readonly logger: Logger,
   ) {}
 
-  create(createPublicityDto: CreatePublicityDto) {
+  async create(createPublicityDto: CreatePublicityDto) {
+    try {
+      const result = await this.prisma.offreSpeciale.create({
+        data: {
+          titre: createPublicityDto.titre,
+          description: createPublicityDto.description,
+          pourcentage: createPublicityDto.pourcentage,
+          dateFin: createPublicityDto.dateFin,
+          dateDebut: createPublicityDto.dateDebut,
+          img: createPublicityDto.img,
+        },
+      });
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Publicité créée avec succès',
+        data: result,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Erreur lors de la création de la publicité',
+      );
+    }
+  }
+
+  approved(createPublicityDto: CreatePublicityDto) {
     return 'This action adds a new publicity';
   }
 
@@ -98,18 +127,36 @@ export class PublicityService {
   }
 
   findAll() {
-    return `This action returns all publicity`;
+    return this.prisma.offreSpeciale.findMany();
   }
 
+  findAllByDate(date: Date) {
+    return this.prisma.offreSpeciale.findMany({
+      where: { dateDebut: { lte: date }, dateFin: { gte: date } },
+    });
+  }
   findOne(id: number) {
-    return `This action returns a #${id} publicity`;
+    return this.prisma.offreSpeciale.findUnique({
+      where: { id },
+    });
+  }
+
+  findOneByDate(date: Date) {
+    return this.prisma.offreSpeciale.findFirst({
+      where: { dateDebut: { lte: date }, dateFin: { gte: date } },
+    });
   }
 
   update(id: number, updatePublicityDto: UpdatePublicityDto) {
-    return `This action updates a #${id} publicity`;
+    return this.prisma.offreSpeciale.update({
+      where: { id },
+      data: updatePublicityDto,
+    });
   }
 
   remove(id: number) {
-    return `This action removes a #${id} publicity`;
+    return this.prisma.offreSpeciale.delete({
+      where: { id },
+    });
   }
 }

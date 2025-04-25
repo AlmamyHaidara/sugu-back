@@ -16,6 +16,7 @@ import { UpdateParticulierDto } from './dto/update-particulier.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { ProduitStatus } from '@prisma/client';
 
 @Controller('particulier')
 export class ParticulierController {
@@ -73,6 +74,24 @@ export class ParticulierController {
     @Param('produitId') produitId: string,
   ) {
     return await this.particulierService.findProductById(+userId, +produitId);
+  }
+
+  @Get('/products/in/validation/')
+  async findAllProductInValidation() {
+    return await this.particulierService.findAllProduitsInValidation();
+  }
+
+  @Patch('/validation/:produitId/:status')
+  async validateProduct(
+    @Param('produitId') produitId: string,
+    @Param('status') status: string,
+    @Body('comment') comment?: string,
+  ) {
+    return await this.particulierService.validateProduct(
+      +produitId,
+      status as ProduitStatus,
+      comment,
+    );
   }
 
   @Patch()

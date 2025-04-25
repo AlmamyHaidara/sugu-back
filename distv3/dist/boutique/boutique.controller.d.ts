@@ -35,15 +35,17 @@ export declare class BoutiqueController {
             };
             Prix: ({
                 produits: {
-                    isPublic: boolean | null;
                     nom: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
+                    status: import(".prisma/client").$Enums.ProduitStatus;
                     description: string;
                     img: string;
                     tags: string | null;
+                    rejectionComment: string | null;
                     categorieId: number;
+                    isPublic: boolean | null;
                 };
             } & {
                 prix: import("@prisma/client/runtime/library").Decimal;
@@ -141,15 +143,17 @@ export declare class BoutiqueController {
                 prix: import("@prisma/client/runtime/library").Decimal;
                 boutiqueId: number;
             }[];
-            isPublic: boolean | null;
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         }[];
     }>;
     findBoutiqueProduit(id: number): Promise<{
@@ -164,15 +168,17 @@ export declare class BoutiqueController {
                 id: number;
                 description: string | null;
             };
-            isPublic: boolean | null;
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         }[];
     }>;
     findBoutiqueByUserId(userId: number): Promise<{

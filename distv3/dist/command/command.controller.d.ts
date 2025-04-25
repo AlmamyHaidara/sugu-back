@@ -62,15 +62,17 @@ export declare class CommandController {
                         id: number;
                         description: string | null;
                     };
-                    isPublic: boolean | null;
                     nom: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
+                    status: import(".prisma/client").$Enums.ProduitStatus;
                     description: string;
                     img: string;
                     tags: string | null;
+                    rejectionComment: string | null;
                     categorieId: number;
+                    isPublic: boolean | null;
                 };
                 Prix: {
                     produits: {
@@ -80,15 +82,17 @@ export declare class CommandController {
                             description: string | null;
                         };
                     } & {
-                        isPublic: boolean | null;
                         nom: string;
                         id: number;
                         createdAt: Date;
                         updatedAt: Date;
+                        status: import(".prisma/client").$Enums.ProduitStatus;
                         description: string;
                         img: string;
                         tags: string | null;
+                        rejectionComment: string | null;
                         categorieId: number;
+                        isPublic: boolean | null;
                     };
                 } & {
                     prix: import("@prisma/client/runtime/library").Decimal;

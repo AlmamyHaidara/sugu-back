@@ -25,14 +25,16 @@ export declare class ProduitService {
                 id: number;
                 quantiter: number;
             }[];
-            isPublic: boolean | null;
             nom: string;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         };
     }>;
     createParticular(createProduitDto: CreateProduitDto): Promise<{
@@ -53,14 +55,16 @@ export declare class ProduitService {
                 id: number;
                 quantiter: number;
             }[];
-            isPublic: boolean | null;
             nom: string;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         };
     }>;
     createA(createProduitDto: CreateProduitDto): Promise<{
@@ -82,28 +86,32 @@ export declare class ProduitService {
                 id: number;
                 quantiter: number;
             }[];
-            isPublic: boolean | null;
             nom: string;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         };
     }>;
     findAll(): Promise<{
         statusCode: HttpStatus;
         message: string;
         data: {
-            isPublic: boolean | null;
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         }[];
     }>;
     findAllByShop(shopId: number): Promise<{
@@ -115,29 +123,33 @@ export declare class ProduitService {
             quantiter: number;
             produitId: number;
             boutiqueId: number;
-            isPublic: boolean | null;
             nom: string;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         }[];
     }>;
     findOne(id: number): Promise<{
         statusCode: HttpStatus;
         message: string;
         data: {
-            isPublic: boolean | null;
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         };
     }>;
     findByShopId(shopId: number): Promise<{
@@ -234,14 +246,16 @@ export declare class ProduitService {
                 id: number;
                 quantiter: number;
             }[];
-            isPublic: boolean | null;
             nom: string;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         };
     }>;
     remove(id: number): Promise<{
@@ -291,15 +305,17 @@ export declare class ProduitService {
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
-            isPublic: boolean | null;
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         }[];
     }>;
     findAllProduits(query: SearchProduitsDto): Promise<{
@@ -345,15 +361,17 @@ export declare class ProduitService {
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
-            isPublic: boolean | null;
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         }[];
         totalCount: number;
         currentPage: number;

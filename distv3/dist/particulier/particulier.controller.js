@@ -39,6 +39,12 @@ let ParticulierController = class ParticulierController {
     async findOne(userId, produitId) {
         return await this.particulierService.findProductById(+userId, +produitId);
     }
+    async findAllProductInValidation() {
+        return await this.particulierService.findAllProduitsInValidation();
+    }
+    async validateProduct(produitId, status, comment) {
+        return await this.particulierService.validateProduct(+produitId, status, comment);
+    }
     async update(file, updateParticulierDto) {
         return await this.particulierService.updateProduct({ ...updateParticulierDto }, file);
     }
@@ -90,6 +96,21 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], ParticulierController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Get)('/products/in/validation/'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], ParticulierController.prototype, "findAllProductInValidation", null);
+__decorate([
+    (0, common_1.Patch)('/validation/:produitId/:status'),
+    __param(0, (0, common_1.Param)('produitId')),
+    __param(1, (0, common_1.Param)('status')),
+    __param(2, (0, common_1.Body)('comment')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", Promise)
+], ParticulierController.prototype, "validateProduct", null);
 __decorate([
     (0, common_1.Patch)(),
     (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('prodImg', {

@@ -65,15 +65,17 @@ export declare class BoutiqueService {
                 prix: import("@prisma/client/runtime/library").Decimal;
                 boutiqueId: number;
             }[];
-            isPublic: boolean | null;
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         }[];
     }>;
     findAllShopWithProducts(shopId: number): Promise<{
@@ -88,15 +90,17 @@ export declare class BoutiqueService {
                 id: number;
                 description: string | null;
             };
-            isPublic: boolean | null;
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         }[];
     }>;
     findAllShopByUser(userId: number): Promise<{
@@ -128,15 +132,17 @@ export declare class BoutiqueService {
             };
             Prix: ({
                 produits: {
-                    isPublic: boolean | null;
                     nom: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
+                    status: import(".prisma/client").$Enums.ProduitStatus;
                     description: string;
                     img: string;
                     tags: string | null;
+                    rejectionComment: string | null;
                     categorieId: number;
+                    isPublic: boolean | null;
                 };
             } & {
                 prix: import("@prisma/client/runtime/library").Decimal;

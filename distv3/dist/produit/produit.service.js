@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProduitService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const client_1 = require("@prisma/client");
 const fs = require("fs");
 let ProduitService = class ProduitService {
     constructor(prisma) {
@@ -38,6 +39,8 @@ let ProduitService = class ProduitService {
                     description: createProduitDto.description,
                     img: createProduitDto.img,
                     tags: createProduitDto.tags,
+                    isPublic: true,
+                    status: client_1.ProduitStatus.APPROVED,
                     categories: {
                         connect: { id: Number(createProduitDto.categorie) },
                     },
@@ -98,6 +101,7 @@ let ProduitService = class ProduitService {
                     description: createProduitDto.description,
                     img: createProduitDto.img,
                     tags: createProduitDto.tags,
+                    status: client_1.ProduitStatus.PENDING,
                     categories: {
                         connect: { id: Number(createProduitDto.categorie) },
                     },
@@ -160,6 +164,8 @@ let ProduitService = class ProduitService {
                     description: createProduitDto.description,
                     img: createProduitDto.img,
                     tags: createProduitDto.tags,
+                    status: client_1.ProduitStatus.APPROVED,
+                    isPublic: true,
                     categories: {
                         connect: { id: Number(createProduitDto.categorie) },
                     },
@@ -206,7 +212,12 @@ let ProduitService = class ProduitService {
     }
     async findAll() {
         try {
-            const produits = await this.prisma.produit.findMany();
+            const produits = await this.prisma.produit.findMany({
+                where: {
+                    status: client_1.ProduitStatus.APPROVED,
+                    isPublic: true,
+                },
+            });
             return {
                 statusCode: common_1.HttpStatus.OK,
                 message: 'Liste de tous les produits',

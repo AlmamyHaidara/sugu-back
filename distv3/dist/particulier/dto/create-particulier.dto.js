@@ -42,7 +42,7 @@ __decorate([
     (0, class_transformer_1.Transform)(({ value }) => Boolean(value), { toClassOnly: true }),
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
-], CreateParticulierDto.prototype, "isPublic", void 0);
+], CreateParticulierDto.prototype, "published", void 0);
 __decorate([
     (0, class_transformer_1.Transform)(({ value }) => Number(value), { toClassOnly: true }),
     (0, class_validator_1.IsInt)(),

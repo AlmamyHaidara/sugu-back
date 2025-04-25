@@ -23,14 +23,16 @@ export declare class ProduitController {
                 id: number;
                 quantiter: number;
             }[];
-            isPublic: boolean | null;
             nom: string;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         };
     }>;
     findAll(query: SearchProduitsDto): Promise<{
@@ -76,15 +78,17 @@ export declare class ProduitController {
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
-            isPublic: boolean | null;
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         }[];
         totalCount: number;
         currentPage: number;
@@ -133,15 +137,17 @@ export declare class ProduitController {
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
-            isPublic: boolean | null;
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         }[];
     }>;
     findAllByShop(id: number): Promise<{
@@ -153,29 +159,33 @@ export declare class ProduitController {
             quantiter: number;
             produitId: number;
             boutiqueId: number;
-            isPublic: boolean | null;
             nom: string;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         }[];
     }>;
     findOne(id: number): Promise<{
         statusCode: import("@nestjs/common").HttpStatus;
         message: string;
         data: {
-            isPublic: boolean | null;
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         };
     }>;
     update(id: number, file: Express.Multer.File, updateProduitDto: UpdateProduitDto): Promise<{
@@ -196,14 +206,16 @@ export declare class ProduitController {
                 id: number;
                 quantiter: number;
             }[];
-            isPublic: boolean | null;
             nom: string;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         };
     }>;
     remove(id: number): Promise<{

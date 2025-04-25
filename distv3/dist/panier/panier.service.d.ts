@@ -18,15 +18,17 @@ export declare class PanierService {
     }>;
     getCart(boutiqueId: number): Promise<({
         produits: {
-            isPublic: boolean | null;
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         };
         boutiques: {
             nom: string;

@@ -9,6 +9,7 @@ import { CreateParticulierDto } from './dto/create-particulier.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as fs from 'fs';
 import { UpdateParticulierDto } from './dto/update-particulier.dto';
+import { ProduitStatus } from '@prisma/client';
 @Injectable()
 export class ParticulierService {
   constructor(
@@ -53,7 +54,10 @@ export class ParticulierService {
               description: createParticulierDto.prodDescription,
               img: createParticulierDto.prodImg,
               categorieId: +createParticulierDto.categorieId,
-              isPublic: Boolean(createParticulierDto.isPublic),
+              isPublic: Boolean(createParticulierDto.published),
+              status: ProduitStatus.PENDING,
+
+              // published: Boolean(createParticulierDto.published),
             },
             include: {
               categories: true,
@@ -213,7 +217,8 @@ export class ParticulierService {
               description: updateData.prodDescription,
               img: updateData.prodImg,
               categorieId: Number(updateData.categorieId),
-              isPublic: false, // Repasse en non public pour nouvelle validation
+              isPublic: Boolean(updateData.published),
+              // published: false, // Repasse en non public pour nouvelle validation
             },
             include: {
               categories: true,
@@ -275,6 +280,7 @@ export class ParticulierService {
           delete updatedProduit.Prix;
           const productFiltered = {
             ...updatedProduit,
+            published: Boolean(updateData.published),
             ...updatedPrix,
 
             prixId,
@@ -394,7 +400,14 @@ export class ParticulierService {
       const result = products.map((element) => {
         const firstPrix = element.Prix[0];
         const { Prix, ...rest } = element;
-        return { ...rest, ...firstPrix };
+        return {
+          ...rest,
+          published: element.isPublic,
+          prix: firstPrix.prix,
+          prixId: firstPrix.id,
+          quantiter: firstPrix.quantiter,
+          particularId: firstPrix.particularId,
+        };
       });
 
       return {
@@ -407,6 +420,145 @@ export class ParticulierService {
         `Erreur lors de la récupération des produits: ${error.message}`,
       );
       throw new Error('Erreur lors de la récupération des produits');
+    }
+  }
+
+  async findAllProduitsInValidation() {
+    try {
+      const produits = await this.prisma.produit.findMany({
+        where: {
+          status: ProduitStatus.PENDING,
+          isPublic: true,
+        },
+        include: {
+          Prix: {
+            include: {
+              particular: true,
+              LigneCommand: {
+                include: {
+                  Commande: true,
+                },
+              },
+            },
+          },
+          categories: true,
+        },
+      });
+
+      const result = produits.map((el) => {
+        const custum = {
+          ...el,
+          published: el.isPublic,
+          prix: el.Prix[0].prix,
+          prixId: el.Prix[0].id,
+          quantiter: el.Prix[0].quantiter,
+          particularId: el.Prix[0].particularId,
+          particulier: el.Prix[0].particular,
+        };
+        delete custum.Prix;
+        return custum;
+      });
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: `Produits en attente de validation`,
+        data: result,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Erreur lors de la récupération des produits en attente de validation: ${error.message}`,
+      );
+      throw new Error(
+        'Erreur lors de la récupération des produits en attente de validation',
+      );
+    }
+  }
+
+  async validateProduct(
+    produitId: number,
+    status: ProduitStatus,
+    comment?: string,
+  ) {
+    try {
+      const produit = await this.prisma.produit.findUnique({
+        where: {
+          id: produitId,
+        },
+        include: {
+          Prix: {
+            include: {
+              particular: true,
+            },
+          },
+        },
+      });
+      if (!produit) {
+        throw new NotFoundException(`Produit #${produitId} introuvable.`);
+      }
+      await this.prisma.produit.update({
+        where: { id: produitId },
+        data: { status },
+      });
+
+      if (status === ProduitStatus.APPROVED) {
+        await this.prisma.produitValidationLog.create({
+          data: {
+            produitId,
+            adminId: 1,
+            action: status,
+          },
+        });
+        await this.prisma.notification.create({
+          data: {
+            utilisateurId: produit.Prix[0].particularId,
+            type: 'INFO',
+            title: 'Produit validé',
+            message: `Votre produit a été validé`,
+            status: 'UNREAD',
+            data: {
+              produitId,
+              userId: produit.Prix[0].particular.userId,
+              particularId: produit.Prix[0].particularId,
+            },
+          },
+        });
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Produit #${produitId} validé avec succès`,
+        };
+      } else if (status === ProduitStatus.REJECTED) {
+        await this.prisma.produitValidationLog.create({
+          data: {
+            produitId,
+            adminId: 1,
+            action: status,
+            comment: comment,
+          },
+        });
+        await this.prisma.notification.create({
+          data: {
+            utilisateurId: produit.Prix[0].particularId,
+            type: 'INFO',
+            title: 'Produit rejeté',
+            message: comment || 'Votre produit a été rejeté',
+            status: 'UNREAD',
+            data: {
+              produitId,
+              userId: produit.Prix[0].particular.userId,
+              particularId: produit.Prix[0].particularId,
+            },
+          },
+        });
+        return {
+          statusCode: HttpStatus.OK,
+          message: `Produit #${produitId} rejeté avec succès`,
+        };
+      }
+    } catch (error) {
+      this.logger.error(
+        `Erreur lors de la validation du produit: ${error.message}`,
+      );
+      throw new Error('Erreur lors de la validation du produit');
     }
   }
 
@@ -444,6 +596,7 @@ export class ParticulierService {
       const result = product.Prix.map((el) => {
         const custum = {
           ...product,
+          published: product.isPublic,
           prix: el.prix,
           prixId: el.id,
           quantiter: el.quantiter,

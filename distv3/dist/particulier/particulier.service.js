@@ -13,6 +13,7 @@ exports.ParticulierService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const fs = require("fs");
+const client_1 = require("@prisma/client");
 let ParticulierService = class ParticulierService {
     constructor(prisma, logger) {
         this.prisma = prisma;
@@ -44,7 +45,8 @@ let ParticulierService = class ParticulierService {
                         description: createParticulierDto.prodDescription,
                         img: createParticulierDto.prodImg,
                         categorieId: +createParticulierDto.categorieId,
-                        isPublic: Boolean(createParticulierDto.isPublic),
+                        isPublic: Boolean(createParticulierDto.published),
+                        status: client_1.ProduitStatus.PENDING,
                     },
                     include: {
                         categories: true,
@@ -173,7 +175,7 @@ let ParticulierService = class ParticulierService {
                         description: updateData.prodDescription,
                         img: updateData.prodImg,
                         categorieId: Number(updateData.categorieId),
-                        isPublic: false,
+                        isPublic: Boolean(updateData.published),
                     },
                     include: {
                         categories: true,
@@ -227,6 +229,7 @@ let ParticulierService = class ParticulierService {
                 delete updatedProduit.Prix;
                 const productFiltered = {
                     ...updatedProduit,
+                    published: Boolean(updateData.published),
                     ...updatedPrix,
                     prixId,
                 };
@@ -330,7 +333,14 @@ let ParticulierService = class ParticulierService {
             const result = products.map((element) => {
                 const firstPrix = element.Prix[0];
                 const { Prix, ...rest } = element;
-                return { ...rest, ...firstPrix };
+                return {
+                    ...rest,
+                    published: element.isPublic,
+                    prix: firstPrix.prix,
+                    prixId: firstPrix.id,
+                    quantiter: firstPrix.quantiter,
+                    particularId: firstPrix.particularId,
+                };
             });
             return {
                 statusCode: common_1.HttpStatus.OK,
@@ -341,6 +351,133 @@ let ParticulierService = class ParticulierService {
         catch (error) {
             this.logger.error(`Erreur lors de la récupération des produits: ${error.message}`);
             throw new Error('Erreur lors de la récupération des produits');
+        }
+    }
+    async findAllProduitsInValidation() {
+        try {
+            const produits = await this.prisma.produit.findMany({
+                where: {
+                    status: client_1.ProduitStatus.PENDING,
+                    isPublic: true,
+                },
+                include: {
+                    Prix: {
+                        include: {
+                            particular: true,
+                            LigneCommand: {
+                                include: {
+                                    Commande: true,
+                                },
+                            },
+                        },
+                    },
+                    categories: true,
+                },
+            });
+            const result = produits.map((el) => {
+                const custum = {
+                    ...el,
+                    published: el.isPublic,
+                    prix: el.Prix[0].prix,
+                    prixId: el.Prix[0].id,
+                    quantiter: el.Prix[0].quantiter,
+                    particularId: el.Prix[0].particularId,
+                    particulier: el.Prix[0].particular,
+                };
+                delete custum.Prix;
+                return custum;
+            });
+            return {
+                statusCode: common_1.HttpStatus.OK,
+                message: `Produits en attente de validation`,
+                data: result,
+            };
+        }
+        catch (error) {
+            this.logger.error(`Erreur lors de la récupération des produits en attente de validation: ${error.message}`);
+            throw new Error('Erreur lors de la récupération des produits en attente de validation');
+        }
+    }
+    async validateProduct(produitId, status, comment) {
+        try {
+            const produit = await this.prisma.produit.findUnique({
+                where: {
+                    id: produitId,
+                },
+                include: {
+                    Prix: {
+                        include: {
+                            particular: true,
+                        },
+                    },
+                },
+            });
+            if (!produit) {
+                throw new common_1.NotFoundException(`Produit #${produitId} introuvable.`);
+            }
+            await this.prisma.produit.update({
+                where: { id: produitId },
+                data: { status },
+            });
+            if (status === client_1.ProduitStatus.APPROVED) {
+                await this.prisma.produitValidationLog.create({
+                    data: {
+                        produitId,
+                        adminId: 1,
+                        action: status,
+                    },
+                });
+                await this.prisma.notification.create({
+                    data: {
+                        utilisateurId: produit.Prix[0].particularId,
+                        type: 'INFO',
+                        title: 'Produit validé',
+                        message: `Votre produit a été validé`,
+                        status: 'UNREAD',
+                        data: {
+                            produitId,
+                            userId: produit.Prix[0].particular.userId,
+                            particularId: produit.Prix[0].particularId,
+                        },
+                    },
+                });
+                return {
+                    statusCode: common_1.HttpStatus.OK,
+                    message: `Produit #${produitId} validé avec succès`,
+                };
+            }
+            else if (status === client_1.ProduitStatus.REJECTED) {
+                await this.prisma.produitValidationLog.create({
+                    data: {
+                        produitId,
+                        adminId: 1,
+                        action: status,
+                        comment: comment,
+                    },
+                });
+                await this.prisma.notification.create({
+                    data: {
+                        utilisateurId: produit.Prix[0].particularId,
+                        type: 'INFO',
+                        title: 'Produit rejeté',
+                        message: comment || 'Votre produit a été rejeté',
+                        status: 'UNREAD',
+                        data: {
+                            produitId,
+                            userId: produit.Prix[0].particular.userId,
+                            particularId: produit.Prix[0].particularId,
+                        },
+                    },
+                });
+                return {
+                    statusCode: common_1.HttpStatus.OK,
+                    message: `Produit #${produitId} rejeté avec succès`,
+                };
+            }
+        }
+        catch (error) {
+            this.logger.error(`Erreur lors de la validation du produit: ${error.message}`);
+            throw new Error('Erreur lors de la validation du produit');
         }
     }
     async findProductById(userId, productId) {
@@ -376,6 +513,7 @@ let ParticulierService = class ParticulierService {
             const result = product.Prix.map((el) => {
                 const custum = {
                     ...product,
+                    published: product.isPublic,
                     prix: el.prix,
                     prixId: el.id,
                     quantiter: el.quantiter,

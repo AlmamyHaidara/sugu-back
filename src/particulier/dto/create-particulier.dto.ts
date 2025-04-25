@@ -24,7 +24,7 @@ export class CreateParticulierDto {
 
   @Transform(({ value }) => Boolean(value), { toClassOnly: true })
   @IsBoolean()
-  isPublic: boolean;
+  published: boolean;
 
   @Transform(({ value }) => Number(value), { toClassOnly: true })
   @IsInt()
