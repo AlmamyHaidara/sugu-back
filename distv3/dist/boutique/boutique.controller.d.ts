@@ -43,6 +43,7 @@ export declare class BoutiqueController {
                     description: string;
                     img: string;
                     tags: string | null;
+                    type: import(".prisma/client").$Enums.ProduitType;
                     rejectionComment: string | null;
                     categorieId: number;
                     isPublic: boolean | null;
@@ -151,6 +152,7 @@ export declare class BoutiqueController {
             description: string;
             img: string;
             tags: string | null;
+            type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -176,6 +178,7 @@ export declare class BoutiqueController {
             description: string;
             img: string;
             tags: string | null;
+            type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;

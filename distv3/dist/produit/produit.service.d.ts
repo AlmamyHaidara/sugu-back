@@ -32,6 +32,7 @@ export declare class ProduitService {
             description: string;
             img: string;
             tags: string | null;
+            type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -62,6 +63,7 @@ export declare class ProduitService {
             description: string;
             img: string;
             tags: string | null;
+            type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -92,6 +94,7 @@ export declare class ProduitService {
             status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
+            type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -109,6 +112,7 @@ export declare class ProduitService {
             description: string;
             img: string;
             tags: string | null;
+            type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -130,6 +134,7 @@ export declare class ProduitService {
             description: string;
             img: string;
             tags: string | null;
+            type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -147,6 +152,7 @@ export declare class ProduitService {
             description: string;
             img: string;
             tags: string | null;
+            type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -253,6 +259,7 @@ export declare class ProduitService {
             description: string;
             img: string;
             tags: string | null;
+            type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -313,6 +320,7 @@ export declare class ProduitService {
             description: string;
             img: string;
             tags: string | null;
+            type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -369,6 +377,7 @@ export declare class ProduitService {
             description: string;
             img: string;
             tags: string | null;
+            type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;

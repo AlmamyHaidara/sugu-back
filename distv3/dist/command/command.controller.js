@@ -23,6 +23,9 @@ let CommandController = class CommandController {
     create(createCammandDto) {
         return this.commandService.create(createCammandDto);
     }
+    createParticulier(createCammandDto) {
+        return this.commandService.createParticulier(createCammandDto);
+    }
     findAll(userId) {
         return this.commandService.findAll(+userId);
     }
@@ -47,6 +50,13 @@ __decorate([
     __metadata("design:paramtypes", [create_command_dto_1.CreateCommandDto]),
     __metadata("design:returntype", void 0)
 ], CommandController.prototype, "create", null);
+__decorate([
+    (0, common_1.Post)('particulier'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [create_command_dto_1.CreateCommandDto]),
+    __metadata("design:returntype", void 0)
+], CommandController.prototype, "createParticulier", null);
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('userId')),

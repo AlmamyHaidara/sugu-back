@@ -602,7 +602,11 @@ let ProduitService = class ProduitService {
             const [totalCount, produits] = await Promise.all([
                 this.prisma.produit.count({ where: whereClause }),
                 this.prisma.produit.findMany({
-                    where: whereClause,
+                    where: {
+                        ...whereClause,
+                        status: client_1.ProduitStatus.APPROVED,
+                        type: client_1.ProduitType.BOUTIQUE,
+                    },
                     skip,
                     take: pageSize,
                     include: {
@@ -626,7 +630,6 @@ let ProduitService = class ProduitService {
                 }
                 return false;
             });
-            console.log('============================================');
             const dataFiltered = products.map((res) => {
                 const filter = res.Prix.map((prix) => {
                     return {

@@ -14,6 +14,7 @@ export declare class PublicityController {
         description: string;
         img: string;
         tags: string | null;
+        type: import(".prisma/client").$Enums.ProduitType;
         rejectionComment: string | null;
         categorieId: number;
         isPublic: boolean | null;

@@ -47,6 +47,7 @@ let ParticulierService = class ParticulierService {
                         categorieId: +createParticulierDto.categorieId,
                         isPublic: Boolean(createParticulierDto.published),
                         status: client_1.ProduitStatus.PENDING,
+                        type: client_1.ProduitType.PARTICULAR,
                     },
                     include: {
                         categories: true,
@@ -480,6 +481,49 @@ let ParticulierService = class ParticulierService {
             throw new Error('Erreur lors de la validation du produit');
         }
     }
+    async revalidateProduct(produitId) {
+        try {
+            const produit = await this.prisma.produit.findUnique({
+                where: { id: produitId },
+                include: {
+                    Prix: {
+                        include: {
+                            particular: true,
+                        },
+                    },
+                },
+            });
+            if (!produit) {
+                throw new common_1.NotFoundException(`Produit #${produitId} introuvable.`);
+            }
+            await this.prisma.produit.update({
+                where: { id: produitId },
+                data: { status: client_1.ProduitStatus.PENDING },
+            });
+            await this.prisma.notification.create({
+                data: {
+                    utilisateurId: produit.Prix[0].particularId,
+                    type: 'INFO',
+                    title: 'Produit révalidé',
+                    message: `Votre produit a été remis en attente de validation`,
+                    status: 'UNREAD',
+                    data: {
+                        produitId,
+                        userId: produit.Prix[0].particular.userId,
+                        particularId: produit.Prix[0].particularId,
+                    },
+                },
+            });
+            return {
+                statusCode: common_1.HttpStatus.OK,
+                message: `Produit #${produitId} révalidé avec succès`,
+            };
+        }
+        catch (error) {
+            this.logger.error(`Erreur lors de la révalidation du produit: ${error.message}`);
+            throw new Error('Erreur lors de la révalidation du produit');
+        }
+    }
     async findProductById(userId, productId) {
         try {
             const product = await this.prisma.produit.findFirst({
@@ -532,6 +576,106 @@ let ParticulierService = class ParticulierService {
         catch (error) {
             this.logger.error(`Erreur lors de la récupération du produit: ${error.message}`);
             throw new Error('Erreur lors de la récupération du produit');
+        }
+    }
+    async findAllApprovedProducts(query) {
+        const { nom, categorieBoutique, categorieId, prixMin, prixMax, countryId, location, page, limit, } = query;
+        const whereClause = {};
+        if (nom) {
+            whereClause.nom = { contains: nom };
+        }
+        if (categorieId) {
+            whereClause.categorieId = Number(categorieId);
+        }
+        const prixFilter = {};
+        if (prixMin || prixMax) {
+            prixFilter.prix = {
+                gte: prixMin ? Number(prixMin) : undefined,
+                lte: prixMax ? Number(prixMax) : undefined,
+            };
+        }
+        if (Object.keys(prixFilter).length > 0) {
+            whereClause.Prix = {
+                some: prixFilter,
+            };
+        }
+        const pageNumber = page ? Number(page) : 1;
+        const pageSize = limit ? Number(limit) : 60;
+        const skip = (pageNumber - 1) * pageSize;
+        try {
+            const [totalCount, produits] = await Promise.all([
+                this.prisma.produit.count({ where: whereClause }),
+                this.prisma.produit.findMany({
+                    where: {
+                        ...whereClause,
+                        status: client_1.ProduitStatus.APPROVED,
+                        type: client_1.ProduitType.PARTICULAR,
+                    },
+                    skip,
+                    take: pageSize,
+                    include: {
+                        categories: true,
+                        Prix: {
+                            include: {
+                                particular: {
+                                    include: {
+                                        utilisateur: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                }),
+            ]);
+            const products = produits.filter((item) => {
+                if (item.Prix.length > 0) {
+                    if (categorieBoutique) {
+                        return item.Prix.some((prix) => prix.particularId);
+                    }
+                    else {
+                        return true;
+                    }
+                }
+                return false;
+            });
+            const dataFiltered = products.map((res) => {
+                const filter = res.Prix.map((prix) => {
+                    return {
+                        prix: prix.prix,
+                        particulier: {
+                            id: prix.particular.id,
+                            nom: prix.particular.utilisateur.nom,
+                            prenom: prix.particular.utilisateur.prenom,
+                            phone: prix.particular.utilisateur.telephone,
+                            email: prix.particular.utilisateur.email,
+                        },
+                    };
+                });
+                return filter.map((el) => {
+                    const categorie = res?.categories?.nom;
+                    delete res.Prix;
+                    delete res.categories;
+                    return {
+                        ...res,
+                        categorie,
+                        prix: el.prix,
+                        particulier: el.particulier,
+                    };
+                })[0];
+            });
+            console.log(dataFiltered.length);
+            return {
+                statusCode: common_1.HttpStatus.OK,
+                message: 'Liste des produits filtrés',
+                data: dataFiltered,
+                totalCount,
+                currentPage: pageNumber,
+                totalPages: Math.ceil(totalCount / pageSize),
+            };
+        }
+        catch (error) {
+            console.error(error);
+            throw new common_1.InternalServerErrorException('Erreur lors de la recherche des produits');
         }
     }
 };

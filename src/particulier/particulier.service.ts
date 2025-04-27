@@ -9,7 +9,13 @@ import { CreateParticulierDto } from './dto/create-particulier.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as fs from 'fs';
 import { UpdateParticulierDto } from './dto/update-particulier.dto';
-import { ProduitStatus } from '@prisma/client';
+import {
+  CategorieBoutique,
+  Prisma,
+  ProduitStatus,
+  ProduitType,
+} from '@prisma/client';
+import { SearchProduitsDto } from 'src/produit/dto/SearchProduits.dto';
 @Injectable()
 export class ParticulierService {
   constructor(
@@ -56,6 +62,7 @@ export class ParticulierService {
               categorieId: +createParticulierDto.categorieId,
               isPublic: Boolean(createParticulierDto.published),
               status: ProduitStatus.PENDING,
+              type: ProduitType.PARTICULAR,
 
               // published: Boolean(createParticulierDto.published),
             },
@@ -562,6 +569,50 @@ export class ParticulierService {
     }
   }
 
+  async revalidateProduct(produitId: number) {
+    try {
+      const produit = await this.prisma.produit.findUnique({
+        where: { id: produitId },
+        include: {
+          Prix: {
+            include: {
+              particular: true,
+            },
+          },
+        },
+      });
+      if (!produit) {
+        throw new NotFoundException(`Produit #${produitId} introuvable.`);
+      }
+      await this.prisma.produit.update({
+        where: { id: produitId },
+        data: { status: ProduitStatus.PENDING },
+      });
+      await this.prisma.notification.create({
+        data: {
+          utilisateurId: produit.Prix[0].particularId,
+          type: 'INFO',
+          title: 'Produit révalidé',
+          message: `Votre produit a été remis en attente de validation`,
+          status: 'UNREAD',
+          data: {
+            produitId,
+            userId: produit.Prix[0].particular.userId,
+            particularId: produit.Prix[0].particularId,
+          },
+        },
+      });
+      return {
+        statusCode: HttpStatus.OK,
+        message: `Produit #${produitId} révalidé avec succès`,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Erreur lors de la révalidation du produit: ${error.message}`,
+      );
+      throw new Error('Erreur lors de la révalidation du produit');
+    }
+  }
   async findProductById(userId: number, productId: number) {
     try {
       const product = await this.prisma.produit.findFirst({
@@ -617,6 +668,143 @@ export class ParticulierService {
         `Erreur lors de la récupération du produit: ${error.message}`,
       );
       throw new Error('Erreur lors de la récupération du produit');
+    }
+  }
+
+  async findAllApprovedProducts(query: SearchProduitsDto) {
+    const {
+      nom,
+      categorieBoutique,
+      categorieId,
+      prixMin,
+      prixMax,
+      countryId,
+      location,
+      page,
+      limit,
+    } = query;
+
+    // Construction de l'objet where
+    const whereClause: Prisma.ProduitWhereInput = {};
+
+    // Filtre par nom
+    if (nom) {
+      whereClause.nom = { contains: nom };
+      // whereClause.nom = { contains: nom, mode: 'insensitive' };
+    }
+
+    // Filtre par catégorie
+    if (categorieId) {
+      whereClause.categorieId = Number(categorieId);
+    }
+
+    // Préparation du filtre sur Prix pour gérer le prix + location
+    const prixFilter: Prisma.PrixWhereInput = {};
+
+    if (prixMin || prixMax) {
+      prixFilter.prix = {
+        gte: prixMin ? Number(prixMin) : undefined,
+        lte: prixMax ? Number(prixMax) : undefined,
+      };
+    }
+
+    // Si on a des filtres sur Prix, on les applique avec "some"
+    if (Object.keys(prixFilter).length > 0) {
+      whereClause.Prix = {
+        some: prixFilter,
+      };
+    }
+
+    // Pagination
+    const pageNumber = page ? Number(page) : 1;
+    const pageSize = limit ? Number(limit) : 60;
+    const skip = (pageNumber - 1) * pageSize;
+
+    try {
+      // Récupération du count total + des produits
+      const [totalCount, produits] = await Promise.all([
+        this.prisma.produit.count({ where: whereClause }),
+        this.prisma.produit.findMany({
+          where: {
+            ...whereClause,
+            status: ProduitStatus.APPROVED,
+            type: ProduitType.PARTICULAR,
+          },
+          skip,
+          take: pageSize,
+          include: {
+            categories: true,
+            Prix: {
+              include: {
+                particular: {
+                  include: {
+                    utilisateur: true,
+                  },
+                },
+              },
+            },
+          },
+        }),
+      ]);
+
+      const products = produits.filter((item) => {
+        // Vérification si l'article a des prix
+        if (item.Prix.length > 0) {
+          // Si une catégorie boutique est fournie, filtrer les prix associés à cette catégorie
+          if (categorieBoutique) {
+            // Si au moins un prix correspond à la catégorie de la boutique, on inclut ce produit
+            return item.Prix.some((prix) => prix.particularId);
+          } else {
+            // Si aucune catégorie boutique n'est spécifiée, on inclut tous les produits avec des prix
+            return true;
+          }
+        }
+
+        // Si l'article n'a pas de prix, il est exclu
+        return false;
+      });
+
+      const dataFiltered = products.map((res) => {
+        const filter = res.Prix.map((prix) => {
+          return {
+            prix: prix.prix,
+            particulier: {
+              id: prix.particular.id,
+              nom: prix.particular.utilisateur.nom,
+              prenom: prix.particular.utilisateur.prenom,
+              phone: prix.particular.utilisateur.telephone,
+              email: prix.particular.utilisateur.email,
+            },
+          };
+        });
+
+        return filter.map((el) => {
+          const categorie = res?.categories?.nom;
+          delete res.Prix;
+          delete res.categories;
+          return {
+            ...res,
+            categorie,
+            prix: el.prix,
+            particulier: el.particulier,
+          };
+        })[0];
+      });
+      console.log(dataFiltered.length);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Liste des produits filtrés',
+        data: dataFiltered,
+        totalCount,
+        currentPage: pageNumber,
+        totalPages: Math.ceil(totalCount / pageSize),
+      };
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException(
+        'Erreur lors de la recherche des produits',
+      );
     }
   }
 }

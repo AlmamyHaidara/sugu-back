@@ -8,7 +8,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProduitDto } from './dto/create-produit.dto';
 import { UpdateProduitDto } from './dto/update-produit.dto';
 import { SearchProduitsDto } from './dto/SearchProduits.dto';
-import { CategorieBoutique, Prisma, ProduitStatus } from '@prisma/client';
+import {
+  CategorieBoutique,
+  Prisma,
+  ProduitStatus,
+  ProduitType,
+} from '@prisma/client';
 import { Location } from 'src/boutique/dto/create-boutique.dto';
 import * as fs from 'fs';
 @Injectable()
@@ -252,7 +257,6 @@ export class ProduitService {
         where: {
           status: ProduitStatus.APPROVED,
           isPublic: true,
-
         },
       });
       return {
@@ -496,7 +500,7 @@ export class ProduitService {
           description: updateProduitDto.description,
           img: dataToUpdate.img,
           tags: updateProduitDto.tags,
-          
+
           categories: {
             connect: { id: Number(updateProduitDto.categorie) },
           },
@@ -727,7 +731,11 @@ export class ProduitService {
       const [totalCount, produits] = await Promise.all([
         this.prisma.produit.count({ where: whereClause }),
         this.prisma.produit.findMany({
-          where: whereClause,
+          where: {
+            ...whereClause,
+            status: ProduitStatus.APPROVED,
+            type: ProduitType.BOUTIQUE,
+          },
           skip,
           take: pageSize,
           include: {
@@ -759,8 +767,6 @@ export class ProduitService {
         // Si l'article n'a pas de prix, il est exclu
         return false;
       });
-
-      console.log('============================================');
 
       const dataFiltered = products.map((res) => {
         const filter = res.Prix.map((prix) => {

@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { ParticulierService } from './particulier.service';
 import { CreateParticulierDto } from './dto/create-particulier.dto';
@@ -17,6 +18,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { ProduitStatus } from '@prisma/client';
+import { SearchProduitsDto } from 'src/produit/dto/SearchProduits.dto';
+import { Public } from 'src/auth/constants';
 
 @Controller('particulier')
 export class ParticulierController {
@@ -66,6 +69,12 @@ export class ParticulierController {
   @Get(':userId')
   async findAll(@Param('userId') userId: string) {
     return await this.particulierService.findAllProducts(+userId);
+  }
+
+  @Public()
+  @Get('/product/approved')
+  async findAllApprovedProducts(@Query() query: SearchProduitsDto) {
+    return await this.particulierService.findAllApprovedProducts(query);
   }
 
   @Get(':userId/:produitId')
@@ -129,6 +138,11 @@ export class ParticulierController {
       { ...updateParticulierDto },
       file,
     );
+  }
+
+  @Patch('/products/in/revalidation/:produitId')
+  async revalidateProduct(@Param('produitId') produitId: string) {
+    return await this.particulierService.revalidateProduct(+produitId);
   }
 
   @Delete(':userId/:produitId')

@@ -30,6 +30,7 @@ export declare class ProduitController {
             description: string;
             img: string;
             tags: string | null;
+            type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -86,6 +87,7 @@ export declare class ProduitController {
             description: string;
             img: string;
             tags: string | null;
+            type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -145,6 +147,7 @@ export declare class ProduitController {
             description: string;
             img: string;
             tags: string | null;
+            type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -166,6 +169,7 @@ export declare class ProduitController {
             description: string;
             img: string;
             tags: string | null;
+            type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -183,6 +187,7 @@ export declare class ProduitController {
             description: string;
             img: string;
             tags: string | null;
+            type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -213,6 +218,7 @@ export declare class ProduitController {
             description: string;
             img: string;
             tags: string | null;
+            type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;

@@ -20,6 +20,8 @@ const update_particulier_dto_1 = require("./dto/update-particulier.dto");
 const platform_express_1 = require("@nestjs/platform-express");
 const multer_1 = require("multer");
 const path_1 = require("path");
+const SearchProduits_dto_1 = require("../produit/dto/SearchProduits.dto");
+const constants_1 = require("../auth/constants");
 let ParticulierController = class ParticulierController {
     constructor(particulierService) {
         this.particulierService = particulierService;
@@ -36,6 +38,9 @@ let ParticulierController = class ParticulierController {
     async findAll(userId) {
         return await this.particulierService.findAllProducts(+userId);
     }
+    async findAllApprovedProducts(query) {
+        return await this.particulierService.findAllApprovedProducts(query);
+    }
     async findOne(userId, produitId) {
         return await this.particulierService.findProductById(+userId, +produitId);
     }
@@ -47,6 +52,9 @@ let ParticulierController = class ParticulierController {
     }
     async update(file, updateParticulierDto) {
         return await this.particulierService.updateProduct({ ...updateParticulierDto }, file);
+    }
+    async revalidateProduct(produitId) {
+        return await this.particulierService.revalidateProduct(+produitId);
     }
     remove(userId, produitId) {
         return this.particulierService.deleteProduct(+userId, +produitId);
@@ -88,6 +96,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ParticulierController.prototype, "findAll", null);
+__decorate([
+    (0, constants_1.Public)(),
+    (0, common_1.Get)('/product/approved'),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [SearchProduits_dto_1.SearchProduitsDto]),
+    __metadata("design:returntype", Promise)
+], ParticulierController.prototype, "findAllApprovedProducts", null);
 __decorate([
     (0, common_1.Get)(':userId/:produitId'),
     __param(0, (0, common_1.Param)('userId')),
@@ -139,6 +155,13 @@ __decorate([
     __metadata("design:paramtypes", [Object, update_particulier_dto_1.UpdateParticulierDto]),
     __metadata("design:returntype", Promise)
 ], ParticulierController.prototype, "update", null);
+__decorate([
+    (0, common_1.Patch)('/products/in/revalidation/:produitId'),
+    __param(0, (0, common_1.Param)('produitId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ParticulierController.prototype, "revalidateProduct", null);
 __decorate([
     (0, common_1.Delete)(':userId/:produitId'),
     __param(0, (0, common_1.Param)('userId')),
