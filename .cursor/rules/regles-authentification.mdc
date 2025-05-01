@@ -1,0 +1,15 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+// Gestion des Tokens
+- Les tokens JWT doivent avoir une durée de validité de 24 heures
+- Le secret JWT doit être stocké dans les variables d'environnement
+- Les endpoints sensibles doivent être protégés par AuthGuard
+- Les endpoints publics doivent être marqués avec le décorateur @Public()
+
+// Sécurité
+- Les mots de passe doivent être hachés avant stockage
+- Les tokens expirés doivent être rejetés
+- Les tentatives de connexion échouées doivent être limitées

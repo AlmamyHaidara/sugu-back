@@ -1,0 +1,17 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+// Fichiers
+- Les fichiers de service doivent se terminer par .service.ts
+- Les fichiers de contrôleur doivent se terminer par .controller.ts
+- Les fichiers de module doivent se terminer par .module.ts
+- Les fichiers de DTO doivent se terminer par .dto.ts
+- Les fichiers de constantes doivent se terminer par .constants.ts
+
+// Classes et Interfaces
+- Les services doivent être nommés avec le suffixe Service (ex: AuthService)
+- Les contrôleurs doivent être nommés avec le suffixe Controller (ex: AuthController)
+- Les DTOs doivent être nommés avec le suffixe Dto (ex: CreateUserDto)
+- Les interfaces doivent commencer par I (ex: IUser)

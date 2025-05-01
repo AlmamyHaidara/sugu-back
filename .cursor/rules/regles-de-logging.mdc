@@ -1,0 +1,46 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+ # Règles de Logging
+
+## Configuration des Logs
+- Utiliser le Logger de NestJS pour tous les logs
+- Configurer les niveaux de log appropriés :
+  - error: pour les erreurs critiques
+  - warn: pour les avertissements
+  - log: pour les informations générales
+  - debug: pour le débogage
+  - verbose: pour les détails supplémentaires
+
+## Format des Logs
+- Inclure le contexte (nom du service/méthode)
+- Inclure un timestamp
+- Inclure le niveau de log
+- Utiliser un format JSON pour les logs en production
+
+## Exemples de Bonnes Pratiques
+```typescript
+// Bon logging
+this.logger.log(`User ${email} logged in successfully`);
+this.logger.error(`Failed to authenticate user: ${error.message}`, error.stack);
+this.logger.warn(`Multiple failed login attempts for user: ${email}`);
+this.logger.debug(`Processing request for user ID: ${userId}`);
+
+// Mauvais logging
+console.log('User logged in'); // Éviter console.log
+this.logger.log('Error'); // Message trop vague
+```
+
+## Gestion des Erreurs
+- Logger les erreurs avant de les propager
+- Inclure la stack trace pour les erreurs
+- Ne pas logger les informations sensibles
+- Utiliser des identifiants uniques pour tracer les requêtes
+
+## Performance
+- Éviter les logs excessifs en production
+- Utiliser des niveaux de log appropriés
+- Configurer la rotation des logs
+- Surveiller la taille des fichiers de log

@@ -1,0 +1,338 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+/// This is your Prisma schema file.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ====================== ENUMERATIONS ======================
+
+enum Profile {
+  ADMIN
+  CLIENT
+  BOUTIQUIER
+}
+
+enum Location {
+  NATIONAL
+  INTERNATIONAL
+  PARTICULIER
+}
+enum PubliciteStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+enum CategorieBoutique {
+  DETAILLANT
+  GROSSISTE
+}
+
+enum EtatCommand {
+  ANNULER
+  VALIDER
+  ATTENTE
+  LIVRER
+}
+enum ProduitStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+enum ProduitType {
+  BOUTIQUE
+  PARTICULAR
+}
+
+
+// ====================== MODELS ======================
+
+model Utilisateur {
+  id        Int      @id @default(autoincrement())
+  nom       String
+  prenom    String?
+  telephone String   @unique
+  email     String   @unique
+  password  String
+  profile   Profile  @default(CLIENT)
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Boutique      Boutique[]
+  Adresse       Adresse[]
+  Panier        Panier[]
+  Commande      Commande[]
+  notifications Notification[]
+  messages      Message[]
+  Particular Particular[]
+
+  ProduitValidationLog ProduitValidationLog[]
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  content   String
+  room      String // Nom du salon (ex: "produit_123" ou "Brocante Paris")
+  senderId  Int
+  sender    Utilisateur @relation(fields: [senderId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Adresse {
+  id           Int         @id @default(autoincrement())
+  nom          String
+  quartier     String
+  telephone    String
+  description  String
+  isDefault    Boolean     @default(false)
+  userId       Int
+  utilisateurs Utilisateur @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Produit {
+  id          Int    @id @default(autoincrement())
+  nom         String
+  description String @db.Text
+  img         String
+  // Tableau de mots-clés pour la recherche avancée (facultatif)
+  tags        String?
+  type        ProduitType @default(BOUTIQUE)
+  status       ProduitStatus @default(PENDING)
+  rejectionComment String?   @db.Text 
+  categorieId Int
+  categories  CategorieProduit @relation(fields: [categorieId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isPublic  Boolean? @default(false)
+  Prix   Prix[]
+  Panier Panier[]
+
+  Publicite Publicite[]
+    validationLogs ProduitValidationLog[]
+
+}
+
+model Particular {
+  id        Int               @id @default(autoincrement())
+  userId    Int               @unique
+  utilisateur Utilisateur @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  Prix   Prix[]
+  Panier Panier[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProduitValidationLog {
+  id            Int      @id @default(autoincrement())
+  produitId     Int
+  adminId       Int      // Utilisateur avec profil ADMIN
+  action        ProduitStatus // Action effectuée (APPROVED ou REJECTED)
+  comment       String?  @db.Text // Commentaire, obligatoire en cas de REJECTED
+  createdAt     DateTime @default(now())
+
+  produit       Produit     @relation(fields: [produitId], references: [id], onDelete: Cascade)
+  admin         Utilisateur @relation(fields: [adminId], references: [id], onDelete: Cascade)
+}
+
+model Publicite {
+  id        Int               @id @default(autoincrement())
+  startDate DateTime
+  endDate   DateTime
+  produitId Int?
+  status PubliciteStatus @default(PENDING)
+
+  produit   Produit? @relation(fields: [produitId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OffreSpeciale {
+  id        Int               @id @default(autoincrement())
+  titre     String
+  description String @db.Text
+  img String?
+  pourcentage Int
+  dateFin DateTime
+  dateDebut DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Boutique {
+  id        Int               @id @default(autoincrement())
+  nom       String
+  email     String?
+  categorie CategorieBoutique @default(DETAILLANT)
+  location  Location          @default(NATIONAL)
+
+  // Ajout d'un champ facultatif pour l'image
+  img         String?
+  description String  @db.Text
+  phone       String?
+
+  // L'utilisateur à qui appartient la boutique
+  userId       Int
+  utilisateurs Utilisateur @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  // Nouveau champ pour référencer le pays dans la table Country
+  countryId Int?
+  country   Country? @relation(fields: [countryId], references: [id])
+
+  Prix   Prix[]
+  Panier Panier[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Prix {
+  id        Int     @id @default(autoincrement())
+  // Passer de String à Decimal pour permettre des recherches par intervalle
+  prix      Decimal @db.Decimal(10, 2)
+  quantiter Int
+
+  produitId  Int
+  boutiqueId Int?
+  particularId Int? 
+
+  produits  Produit  @relation(fields: [produitId], references: [id], onDelete: Cascade)
+  boutiques Boutique? @relation(fields: [boutiqueId], references: [id], onDelete: Cascade)
+
+  particular Particular? @relation(fields: [particularId], references: [id], onDelete: Cascade)
+
+  LigneCommand LigneCommand[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Commande {
+  id          Int    @id @default(autoincrement())
+  commandeNbr String
+
+  utilisateurId Int
+  utilisateurs  Utilisateur @relation(fields: [utilisateurId], references: [id])
+
+  LigneCommand LigneCommand[]
+
+  etat      EtatCommand @default(ATTENTE)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime?   @updatedAt
+}
+
+model LigneCommand {
+  id         Int  @id @default(autoincrement())
+  prixId     Int?
+  commandeId Int?
+  quantiter  Int
+
+  Prix     Prix?     @relation(fields: [prixId], references: [id], onDelete: SetNull)
+  Commande Commande? @relation(fields: [commandeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CategorieProduit {
+  id          Int     @id @default(autoincrement())
+  nom         String
+  description String? @db.Text
+
+  produits Produit[]
+}
+
+model Panier {
+  id    Int @id @default(autoincrement())
+  count Int
+
+  utilisateurId Int
+  produitId     Int
+  boutiqueId    Int?
+  particulierId Int?
+  utilisateurs Utilisateur @relation(fields: [utilisateurId], references: [id])
+  boutiques    Boutique?    @relation(fields: [boutiqueId], references: [id], onDelete: Cascade)
+  produits     Produit     @relation(fields: [produitId], references: [id])
+
+  particuliers Particular? @relation(fields: [particulierId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Logs {
+  id        Int      @id @default(autoincrement())
+  // stocker la date/heure du log
+  timestamp DateTime @default(now())
+  level     String
+  // stocker le message sous forme de texte
+  message   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ====================== NOUVEAU MODELE COUNTRY ======================
+model Country {
+  id      Int     @id @default(autoincrement())
+  name    String
+  isoCode String? // ex: "FR", "US", "SN", etc.
+
+  boutiques Boutique[] // Relation inverse: une Country peut être liée à plusieurs boutiques
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model Notification {
+  id Int @id @default(autoincrement())
+
+  // L'utilisateur qui reçoit la notification
+  utilisateurId Int
+  utilisateur   Utilisateur      @relation(fields: [utilisateurId], references: [id])
+  type          NotificationType
+
+  title String?
+
+  message String @db.Text
+
+  data Json?
+
+  status NotificationStatus @default(UNREAD)
+
+  readAt DateTime? @default(now())
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+enum NotificationType {
+  INFO
+  ORDER
+  PAYMENT
+  WARNING
+  // etc.
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+  ARCHIVED
+  // etc.
+}
