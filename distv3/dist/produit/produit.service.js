@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProduitService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const client_1 = require("@prisma/client");
 const fs = require("fs");
 let ProduitService = class ProduitService {
     constructor(prisma) {
@@ -38,6 +39,69 @@ let ProduitService = class ProduitService {
                     description: createProduitDto.description,
                     img: createProduitDto.img,
                     tags: createProduitDto.tags,
+                    isPublic: true,
+                    status: client_1.ProduitStatus.APPROVED,
+                    categories: {
+                        connect: { id: Number(createProduitDto.categorie) },
+                    },
+                    Prix: {
+                        create: {
+                            prix: createProduitDto.prix,
+                            quantiter: Number(createProduitDto.quantiter),
+                            boutiques: {
+                                connect: { id: boutiqueId },
+                            },
+                        },
+                    },
+                },
+                include: {
+                    categories: true,
+                    Prix: {
+                        select: {
+                            id: true,
+                            prix: true,
+                            quantiter: true,
+                        },
+                    },
+                },
+            });
+            const prixId = produit.Prix[0].id;
+            delete produit.Prix[0].id;
+            const productFiltered = { ...produit, ...produit.Prix[0], prixId };
+            delete productFiltered.Prix;
+            return {
+                statusCode: common_1.HttpStatus.CREATED,
+                message: 'Produit créé avec succès',
+                data: productFiltered,
+            };
+        }
+        catch (error) {
+            console.error(error);
+            throw new common_1.InternalServerErrorException('Une erreur est survenue lors de la création du produit.');
+        }
+    }
+    async createParticular(createProduitDto) {
+        try {
+            const categorie = await this.prisma.categorieProduit.findUnique({
+                where: { id: Number(createProduitDto.categorie) },
+            });
+            if (!categorie) {
+                throw new common_1.NotFoundException('Catégorie inexistante');
+            }
+            const boutiqueId = Number(createProduitDto.boutique);
+            const boutique = await this.prisma.boutique.findUnique({
+                where: { id: boutiqueId },
+            });
+            if (!boutique) {
+                throw new common_1.NotFoundException(`Boutique #${createProduitDto.boutique} introuvable`);
+            }
+            const produit = await this.prisma.produit.create({
+                data: {
+                    nom: createProduitDto.nom,
+                    description: createProduitDto.description,
+                    img: createProduitDto.img,
+                    tags: createProduitDto.tags,
+                    status: client_1.ProduitStatus.PENDING,
                     categories: {
                         connect: { id: Number(createProduitDto.categorie) },
                     },
@@ -100,6 +164,8 @@ let ProduitService = class ProduitService {
                     description: createProduitDto.description,
                     img: createProduitDto.img,
                     tags: createProduitDto.tags,
+                    status: client_1.ProduitStatus.APPROVED,
+                    isPublic: true,
                     categories: {
                         connect: { id: Number(createProduitDto.categorie) },
                     },
@@ -146,7 +212,12 @@ let ProduitService = class ProduitService {
     }
     async findAll() {
         try {
-            const produits = await this.prisma.produit.findMany();
+            const produits = await this.prisma.produit.findMany({
+                where: {
+                    status: client_1.ProduitStatus.APPROVED,
+                    isPublic: true,
+                },
+            });
             return {
                 statusCode: common_1.HttpStatus.OK,
                 message: 'Liste de tous les produits',
@@ -531,7 +602,11 @@ let ProduitService = class ProduitService {
             const [totalCount, produits] = await Promise.all([
                 this.prisma.produit.count({ where: whereClause }),
                 this.prisma.produit.findMany({
-                    where: whereClause,
+                    where: {
+                        ...whereClause,
+                        status: client_1.ProduitStatus.APPROVED,
+                        type: client_1.ProduitType.BOUTIQUE,
+                    },
                     skip,
                     take: pageSize,
                     include: {
@@ -555,7 +630,6 @@ let ProduitService = class ProduitService {
                 }
                 return false;
             });
-            console.log('============================================');
             const dataFiltered = products.map((res) => {
                 const filter = res.Prix.map((prix) => {
                     return {

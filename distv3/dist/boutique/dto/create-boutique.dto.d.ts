@@ -1,6 +1,7 @@
 export declare enum Location {
     NATIONAL = "NATIONAL",
-    INTERNATIONAL = "INTERNATIONAL"
+    INTERNATIONAL = "INTERNATIONAL",
+    PARTICULIER = "PARTICULIER"
 }
 export declare enum CategorieBoutique {
     DETAILLANT = "DETAILLANT",

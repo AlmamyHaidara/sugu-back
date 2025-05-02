@@ -1,4 +1,4 @@
-INSERT INTO "Country" (name, "isoCode")
+INSERT INTO Country (name, isoCode)
 VALUES
 ('Afghanistan','AF'),
 ('Åland Islands','AX'),

@@ -15,6 +15,7 @@ var Location;
 (function (Location) {
     Location["NATIONAL"] = "NATIONAL";
     Location["INTERNATIONAL"] = "INTERNATIONAL";
+    Location["PARTICULIER"] = "PARTICULIER";
 })(Location || (exports.Location = Location = {}));
 var CategorieBoutique;
 (function (CategorieBoutique) {

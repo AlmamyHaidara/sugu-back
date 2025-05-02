@@ -8,7 +8,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProduitDto } from './dto/create-produit.dto';
 import { UpdateProduitDto } from './dto/update-produit.dto';
 import { SearchProduitsDto } from './dto/SearchProduits.dto';
-import { CategorieBoutique, Prisma } from '@prisma/client';
+import {
+  CategorieBoutique,
+  Prisma,
+  ProduitStatus,
+  ProduitType,
+} from '@prisma/client';
 import { Location } from 'src/boutique/dto/create-boutique.dto';
 import * as fs from 'fs';
 @Injectable()
@@ -44,6 +49,83 @@ export class ProduitService {
           description: createProduitDto.description,
           img: createProduitDto.img,
           tags: createProduitDto.tags,
+          isPublic: true,
+          status: ProduitStatus.APPROVED,
+
+          // tags: JSON.parse(createProduitDto.tags),
+          categories: {
+            connect: { id: Number(createProduitDto.categorie) },
+          },
+          Prix: {
+            create: {
+              prix: createProduitDto.prix,
+              quantiter: Number(createProduitDto.quantiter),
+              boutiques: {
+                connect: { id: boutiqueId },
+              },
+            },
+          },
+        },
+        include: {
+          categories: true,
+          Prix: {
+            select: {
+              id: true,
+              prix: true,
+              quantiter: true,
+            },
+          },
+        },
+      });
+
+      const prixId = produit.Prix[0].id;
+      delete produit.Prix[0].id;
+      const productFiltered = { ...produit, ...produit.Prix[0], prixId };
+      delete productFiltered.Prix;
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: 'Produit créé avec succès',
+        data: productFiltered,
+      };
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException(
+        'Une erreur est survenue lors de la création du produit.',
+      );
+    }
+  }
+
+  // ========== CREATE ==========
+  async createParticular(createProduitDto: CreateProduitDto) {
+    try {
+      // Vérifier l'existence de la catégorie
+      const categorie = await this.prisma.categorieProduit.findUnique({
+        where: { id: Number(createProduitDto.categorie) },
+      });
+      if (!categorie) {
+        throw new NotFoundException('Catégorie inexistante');
+      }
+
+      // (Facultatif) vérifier l'existence de la boutique référencée
+      const boutiqueId = Number(createProduitDto.boutique);
+      const boutique = await this.prisma.boutique.findUnique({
+        where: { id: boutiqueId },
+      });
+      if (!boutique) {
+        throw new NotFoundException(
+          `Boutique #${createProduitDto.boutique} introuvable`,
+        );
+      }
+
+      // Création du produit avec son prix associé
+      const produit = await this.prisma.produit.create({
+        data: {
+          nom: createProduitDto.nom,
+          description: createProduitDto.description,
+          img: createProduitDto.img,
+          tags: createProduitDto.tags,
+          status: ProduitStatus.PENDING,
+
           // tags: JSON.parse(createProduitDto.tags),
           categories: {
             connect: { id: Number(createProduitDto.categorie) },
@@ -117,6 +199,9 @@ export class ProduitService {
           description: createProduitDto.description,
           img: createProduitDto.img,
           tags: createProduitDto.tags,
+          status: ProduitStatus.APPROVED,
+          isPublic: true,
+
           // tags: JSON.parse(createProduitDto.tags),
           categories: {
             connect: { id: Number(createProduitDto.categorie) },
@@ -168,7 +253,12 @@ export class ProduitService {
   // ========== FIND ALL ==========
   async findAll() {
     try {
-      const produits = await this.prisma.produit.findMany();
+      const produits = await this.prisma.produit.findMany({
+        where: {
+          status: ProduitStatus.APPROVED,
+          isPublic: true,
+        },
+      });
       return {
         statusCode: HttpStatus.OK,
         message: 'Liste de tous les produits',
@@ -410,6 +500,7 @@ export class ProduitService {
           description: updateProduitDto.description,
           img: dataToUpdate.img,
           tags: updateProduitDto.tags,
+
           categories: {
             connect: { id: Number(updateProduitDto.categorie) },
           },
@@ -640,7 +731,11 @@ export class ProduitService {
       const [totalCount, produits] = await Promise.all([
         this.prisma.produit.count({ where: whereClause }),
         this.prisma.produit.findMany({
-          where: whereClause,
+          where: {
+            ...whereClause,
+            status: ProduitStatus.APPROVED,
+            type: ProduitType.BOUTIQUE,
+          },
           skip,
           take: pageSize,
           include: {
@@ -672,8 +767,6 @@ export class ProduitService {
         // Si l'article n'a pas de prix, il est exclu
         return false;
       });
-
-      console.log('============================================');
 
       const dataFiltered = products.map((res) => {
         const filter = res.Prix.map((prix) => {

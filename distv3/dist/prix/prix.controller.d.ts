@@ -13,7 +13,8 @@ export declare class PrixController {
             updatedAt: Date;
             quantiter: number;
             produitId: number;
-            boutiqueId: number;
+            boutiqueId: number | null;
+            particularId: number | null;
         };
     }>;
     findAll(): Promise<{
@@ -25,7 +26,8 @@ export declare class PrixController {
             updatedAt: Date;
             quantiter: number;
             produitId: number;
-            boutiqueId: number;
+            boutiqueId: number | null;
+            particularId: number | null;
         }[];
     }>;
     findOne(id: string, produitId: string, boutiqueId: string): Promise<{
@@ -41,7 +43,8 @@ export declare class PrixController {
             updatedAt: Date;
             quantiter: number;
             produitId: number;
-            boutiqueId: number;
+            boutiqueId: number | null;
+            particularId: number | null;
         };
     }>;
     remove(id: string): Promise<{
