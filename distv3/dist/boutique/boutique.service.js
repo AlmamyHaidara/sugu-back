@@ -19,7 +19,7 @@ const client_1 = require("@prisma/client");
 const functions_1 = require("../utils/functions");
 const users_service_1 = require("../users/users.service");
 const data_1 = require("../mail/data");
-const bcrypt_1 = require("bcrypt");
+const bcryptjs_1 = require("bcryptjs");
 const prix_service_1 = require("../prix/prix.service");
 const common_2 = require("@nestjs/common");
 let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
@@ -142,7 +142,7 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                                 email: createBoutiqueDto.email,
                                 telephone: createBoutiqueDto.phone,
                                 avatar: createBoutiqueDto.img,
-                                password: await (0, bcrypt_1.hash)(password, 10),
+                                password: await (0, bcryptjs_1.hash)(password, 10),
                                 profile: client_1.Profile.BOUTIQUIER,
                             },
                         },

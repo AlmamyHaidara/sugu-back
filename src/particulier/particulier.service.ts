@@ -192,11 +192,11 @@ export class ParticulierService {
           // 1. Vérifier que le produit existe et appartient au particulier
           const produit = await tx.produit.findFirst({
             where: {
-              id: Number(updateData.produitId),
+              id: Number(dataToUpdate.produitId),
               Prix: {
                 some: {
                   particular: {
-                    userId: Number(updateData.userId),
+                    userId: Number(dataToUpdate.userId),
                   },
                 },
               },
@@ -212,19 +212,19 @@ export class ParticulierService {
 
           if (!produit) {
             throw new NotFoundException(
-              `Produit #${updateData.produitId} introuvable.`,
+              `Produit #${dataToUpdate.produitId} introuvable.`,
             );
           }
 
           // 2. Mettre à jour le produit
           const updatedProduit = await tx.produit.update({
-            where: { id: Number(updateData.produitId) },
+            where: { id: Number(dataToUpdate.produitId) },
             data: {
-              nom: updateData.prodName,
-              description: updateData.prodDescription,
-              img: updateData.prodImg,
-              categorieId: Number(updateData.categorieId),
-              isPublic: Boolean(updateData.published),
+              nom: dataToUpdate.prodName,
+              description: dataToUpdate.prodDescription,
+              img: dataToUpdate.img,
+              categorieId: Number(dataToUpdate.categorieId),
+              isPublic: Boolean(dataToUpdate.published),
               // published: false, // Repasse en non public pour nouvelle validation
             },
             include: {
@@ -242,12 +242,12 @@ export class ParticulierService {
           });
           let updatedPrix = updatedProduit.Prix[0];
           // 3. Mettre à jour le prix si nécessaire
-          if (updateData.prix || updateData.quantiter) {
+          if (dataToUpdate.prix || dataToUpdate.quantiter) {
             updatedPrix = await tx.prix.update({
               where: { id: Number(produit.Prix[0].id) },
               data: {
-                prix: Number(updateData.prix),
-                quantiter: Number(updateData.quantiter),
+                prix: Number(dataToUpdate.prix),
+                quantiter: Number(dataToUpdate.quantiter),
               },
               select: {
                 id: true,
@@ -273,21 +273,21 @@ export class ParticulierService {
               status: 'UNREAD',
               data: {
                 produitId: Number(produit.id),
-                userId: Number(updateData.userId),
+                userId: Number(dataToUpdate.userId),
                 particularId: Number(produit.Prix[0].particular.id),
               },
             })),
           });
 
           this.logger.log(
-            `Produit ${updateData.produitId} modifié par utilisateur ${updateData.userId}`,
+            `Produit ${dataToUpdate.produitId} modifié par utilisateur ${dataToUpdate.userId}`,
           );
 
           const prixId = updatedPrix.id;
-          delete updatedProduit.Prix;
+          delete dataToUpdate.Prix;
           const productFiltered = {
-            ...updatedProduit,
-            published: Boolean(updateData.published),
+            ...dataToUpdate,
+            published: Boolean(dataToUpdate.published),
             ...updatedPrix,
 
             prixId,
@@ -434,7 +434,9 @@ export class ParticulierService {
     try {
       const produits = await this.prisma.produit.findMany({
         where: {
-          status: ProduitStatus.PENDING,
+          NOT: {
+            status: ProduitStatus.REJECTED,
+          },
           isPublic: true,
         },
         include: {

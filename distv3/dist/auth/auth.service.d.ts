@@ -22,7 +22,7 @@ export declare class AuthService {
             prenom: string;
             email: string;
             telephone: string;
-            profile: import(".prisma/client").$Enums.Profile;
+            profile: import("@prisma/client").$Enums.Profile;
             avatar: string;
             id: number;
         };

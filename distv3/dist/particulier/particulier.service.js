@@ -149,11 +149,11 @@ let ParticulierService = class ParticulierService {
             const result = await this.prisma.$transaction(async (tx) => {
                 const produit = await tx.produit.findFirst({
                     where: {
-                        id: Number(updateData.produitId),
+                        id: Number(dataToUpdate.produitId),
                         Prix: {
                             some: {
                                 particular: {
-                                    userId: Number(updateData.userId),
+                                    userId: Number(dataToUpdate.userId),
                                 },
                             },
                         },
@@ -167,16 +167,16 @@ let ParticulierService = class ParticulierService {
                     },
                 });
                 if (!produit) {
-                    throw new common_1.NotFoundException(`Produit #${updateData.produitId} introuvable.`);
+                    throw new common_1.NotFoundException(`Produit #${dataToUpdate.produitId} introuvable.`);
                 }
                 const updatedProduit = await tx.produit.update({
-                    where: { id: Number(updateData.produitId) },
+                    where: { id: Number(dataToUpdate.produitId) },
                     data: {
-                        nom: updateData.prodName,
-                        description: updateData.prodDescription,
-                        img: updateData.prodImg,
-                        categorieId: Number(updateData.categorieId),
-                        isPublic: Boolean(updateData.published),
+                        nom: dataToUpdate.prodName,
+                        description: dataToUpdate.prodDescription,
+                        img: dataToUpdate.img,
+                        categorieId: Number(dataToUpdate.categorieId),
+                        isPublic: Boolean(dataToUpdate.published),
                     },
                     include: {
                         categories: true,
@@ -192,12 +192,12 @@ let ParticulierService = class ParticulierService {
                     },
                 });
                 let updatedPrix = updatedProduit.Prix[0];
-                if (updateData.prix || updateData.quantiter) {
+                if (dataToUpdate.prix || dataToUpdate.quantiter) {
                     updatedPrix = await tx.prix.update({
                         where: { id: Number(produit.Prix[0].id) },
                         data: {
-                            prix: Number(updateData.prix),
-                            quantiter: Number(updateData.quantiter),
+                            prix: Number(dataToUpdate.prix),
+                            quantiter: Number(dataToUpdate.quantiter),
                         },
                         select: {
                             id: true,
@@ -220,17 +220,17 @@ let ParticulierService = class ParticulierService {
                         status: 'UNREAD',
                         data: {
                             produitId: Number(produit.id),
-                            userId: Number(updateData.userId),
+                            userId: Number(dataToUpdate.userId),
                             particularId: Number(produit.Prix[0].particular.id),
                         },
                     })),
                 });
-                this.logger.log(`Produit ${updateData.produitId} modifié par utilisateur ${updateData.userId}`);
+                this.logger.log(`Produit ${dataToUpdate.produitId} modifié par utilisateur ${dataToUpdate.userId}`);
                 const prixId = updatedPrix.id;
-                delete updatedProduit.Prix;
+                delete dataToUpdate.Prix;
                 const productFiltered = {
-                    ...updatedProduit,
-                    published: Boolean(updateData.published),
+                    ...dataToUpdate,
+                    published: Boolean(dataToUpdate.published),
                     ...updatedPrix,
                     prixId,
                 };
@@ -358,7 +358,9 @@ let ParticulierService = class ParticulierService {
         try {
             const produits = await this.prisma.produit.findMany({
                 where: {
-                    status: client_1.ProduitStatus.PENDING,
+                    NOT: {
+                        status: client_1.ProduitStatus.REJECTED,
+                    },
                     isPublic: true,
                 },
                 include: {
