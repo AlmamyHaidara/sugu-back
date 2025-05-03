@@ -6,28 +6,28 @@ export declare class PublicityController {
     private readonly publicityService;
     constructor(publicityService: PublicityService);
     approved(createPublicityDto: CreatePublicityApprovedProductDto): Promise<{
-        nom: string;
         id: number;
-        createdAt: Date;
-        updatedAt: Date;
-        status: import("@prisma/client").$Enums.ProduitStatus;
+        nom: string;
         description: string;
         img: string;
         tags: string | null;
         type: import("@prisma/client").$Enums.ProduitType;
+        status: import("@prisma/client").$Enums.ProduitStatus;
         rejectionComment: string | null;
         categorieId: number;
+        createdAt: Date;
+        updatedAt: Date;
         isPublic: boolean | null;
     }>;
-    create(createPublicityDto: CreatePublicityDto): Promise<{
+    create(createPublicityDto: CreatePublicityDto, file: Express.Multer.File): Promise<{
         statusCode: import("@nestjs/common").HttpStatus;
         message: string;
         data: {
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
             description: string;
             img: string | null;
+            createdAt: Date;
+            updatedAt: Date;
             titre: string;
             pourcentage: number;
             dateFin: Date;
@@ -36,10 +36,21 @@ export declare class PublicityController {
     }>;
     findAll(): import("@prisma/client").Prisma.PrismaPromise<{
         id: number;
-        createdAt: Date;
-        updatedAt: Date;
         description: string;
         img: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+        titre: string;
+        pourcentage: number;
+        dateFin: Date;
+        dateDebut: Date;
+    }[]>;
+    findAllEnabke(): import("@prisma/client").Prisma.PrismaPromise<{
+        id: number;
+        description: string;
+        img: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         titre: string;
         pourcentage: number;
         dateFin: Date;
@@ -47,32 +58,36 @@ export declare class PublicityController {
     }[]>;
     findOne(id: string): import("@prisma/client").Prisma.Prisma__OffreSpecialeClient<{
         id: number;
-        createdAt: Date;
-        updatedAt: Date;
         description: string;
         img: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         titre: string;
         pourcentage: number;
         dateFin: Date;
         dateDebut: Date;
     }, null, import("@prisma/client/runtime/library").DefaultArgs, import("@prisma/client").Prisma.PrismaClientOptions>;
-    update(id: string, updatePublicityDto: UpdatePublicityDto): import("@prisma/client").Prisma.Prisma__OffreSpecialeClient<{
-        id: number;
-        createdAt: Date;
-        updatedAt: Date;
-        description: string;
-        img: string | null;
-        titre: string;
-        pourcentage: number;
-        dateFin: Date;
-        dateDebut: Date;
-    }, never, import("@prisma/client/runtime/library").DefaultArgs, import("@prisma/client").Prisma.PrismaClientOptions>;
+    update(id: string, updatePublicityDto: UpdatePublicityDto, file: Express.Multer.File): Promise<{
+        statusCode: number;
+        data: {
+            id: number;
+            description: string;
+            img: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+            titre: string;
+            pourcentage: number;
+            dateFin: Date;
+            dateDebut: Date;
+        };
+        message: string;
+    }>;
     remove(id: string): import("@prisma/client").Prisma.Prisma__OffreSpecialeClient<{
         id: number;
-        createdAt: Date;
-        updatedAt: Date;
         description: string;
         img: string | null;
+        createdAt: Date;
+        updatedAt: Date;
         titre: string;
         pourcentage: number;
         dateFin: Date;

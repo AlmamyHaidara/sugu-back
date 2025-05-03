@@ -21,6 +21,7 @@ const create_publicity_approved_product_dto_1 = require("./dto/create-publicity-
 const platform_express_1 = require("@nestjs/platform-express");
 const multer_1 = require("multer");
 const path_1 = require("path");
+const constants_1 = require("../auth/constants");
 let PublicityController = class PublicityController {
     constructor(publicityService) {
         this.publicityService = publicityService;
@@ -28,17 +29,34 @@ let PublicityController = class PublicityController {
     approved(createPublicityDto) {
         return this.publicityService.validateProduct(createPublicityDto.adminId, createPublicityDto.produitId, createPublicityDto.isApproved, createPublicityDto.comment);
     }
-    create(createPublicityDto) {
-        return this.publicityService.create(createPublicityDto);
+    create(createPublicityDto, file) {
+        if (file.path.split('uploads/')[1]) {
+            return this.publicityService.create({
+                ...createPublicityDto,
+                img: file.path.split('uploads/')[1],
+            });
+        }
+        else {
+            return this.publicityService.create(createPublicityDto);
+        }
     }
     findAll() {
         return this.publicityService.findAll();
     }
+    findAllEnabke() {
+        return this.publicityService.findAllEnabke();
+    }
     findOne(id) {
         return this.publicityService.findOne(+id);
     }
-    update(id, updatePublicityDto) {
-        return this.publicityService.update(+id, updatePublicityDto);
+    async update(id, updatePublicityDto, file) {
+        console.log('file', file);
+        const offre = await this.publicityService.update(+id, updatePublicityDto, file);
+        return {
+            statusCode: 200,
+            data: offre,
+            message: `L'offre special ${id} a ete mise a jours avec succes`,
+        };
     }
     remove(id) {
         return this.publicityService.remove(+id);
@@ -75,8 +93,9 @@ __decorate([
         },
     })),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_publicity_dto_1.CreatePublicityDto]),
+    __metadata("design:paramtypes", [create_publicity_dto_1.CreatePublicityDto, Object]),
     __metadata("design:returntype", void 0)
 ], PublicityController.prototype, "create", null);
 __decorate([
@@ -86,6 +105,13 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], PublicityController.prototype, "findAll", null);
 __decorate([
+    (0, constants_1.Public)(),
+    (0, common_1.Get)('active'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], PublicityController.prototype, "findAllEnabke", null);
+__decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -93,12 +119,33 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], PublicityController.prototype, "findOne", null);
 __decorate([
-    (0, common_1.Patch)(':id'),
+    (0, common_1.Put)(':id'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('img', {
+        storage: (0, multer_1.diskStorage)({
+            destination: (req, file, callback) => {
+                const uploadPath = process.env.PUBLICITY_UPLOAD_DIR || './uploads/publicity';
+                callback(null, uploadPath);
+            },
+            filename: (req, file, callback) => {
+                const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+                const ext = (0, path_1.extname)(file.originalname).toLowerCase();
+                const filename = `publicity-${uniqueSuffix}${ext}`;
+                callback(null, filename);
+            },
+        }),
+        fileFilter: (req, file, callback) => {
+            if (!file.mimetype.match(/\/(jpg|jpeg|png)$/i)) {
+                return callback(new Error('Seuls les fichiers JPG, JPEG et PNG sont autorisés !'), false);
+            }
+            callback(null, true);
+        },
+    })),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_publicity_dto_1.UpdatePublicityDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [String, update_publicity_dto_1.UpdatePublicityDto, Object]),
+    __metadata("design:returntype", Promise)
 ], PublicityController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),

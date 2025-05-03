@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PublicityService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_copy_1 = require("../prisma/prisma.service copy");
+const fs = require("fs");
 let PublicityService = class PublicityService {
     constructor(prisma, logger) {
         this.prisma = prisma;
@@ -23,7 +24,7 @@ let PublicityService = class PublicityService {
                 data: {
                     titre: createPublicityDto.titre,
                     description: createPublicityDto.description,
-                    pourcentage: createPublicityDto.pourcentage,
+                    pourcentage: Number(createPublicityDto.pourcentage),
                     dateFin: createPublicityDto.dateFin,
                     dateDebut: createPublicityDto.dateDebut,
                     img: createPublicityDto.img,
@@ -36,6 +37,7 @@ let PublicityService = class PublicityService {
             };
         }
         catch (error) {
+            console.log(error);
             throw new common_1.InternalServerErrorException('Erreur lors de la création de la publicité');
         }
     }
@@ -110,9 +112,14 @@ let PublicityService = class PublicityService {
     findAll() {
         return this.prisma.offreSpeciale.findMany();
     }
-    findAllByDate(date) {
+    findAllEnabke() {
         return this.prisma.offreSpeciale.findMany({
-            where: { dateDebut: { lte: date }, dateFin: { gte: date } },
+            where: {},
+        });
+    }
+    findAllByDate() {
+        return this.prisma.offreSpeciale.findMany({
+            where: { dateFin: { lte: new Date() } },
         });
     }
     findOne(id) {
@@ -125,11 +132,48 @@ let PublicityService = class PublicityService {
             where: { dateDebut: { lte: date }, dateFin: { gte: date } },
         });
     }
-    update(id, updatePublicityDto) {
-        return this.prisma.offreSpeciale.update({
-            where: { id },
-            data: updatePublicityDto,
-        });
+    async update(id, updatePublicityDto, file) {
+        try {
+            const isExiste = await this.prisma.offreSpeciale.findFirst({
+                where: { id },
+            });
+            if (!isExiste) {
+                throw new common_1.NotFoundException(`Offre #${id} introuvable.`);
+            }
+            if (file && isExiste.img) {
+                try {
+                    fs.access('uploads/' + isExiste.img, fs.constants.F_OK, (err) => {
+                        if (err) {
+                            console.log("Le fichier n'existe pas.");
+                        }
+                        else {
+                            fs.unlinkSync('uploads/' + isExiste.img);
+                        }
+                    });
+                }
+                catch (error) {
+                    console.error(`Erreur de suppression de l'ancien fichier :`, error);
+                }
+            }
+            const dataToUpdate = {
+                ...updatePublicityDto,
+            };
+            if (file) {
+                dataToUpdate.img = file.path.split('uploads/')[1];
+            }
+            delete dataToUpdate.id;
+            return await this.prisma.offreSpeciale.update({
+                where: { id: Number(id) },
+                data: {
+                    ...dataToUpdate,
+                    pourcentage: Number(dataToUpdate.pourcentage),
+                },
+            });
+        }
+        catch (err) {
+            console.error(err);
+            throw new common_1.InternalServerErrorException("Erreur lors de la mise à jour de l'offe");
+        }
     }
     remove(id) {
         return this.prisma.offreSpeciale.delete({
