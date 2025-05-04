@@ -37,7 +37,7 @@ let PublicityService = class PublicityService {
             };
         }
         catch (error) {
-            console.log(error);
+            console.error(error);
             throw new common_1.InternalServerErrorException('Erreur lors de la création de la publicité');
         }
     }
@@ -105,6 +105,7 @@ let PublicityService = class PublicityService {
             });
         }
         catch (error) {
+            console.error(error);
             this.logger.error(`Erreur lors de la validation: ${error.message}`);
             throw new Error('Erreur lors de la validation du produit');
         }

@@ -34,7 +34,7 @@ export class PublicityService {
         data: result,
       };
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       throw new InternalServerErrorException(
         'Erreur lors de la création de la publicité',
@@ -124,6 +124,8 @@ export class PublicityService {
         return updatedProduit;
       });
     } catch (error) {
+      console.error(error);
+
       this.logger.error(`Erreur lors de la validation: ${error.message}`);
       throw new Error('Erreur lors de la validation du produit');
     }

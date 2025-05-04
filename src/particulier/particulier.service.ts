@@ -130,7 +130,7 @@ export class ParticulierService {
         },
       );
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       this.logger.error(`Erreur lors de la publication: ${error.message}`);
       throw new Error('Erreur lors de la publication du produit');
@@ -309,6 +309,8 @@ export class ParticulierService {
 
       return result;
     } catch (error) {
+      console.error(error);
+
       this.logger.error(`Erreur lors de la modification: ${error.message}`);
       throw new Error('Erreur lors de la modification du produit');
     }
@@ -373,6 +375,8 @@ export class ParticulierService {
       });
       return result;
     } catch (error) {
+      console.error(error);
+
       this.logger.error(`Erreur lors de la suppression: ${error.message}`);
       throw new InternalServerErrorException(
         `Erreur lors de la suppression du produit`,
@@ -425,6 +429,8 @@ export class ParticulierService {
         data: result,
       };
     } catch (error) {
+      console.error(error);
+
       this.logger.error(
         `Erreur lors de la récupération des produits: ${error.message}`,
       );
@@ -476,6 +482,8 @@ export class ParticulierService {
         data: result,
       };
     } catch (error) {
+      console.error(error);
+
       this.logger.error(
         `Erreur lors de la récupération des produits en attente de validation: ${error.message}`,
       );
@@ -566,6 +574,8 @@ export class ParticulierService {
         };
       }
     } catch (error) {
+      console.error(error);
+
       this.logger.error(
         `Erreur lors de la validation du produit: ${error.message}`,
       );
@@ -611,6 +621,8 @@ export class ParticulierService {
         message: `Produit #${produitId} révalidé avec succès`,
       };
     } catch (error) {
+      console.error(error);
+
       this.logger.error(
         `Erreur lors de la révalidation du produit: ${error.message}`,
       );
@@ -668,6 +680,8 @@ export class ParticulierService {
         data: result,
       };
     } catch (error) {
+      console.error(error);
+
       this.logger.error(
         `Erreur lors de la récupération du produit: ${error.message}`,
       );

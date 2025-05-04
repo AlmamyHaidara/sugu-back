@@ -104,7 +104,7 @@ let ParticulierService = class ParticulierService {
             });
         }
         catch (error) {
-            console.log(error);
+            console.error(error);
             this.logger.error(`Erreur lors de la publication: ${error.message}`);
             throw new Error('Erreur lors de la publication du produit');
         }
@@ -247,6 +247,7 @@ let ParticulierService = class ParticulierService {
             return result;
         }
         catch (error) {
+            console.error(error);
             this.logger.error(`Erreur lors de la modification: ${error.message}`);
             throw new Error('Erreur lors de la modification du produit');
         }
@@ -304,6 +305,7 @@ let ParticulierService = class ParticulierService {
             return result;
         }
         catch (error) {
+            console.error(error);
             this.logger.error(`Erreur lors de la suppression: ${error.message}`);
             throw new common_1.InternalServerErrorException(`Erreur lors de la suppression du produit`);
         }
@@ -351,6 +353,7 @@ let ParticulierService = class ParticulierService {
             };
         }
         catch (error) {
+            console.error(error);
             this.logger.error(`Erreur lors de la récupération des produits: ${error.message}`);
             throw new Error('Erreur lors de la récupération des produits');
         }
@@ -398,6 +401,7 @@ let ParticulierService = class ParticulierService {
             };
         }
         catch (error) {
+            console.error(error);
             this.logger.error(`Erreur lors de la récupération des produits en attente de validation: ${error.message}`);
             throw new Error('Erreur lors de la récupération des produits en attente de validation');
         }
@@ -480,6 +484,7 @@ let ParticulierService = class ParticulierService {
             }
         }
         catch (error) {
+            console.error(error);
             this.logger.error(`Erreur lors de la validation du produit: ${error.message}`);
             throw new Error('Erreur lors de la validation du produit');
         }
@@ -523,6 +528,7 @@ let ParticulierService = class ParticulierService {
             };
         }
         catch (error) {
+            console.error(error);
             this.logger.error(`Erreur lors de la révalidation du produit: ${error.message}`);
             throw new Error('Erreur lors de la révalidation du produit');
         }
@@ -577,6 +583,7 @@ let ParticulierService = class ParticulierService {
             };
         }
         catch (error) {
+            console.error(error);
             this.logger.error(`Erreur lors de la récupération du produit: ${error.message}`);
             throw new Error('Erreur lors de la récupération du produit');
         }
