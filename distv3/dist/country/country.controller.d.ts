@@ -3,8 +3,8 @@ export declare class CountryController {
     private readonly countryService;
     constructor(countryService: CountryService);
     findAll(): Promise<{
-        name: string;
         id: number;
+        name: string;
         isoCode: string;
     }[]>;
 }

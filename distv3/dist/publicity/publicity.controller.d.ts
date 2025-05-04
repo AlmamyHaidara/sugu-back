@@ -6,8 +6,8 @@ export declare class PublicityController {
     private readonly publicityService;
     constructor(publicityService: PublicityService);
     approved(createPublicityDto: CreatePublicityApprovedProductDto): Promise<{
-        id: number;
         nom: string;
+        id: number;
         createdAt: Date;
         updatedAt: Date;
         status: import("@prisma/client").$Enums.ProduitStatus;

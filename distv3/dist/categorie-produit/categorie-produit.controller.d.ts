@@ -6,13 +6,13 @@ export declare class CategorieProduitController {
     constructor(categorieProduitService: CategorieProduitService);
     create(createCategorieProduitDto: CreateCategorieProduitDto): string;
     findAll(): Promise<{
-        id: number;
         nom: string;
+        id: number;
         description: string | null;
     }[]>;
     findOne(id: string): Promise<{
-        id: number;
         nom: string;
+        id: number;
         description: string | null;
     }>;
     update(id: string, updateCategorieProduitDto: UpdateCategorieProduitDto): string;

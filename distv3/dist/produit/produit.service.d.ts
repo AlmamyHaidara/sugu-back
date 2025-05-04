@@ -16,8 +16,8 @@ export declare class ProduitService {
             id: number;
             quantiter: number;
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             Prix: {
@@ -47,8 +47,8 @@ export declare class ProduitService {
             id: number;
             quantiter: number;
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             Prix: {
@@ -79,8 +79,8 @@ export declare class ProduitService {
             id: number;
             quantiter: number;
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             Prix: {
@@ -104,8 +104,8 @@ export declare class ProduitService {
         statusCode: HttpStatus;
         message: string;
         data: {
-            id: number;
             nom: string;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             status: import("@prisma/client").$Enums.ProduitStatus;
@@ -144,8 +144,8 @@ export declare class ProduitService {
         statusCode: HttpStatus;
         message: string;
         data: {
-            id: number;
             nom: string;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             status: import("@prisma/client").$Enums.ProduitStatus;
@@ -163,27 +163,27 @@ export declare class ProduitService {
         message: string;
         data: {
             tags: any;
-            id: number;
             nom: string;
+            id: number;
             description: string;
             img: string;
             categorieId: number;
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             prixId: number;
             produits: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string;
                 img: string;
                 tags: string;
                 categorieId: number;
                 categories: {
-                    id: number;
                     nom: string;
+                    id: number;
                     description: string | null;
                 };
             };
@@ -200,28 +200,28 @@ export declare class ProduitService {
         statusCode: HttpStatus;
         message: string;
         data: {
-            id: number;
             nom: string;
+            id: number;
             description: string;
             img: string;
             tags: string;
             categorieId: number;
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             prixId: number;
             produits: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string;
                 img: string;
                 tags: string;
                 categorieId: number;
                 categories: {
-                    id: number;
                     nom: string;
+                    id: number;
                     description: string | null;
                 };
             };
@@ -243,8 +243,8 @@ export declare class ProduitService {
             id: number;
             quantiter: number;
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             Prix: {
@@ -283,15 +283,15 @@ export declare class ProduitService {
                 categorie: import("@prisma/client").$Enums.CategorieBoutique;
             };
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             Prix: ({
                 boutiques: {
-                    id: number;
                     nom: string;
                     email: string | null;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
                     description: string;
@@ -312,8 +312,8 @@ export declare class ProduitService {
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
-            id: number;
             nom: string;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             status: import("@prisma/client").$Enums.ProduitStatus;
@@ -340,15 +340,15 @@ export declare class ProduitService {
                 categorie: import("@prisma/client").$Enums.CategorieBoutique;
             };
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             Prix: ({
                 boutiques: {
-                    id: number;
                     nom: string;
                     email: string | null;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
                     description: string;
@@ -369,8 +369,8 @@ export declare class ProduitService {
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
-            id: number;
             nom: string;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             status: import("@prisma/client").$Enums.ProduitStatus;

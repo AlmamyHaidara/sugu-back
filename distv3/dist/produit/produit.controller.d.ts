@@ -14,8 +14,8 @@ export declare class ProduitController {
             id: number;
             quantiter: number;
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             Prix: {
@@ -50,15 +50,15 @@ export declare class ProduitController {
                 categorie: import("@prisma/client").$Enums.CategorieBoutique;
             };
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             Prix: ({
                 boutiques: {
-                    id: number;
                     nom: string;
                     email: string | null;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
                     description: string;
@@ -79,8 +79,8 @@ export declare class ProduitController {
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
-            id: number;
             nom: string;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             status: import("@prisma/client").$Enums.ProduitStatus;
@@ -110,15 +110,15 @@ export declare class ProduitController {
                 categorie: import("@prisma/client").$Enums.CategorieBoutique;
             };
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             Prix: ({
                 boutiques: {
-                    id: number;
                     nom: string;
                     email: string | null;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
                     description: string;
@@ -139,8 +139,8 @@ export declare class ProduitController {
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
-            id: number;
             nom: string;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             status: import("@prisma/client").$Enums.ProduitStatus;
@@ -179,8 +179,8 @@ export declare class ProduitController {
         statusCode: import("@nestjs/common").HttpStatus;
         message: string;
         data: {
-            id: number;
             nom: string;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             status: import("@prisma/client").$Enums.ProduitStatus;
@@ -202,8 +202,8 @@ export declare class ProduitController {
             id: number;
             quantiter: number;
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             Prix: {
@@ -235,28 +235,28 @@ export declare class ProduitController {
         statusCode: import("@nestjs/common").HttpStatus;
         message: string;
         data: {
-            id: number;
             nom: string;
+            id: number;
             description: string;
             img: string;
             tags: string;
             categorieId: number;
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             prixId: number;
             produits: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string;
                 img: string;
                 tags: string;
                 categorieId: number;
                 categories: {
-                    id: number;
                     nom: string;
+                    id: number;
                     description: string | null;
                 };
             };
@@ -274,27 +274,27 @@ export declare class ProduitController {
         message: string;
         data: {
             tags: any;
-            id: number;
             nom: string;
+            id: number;
             description: string;
             img: string;
             categorieId: number;
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             prixId: number;
             produits: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string;
                 img: string;
                 tags: string;
                 categorieId: number;
                 categories: {
-                    id: number;
                     nom: string;
+                    id: number;
                     description: string | null;
                 };
             };

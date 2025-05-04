@@ -16,9 +16,9 @@ export declare class BoutiqueService {
         statusCode: number;
         message: string;
         data: {
-            id: number;
             nom: string;
             email: string | null;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
@@ -34,16 +34,16 @@ export declare class BoutiqueService {
         statusCode: number;
         boutiques: ({
             country: {
-                name: string;
                 id: number;
+                name: string;
                 createdAt: Date;
                 updatedAt: Date | null;
                 isoCode: string | null;
             };
         } & {
-            id: number;
             nom: string;
             email: string | null;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
@@ -65,8 +65,8 @@ export declare class BoutiqueService {
                 prix: import("@prisma/client/runtime/library").Decimal;
                 boutiqueId: number;
             }[];
-            id: number;
             nom: string;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             status: import("@prisma/client").$Enums.ProduitStatus;
@@ -87,12 +87,12 @@ export declare class BoutiqueService {
             boutiqueId: number;
             prix: import("@prisma/client/runtime/library").Decimal;
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
-            id: number;
             nom: string;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             status: import("@prisma/client").$Enums.ProduitStatus;
@@ -108,9 +108,9 @@ export declare class BoutiqueService {
     findAllShopByUser(userId: number): Promise<{
         statusCode: number;
         data: {
-            id: number;
             nom: string;
             email: string | null;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
@@ -126,16 +126,16 @@ export declare class BoutiqueService {
         statusCode: number;
         data: ({
             country: {
-                name: string;
                 id: number;
+                name: string;
                 createdAt: Date;
                 updatedAt: Date | null;
                 isoCode: string | null;
             };
             Prix: ({
                 produits: {
-                    id: number;
                     nom: string;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
                     status: import("@prisma/client").$Enums.ProduitStatus;
@@ -158,9 +158,9 @@ export declare class BoutiqueService {
                 particularId: number | null;
             })[];
         } & {
-            id: number;
             nom: string;
             email: string | null;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
@@ -175,9 +175,9 @@ export declare class BoutiqueService {
     findOne(id: number): Promise<{
         statusCode: number;
         data: {
-            id: number;
             nom: string;
             email: string | null;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
@@ -211,9 +211,9 @@ export declare class BoutiqueService {
     update(id: number, updateBoutiqueDto: UpdateBoutiqueDto): Promise<{
         statusCode: number;
         data: {
-            id: number;
             nom: string;
             email: string | null;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;

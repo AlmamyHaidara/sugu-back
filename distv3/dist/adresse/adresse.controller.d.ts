@@ -7,71 +7,71 @@ export declare class AdresseController {
     create(createAdresseDto: CreateAdresseDto): Promise<{
         status: number;
         data: {
-            id: number;
             nom: string;
-            quartier: string;
             telephone: string;
-            description: string;
-            userId: number;
-            isdefault: boolean;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            userId: number;
+            quartier: string;
+            isdefault: boolean;
         };
     }>;
     findAll(): Promise<{
         status: number;
         data: {
-            id: number;
             nom: string;
-            quartier: string;
             telephone: string;
-            description: string;
-            userId: number;
-            isdefault: boolean;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            userId: number;
+            quartier: string;
+            isdefault: boolean;
         }[];
     }>;
     findOne(id: string): Promise<{
         status: number;
         data: {
-            id: number;
             nom: string;
-            quartier: string;
             telephone: string;
-            description: string;
-            userId: number;
-            isdefault: boolean;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            userId: number;
+            quartier: string;
+            isdefault: boolean;
         }[];
     }>;
     findOneByUserId(userId: string): Promise<{
         status: number;
         data: {
-            id: number;
             nom: string;
-            quartier: string;
             telephone: string;
-            description: string;
-            userId: number;
-            isdefault: boolean;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            userId: number;
+            quartier: string;
+            isdefault: boolean;
         }[];
     }>;
     update(id: string, updateAdresseDto: UpdateAdresseDto): Promise<{
         status: import("@nestjs/common").HttpStatus;
         data: {
-            id: number;
             nom: string;
-            quartier: string;
             telephone: string;
-            description: string;
-            userId: number;
-            isdefault: boolean;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            userId: number;
+            quartier: string;
+            isdefault: boolean;
         };
     }>;
     remove(id: string): Promise<{

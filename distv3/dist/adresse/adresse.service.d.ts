@@ -9,71 +9,71 @@ export declare class AdresseService {
     create(createAdresseDto: CreateAdresseDto): Promise<{
         status: number;
         data: {
-            id: number;
             nom: string;
-            quartier: string;
             telephone: string;
-            description: string;
-            userId: number;
-            isdefault: boolean;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            userId: number;
+            quartier: string;
+            isdefault: boolean;
         };
     }>;
     findAll(): Promise<{
         status: number;
         data: {
-            id: number;
             nom: string;
-            quartier: string;
             telephone: string;
-            description: string;
-            userId: number;
-            isdefault: boolean;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            userId: number;
+            quartier: string;
+            isdefault: boolean;
         }[];
     }>;
     findOne(id: number): Promise<{
         status: number;
         data: {
-            id: number;
             nom: string;
-            quartier: string;
             telephone: string;
-            description: string;
-            userId: number;
-            isdefault: boolean;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            userId: number;
+            quartier: string;
+            isdefault: boolean;
         }[];
     }>;
     findOneByUserId(id: number): Promise<{
         status: number;
         data: {
-            id: number;
             nom: string;
-            quartier: string;
             telephone: string;
-            description: string;
-            userId: number;
-            isdefault: boolean;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            userId: number;
+            quartier: string;
+            isdefault: boolean;
         }[];
     }>;
     update(id: number, updateAdresseDto: UpdateAdresseDto): Promise<{
         status: HttpStatus;
         data: {
-            id: number;
             nom: string;
-            quartier: string;
             telephone: string;
-            description: string;
-            userId: number;
-            isdefault: boolean;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
+            description: string;
+            userId: number;
+            quartier: string;
+            isdefault: boolean;
         };
     }>;
     remove(id: number): Promise<{

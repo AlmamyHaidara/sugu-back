@@ -49,15 +49,15 @@ export declare class CommandController {
         status: number;
         data: {
             utilisateur: {
-                id: number;
                 nom: string;
                 prenom: string;
-                telephone: string;
                 email: string;
+                telephone: string;
+                id: number;
                 Adresse: {
-                    id: number;
                     nom: string;
                     telephone: string;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
                     description: string;
@@ -72,12 +72,12 @@ export declare class CommandController {
                     quantiter: number;
                     prixId: number;
                     categories: {
-                        id: number;
                         nom: string;
+                        id: number;
                         description: string | null;
                     };
-                    id: number;
                     nom: string;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
                     status: import("@prisma/client").$Enums.ProduitStatus;
@@ -92,13 +92,13 @@ export declare class CommandController {
                 Prix: {
                     produits: {
                         categories: {
-                            id: number;
                             nom: string;
+                            id: number;
                             description: string | null;
                         };
                     } & {
-                        id: number;
                         nom: string;
+                        id: number;
                         createdAt: Date;
                         updatedAt: Date;
                         status: import("@prisma/client").$Enums.ProduitStatus;
@@ -130,15 +130,15 @@ export declare class CommandController {
             id: number;
             createdAt: Date;
             utilisateurs: {
-                id: number;
                 nom: string;
                 prenom: string;
-                telephone: string;
                 email: string;
+                telephone: string;
+                id: number;
                 Adresse: {
-                    id: number;
                     nom: string;
                     telephone: string;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
                     description: string;

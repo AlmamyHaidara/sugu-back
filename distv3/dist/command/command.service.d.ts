@@ -55,15 +55,15 @@ export declare class CommandService {
         status: number;
         data: {
             utilisateur: {
-                id: number;
                 nom: string;
                 prenom: string;
-                telephone: string;
                 email: string;
+                telephone: string;
+                id: number;
                 Adresse: {
-                    id: number;
                     nom: string;
                     telephone: string;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
                     description: string;
@@ -78,12 +78,12 @@ export declare class CommandService {
                     quantiter: number;
                     prixId: number;
                     categories: {
-                        id: number;
                         nom: string;
+                        id: number;
                         description: string | null;
                     };
-                    id: number;
                     nom: string;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
                     status: import("@prisma/client").$Enums.ProduitStatus;
@@ -98,13 +98,13 @@ export declare class CommandService {
                 Prix: {
                     produits: {
                         categories: {
-                            id: number;
                             nom: string;
+                            id: number;
                             description: string | null;
                         };
                     } & {
-                        id: number;
                         nom: string;
+                        id: number;
                         createdAt: Date;
                         updatedAt: Date;
                         status: import("@prisma/client").$Enums.ProduitStatus;
@@ -136,15 +136,15 @@ export declare class CommandService {
             id: number;
             createdAt: Date;
             utilisateurs: {
-                id: number;
                 nom: string;
                 prenom: string;
-                telephone: string;
                 email: string;
+                telephone: string;
+                id: number;
                 Adresse: {
-                    id: number;
                     nom: string;
                     telephone: string;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
                     description: string;
