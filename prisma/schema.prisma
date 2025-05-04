@@ -89,7 +89,7 @@ model Adresse {
   description  String
   userId       Int
   utilisateurs Utilisateur @relation(fields: [userId], references: [id])
-
+  isdefault  Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

@@ -6,8 +6,8 @@ LABEL authors="almamyhaidara"
 WORKDIR /app
 
 # Étape 3 : Copier les fichiers nécessaires
-COPY package.json package-lock.json ./
-COPY distv3/dist ./dist
+COPY package.json  ./
+COPY **/dist ./dist
 COPY prisma ./prisma
 COPY entrypoint.sh ./
 
