@@ -104,7 +104,7 @@ let ParticulierService = class ParticulierService {
             });
         }
         catch (error) {
-            console.error(error);
+            console.log(error);
             this.logger.error(`Erreur lors de la publication: ${error.message}`);
             throw new Error('Erreur lors de la publication du produit');
         }
