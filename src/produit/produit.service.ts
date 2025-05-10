@@ -288,17 +288,37 @@ export class ProduitService {
           Prix: {
             some: {
               boutiqueId: shopId,
+
+              quantiter: {
+                gt: 0,
+              },
             },
           },
         },
         include: {
           Prix: {
-            select: {
-              id: true,
-              prix: true,
-              quantiter: true,
-              boutiqueId: true,
-              produitId: true,
+            // select: {
+            //   id: true,
+            //   prix: true,
+            //   quantiter: true,
+            //   boutiqueId: true,
+            //   produitId: true,
+            // },
+            omit: {
+              createdAt: true,
+              updatedAt: true,
+              particularId: true,
+            },
+            include: {
+              boutiques: {
+                select: {
+                  id: true,
+                  nom: true,
+                  location: true,
+                  phone: true,
+                  categorie: true,
+                },
+              },
             },
           },
         },
@@ -608,6 +628,9 @@ export class ProduitService {
           some: {
             boutiques: {
               countryId: countryId,
+            },
+            quantiter: {
+              gt: 0,
             },
           },
         },

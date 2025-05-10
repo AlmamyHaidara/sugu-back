@@ -81,6 +81,12 @@ export class ProduitController {
     return this.produitService.findAllProduitsByCountryId(id);
   }
 
+  @Public()
+  @Get('shop-products-client/:id')
+  findAllByShopClient(@Param('id', ParseIntPipe) id: number) {
+    return this.produitService.findAllByShop(id);
+  }
+
   @Get('shop-products/:id')
   findAllByShop(@Param('id', ParseIntPipe) id: number) {
     return this.produitService.findAllByShop(id);

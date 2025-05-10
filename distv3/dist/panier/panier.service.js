@@ -178,7 +178,7 @@ let PanierService = class PanierService {
                             count: data.count,
                             particuliers: {
                                 connect: {
-                                    id: data.particulierId,
+                                    id: data?.particulierId,
                                 },
                             },
                             produits: {

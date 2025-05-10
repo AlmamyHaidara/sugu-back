@@ -18,8 +18,8 @@ export class CommandController {
   constructor(private readonly commandService: CommandService) {}
 
   @Post()
-  create(@Body() createCammandDto: CreateCommandDto) {
-    return this.commandService.create(createCammandDto);
+  async create(@Body() createCammandDto: CreateCommandDto) {
+    return await this.commandService.create(createCammandDto);
   }
 
   @Post('particulier')

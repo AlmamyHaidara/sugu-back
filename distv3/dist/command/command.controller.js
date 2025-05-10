@@ -20,8 +20,8 @@ let CommandController = class CommandController {
     constructor(commandService) {
         this.commandService = commandService;
     }
-    create(createCammandDto) {
-        return this.commandService.create(createCammandDto);
+    async create(createCammandDto) {
+        return await this.commandService.create(createCammandDto);
     }
     createParticulier(createCammandDto) {
         return this.commandService.createParticulier(createCammandDto);
@@ -48,7 +48,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_command_dto_1.CreateCommandDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], CommandController.prototype, "create", null);
 __decorate([
     (0, common_1.Post)('particulier'),
