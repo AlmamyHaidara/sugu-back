@@ -786,6 +786,7 @@ export class ParticulierService {
         const filter = res.Prix.map((prix) => {
           return {
             prix: prix.prix,
+            quantiter: prix.quantiter,
             particulier: {
               id: prix.particular.id,
               nom: prix.particular.utilisateur.nom,
@@ -804,6 +805,7 @@ export class ParticulierService {
             ...res,
             categorie,
             prix: el.prix,
+            quantiter: el.quantiter,
             particulier: el.particulier,
           };
         })[0];

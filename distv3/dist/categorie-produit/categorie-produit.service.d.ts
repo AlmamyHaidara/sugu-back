@@ -6,13 +6,13 @@ export declare class CategorieProduitService {
     constructor(prisma: PrismaService);
     create(createCategorieProduitDto: CreateCategorieProduitDto): string;
     findAll(): Promise<{
-        nom: string;
         id: number;
+        nom: string;
         description: string | null;
     }[]>;
     findOne(id: number): Promise<{
-        nom: string;
         id: number;
+        nom: string;
         description: string | null;
     }>;
     update(id: number, updateCategorieProduitDto: UpdateCategorieProduitDto): string;

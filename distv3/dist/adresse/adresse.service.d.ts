@@ -9,9 +9,9 @@ export declare class AdresseService {
     create(createAdresseDto: CreateAdresseDto): Promise<{
         status: number;
         data: {
+            id: number;
             nom: string;
             telephone: string;
-            id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
@@ -23,9 +23,9 @@ export declare class AdresseService {
     findAll(): Promise<{
         status: number;
         data: {
+            id: number;
             nom: string;
             telephone: string;
-            id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
@@ -37,9 +37,9 @@ export declare class AdresseService {
     findOne(id: number): Promise<{
         status: number;
         data: {
+            id: number;
             nom: string;
             telephone: string;
-            id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
@@ -51,9 +51,9 @@ export declare class AdresseService {
     findOneByUserId(id: number): Promise<{
         status: number;
         data: {
+            id: number;
             nom: string;
             telephone: string;
-            id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
@@ -65,9 +65,9 @@ export declare class AdresseService {
     update(id: number, updateAdresseDto: UpdateAdresseDto): Promise<{
         status: HttpStatus;
         data: {
+            id: number;
             nom: string;
             telephone: string;
-            id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;

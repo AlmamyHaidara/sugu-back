@@ -29,6 +29,9 @@ let CommandController = class CommandController {
     findAll(userId) {
         return this.commandService.findAll(+userId);
     }
+    findAllParticulier(userId) {
+        return this.commandService.findAllParticulier(+userId);
+    }
     findOne(id, userId) {
         return this.commandService.findOne(+id, +userId);
     }
@@ -64,6 +67,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], CommandController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('particulier'),
+    __param(0, (0, common_1.Query)('userId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], CommandController.prototype, "findAllParticulier", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

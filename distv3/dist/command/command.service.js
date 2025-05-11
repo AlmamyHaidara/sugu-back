@@ -110,6 +110,11 @@ let CommandService = class CommandService {
                         },
                         etat: createCommandDto.etat,
                         commandeNbr: createCommandDto.commandeNbr,
+                        adresses: {
+                            connect: {
+                                id: createCommandDto.adresseId,
+                            },
+                        },
                         LigneCommand: {
                             createMany: {
                                 data: createCommandDto.ligneCommands || [],
@@ -245,6 +250,11 @@ let CommandService = class CommandService {
                         },
                         etat: createCommandDto.etat,
                         commandeNbr: createCommandDto.commandeNbr,
+                        adresses: {
+                            connect: {
+                                id: createCommandDto.adresseId,
+                            },
+                        },
                         LigneCommand: {
                             createMany: {
                                 data: createCommandDto.ligneCommands || [],
@@ -408,6 +418,89 @@ Nous vous remercions pour votre confiance.`,
                 },
             });
             if (userIsExist.id && userIsExist.profile == 'BOUTIQUIER') {
+                const isFiltered = cmd.flatMap((res) => {
+                    const filter = res.LigneCommand.map((lc) => {
+                        const newLc = { ...lc, ...lc.Prix };
+                        newLc.quantiter = lc.quantiter;
+                        newLc.quantiterTotal = lc.Prix.quantiter;
+                        delete newLc.Prix;
+                        return newLc;
+                    });
+                    console.log(filter);
+                    const total = filter.reduce((acc, item) => {
+                        return acc + Number(item.prix) * item.quantiter;
+                    }, 0);
+                    console.log(total);
+                    return { ...res, LigneCommand: [...filter], total };
+                });
+                return isFiltered || [];
+            }
+            else {
+                const isFiltered = cmd.flatMap((res) => {
+                    const filter = res.LigneCommand.map((lc) => {
+                        const newLc = { ...lc, ...lc.Prix };
+                        newLc.quantiter = lc.quantiter;
+                        delete newLc.Prix;
+                        return newLc;
+                    });
+                    const total = filter.reduce((acc, item) => {
+                        return acc + Number(item.prix) * item.quantiter;
+                    }, 0);
+                    console.log(total);
+                    return { ...res, LigneCommand: [...filter], total };
+                });
+                return isFiltered || [];
+            }
+        }
+        catch (error) {
+            console.error(error);
+            (0, constants_1.ExeceptionCase)(error);
+        }
+    }
+    async findAllParticulier(userId) {
+        try {
+            const cmd = await this.prisma.commande.findMany({
+                where: {
+                    utilisateurId: userId,
+                },
+                select: {
+                    id: true,
+                    commandeNbr: true,
+                    createdAt: true,
+                    etat: true,
+                    LigneCommand: {
+                        include: {
+                            Prix: {
+                                include: {
+                                    particular: {
+                                        select: {
+                                            id: true,
+                                            userId: true,
+                                            utilisateur: {
+                                                select: {
+                                                    id: true,
+                                                    nom: true,
+                                                    prenom: true,
+                                                    telephone: true,
+                                                    email: true,
+                                                    Adresse: true,
+                                                },
+                                            },
+                                        },
+                                    },
+                                    produits: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+            const userIsExist = await this.prisma.utilisateur.findFirst({
+                where: {
+                    id: userId,
+                },
+            });
+            if (userIsExist.id) {
                 const isFiltered = cmd.flatMap((res) => {
                     const filter = res.LigneCommand.map((lc) => {
                         const newLc = { ...lc, ...lc.Prix };

@@ -32,6 +32,11 @@ export class CommandController {
     return this.commandService.findAll(+userId);
   }
 
+  @Get('particulier')
+  findAllParticulier(@Query('userId') userId: string) {
+    return this.commandService.findAllParticulier(+userId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string, @Query('userId') userId: string) {
     return this.commandService.findOne(+id, +userId);

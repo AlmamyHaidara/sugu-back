@@ -31,9 +31,9 @@ export declare class NotificationsService {
     findOne(id: number): Promise<{
         utilisateur: {
             Boutique: {
+                id: number;
                 nom: string;
                 email: string | null;
-                id: number;
                 createdAt: Date;
                 updatedAt: Date;
                 description: string;
@@ -45,14 +45,14 @@ export declare class NotificationsService {
                 countryId: number | null;
             }[];
         } & {
+            id: number;
             nom: string;
             prenom: string | null;
-            email: string;
             telephone: string;
+            email: string;
             password: string;
             profile: import("@prisma/client").$Enums.Profile;
             avatar: string | null;
-            id: number;
             createdAt: Date;
             updatedAt: Date;
         };

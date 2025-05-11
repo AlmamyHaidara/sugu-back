@@ -179,7 +179,7 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                         select: { nom: true },
                     },
                     Prix: {
-                        select: { prix: true, boutiqueId: true },
+                        select: { prix: true, boutiqueId: true, quantiter: true },
                     },
                 },
             });
@@ -192,6 +192,7 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                     ...p,
                     categorie: cat,
                     prix: firstPrix?.prix || null,
+                    quantiter: firstPrix?.quantiter || null,
                     boutiqueId: firstPrix?.boutiqueId || null,
                 };
             });
@@ -232,6 +233,7 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                     produitId: prix.produitId,
                     boutiqueId: prix.boutiqueId,
                     prix: prix.prix,
+                    quantiter: prix.quantiter,
                 };
                 delete customPrice.categories;
                 delete prix.produits;
@@ -280,6 +282,7 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                     const tt = {
                         ...bt,
                         prix: prix.prix,
+                        quantiter: prix.quantiter,
                         ...produits,
                         prixId,
                         boutique: { ...bt },

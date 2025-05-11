@@ -135,7 +135,7 @@ export class BoutiqueService {
             select: { nom: true },
           },
           Prix: {
-            select: { prix: true, boutiqueId: true },
+            select: { prix: true, boutiqueId: true, quantiter: true },
           },
         },
       });
@@ -153,6 +153,7 @@ export class BoutiqueService {
           ...p,
           categorie: cat,
           prix: firstPrix?.prix || null,
+          quantiter: firstPrix?.quantiter || null,
           boutiqueId: firstPrix?.boutiqueId || null,
         };
       });
@@ -197,6 +198,7 @@ export class BoutiqueService {
           produitId: prix.produitId,
           boutiqueId: prix.boutiqueId,
           prix: prix.prix,
+          quantiter: prix.quantiter,
         };
 
         delete customPrice.categories;
@@ -265,6 +267,7 @@ export class BoutiqueService {
             ...bt,
             // location: bt.location,
             prix: prix.prix,
+            quantiter: prix.quantiter,
             ...produits,
             prixId,
             boutique: { ...bt },

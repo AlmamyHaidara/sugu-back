@@ -19,8 +19,8 @@ export declare class PanierController {
     }>;
     getCart(boutiqueId: string): Promise<({
         produits: {
-            nom: string;
             id: number;
+            nom: string;
             createdAt: Date;
             updatedAt: Date;
             status: import("@prisma/client").$Enums.ProduitStatus;
@@ -33,9 +33,9 @@ export declare class PanierController {
             isPublic: boolean | null;
         };
         boutiques: {
+            id: number;
             nom: string;
             email: string | null;
-            id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
@@ -66,21 +66,21 @@ export declare class PanierController {
         produits: {
             prixId: number;
             prix: import("@prisma/client/runtime/library").Decimal;
-            nom?: string;
             id?: number;
+            nom?: string;
             description?: string;
             img?: string;
             categories?: {
-                nom: string;
                 id: number;
+                nom: string;
                 description: string | null;
             };
         };
         id: number;
         boutiqueId: number;
         boutiques: {
-            nom: string;
             id: number;
+            nom: string;
             description: string;
             img: string;
             categorie: import("@prisma/client").$Enums.CategorieBoutique;
@@ -88,10 +88,10 @@ export declare class PanierController {
         count: number;
         particuliers: {
             utilisateur: {
+                id: number;
                 nom: string;
                 prenom: string;
                 email: string;
-                id: number;
             };
             id: number;
             userId: number;

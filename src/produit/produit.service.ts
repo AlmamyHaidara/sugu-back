@@ -657,6 +657,7 @@ export class ProduitService {
       const filter = res.Prix.map((prix) => {
         return {
           prix: prix.prix,
+          quantiter: prix.quantiter,
           boutique: {
             id: prix.boutiques.id,
             nom: prix.boutiques.nom,
@@ -795,6 +796,7 @@ export class ProduitService {
         const filter = res.Prix.map((prix) => {
           return {
             prix: prix.prix,
+            quantiter: prix.quantiter,
             boutique: {
               id: prix.boutiques.id,
               nom: prix.boutiques.nom,
