@@ -10,7 +10,13 @@ pipeline {
     }
 
     stages {
-
+		stage('Kubernetes test') {
+			steps {
+				withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+					sh 'kubectl get pods'
+                }
+            }
+        }
 		stage('Clone') {
 			steps {
 				echo 'Clonage du dépôt Git sugu-back.git'
