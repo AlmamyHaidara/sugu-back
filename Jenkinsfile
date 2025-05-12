@@ -30,14 +30,33 @@ pipeline {
             }
         }
 
-		stage('Setup Environment') {
-				steps {
+		stage('Prepare Kubernetes Secrets') {
+			steps {
+				script {
 					withCredentials([file(credentialsId: 'SUGU_ENV_FILE', variable: 'ENV_FILE_PATH')]) {
-						// Copier le fichier .env dans le répertoire de travail
-                    sh 'cp $ENV_FILE_PATH .env'
+						sh 'cp $ENV_FILE_PATH .env'
+                sh 'cat .env'
+                def databaseUrl = sh(script: "grep DATABASE_URL .env | cut -d '=' -f2-", returnStdout: true).trim()
+                if (!databaseUrl) {
+							error "DATABASE_URL n'est pas défini dans .env"
                 }
-            }
-        }
+                def encodedDatabaseUrl = sh(script: "echo -n '${databaseUrl}' | base64", returnStdout: true).trim()
+                writeFile file: 'k8s/secret.yaml', text: """
+						apiVersion: v1
+						kind: Secret
+						metadata:
+						  name: sugu-back-secrets
+						type: Opaque
+						data:
+						  database-url: ${encodedDatabaseUrl}
+						"""
+						sh 'cat k8s/secret.yaml'
+						// Appliquer le Secret immédiatement pour tester
+						sh 'kubectl apply -f k8s/secret.yaml'
+					}
+				}
+			}
+		}
         stage('Build') {
 			steps {
 				echo 'Installation des dépendances, build du projet, et génération de la base de données...'
