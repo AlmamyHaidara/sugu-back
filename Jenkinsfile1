@@ -1,8 +1,8 @@
 pipeline {
 	agent any
-	//tools {
-	//	nodejs 'NodeJS' // Name of Node.js installation in Global Tool Configuration
-    //}
+	tools {
+    		nodejs 'NodeJS'
+    }
     environment {
 		NODE_ENV = 'production'
         IMAGE_NAME = 'almamyhaidara/mon-projet-nestjs'  // Ton image Docker
@@ -12,6 +12,13 @@ pipeline {
     }
 
     stages {
+        stage('Debug') {
+        			steps {
+        				sh 'node -v'
+                        sh 'npm -v'
+                        sh 'echo $PATH'
+                    }
+        }
 		stage('Kubernetes test') {
 			steps {
 				withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
