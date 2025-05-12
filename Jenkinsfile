@@ -80,12 +80,13 @@ pipeline {
             }
         }
 
-        script {
-			env.BRANCH_NAME = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
-    	}
+
 
         stage('Deploy to Kubernetes') {
 			steps {
+				script {
+					env.BRANCH_NAME = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
+    			}
 				script {
 					echo 'Déploiement sur Kubernetes...'
 
