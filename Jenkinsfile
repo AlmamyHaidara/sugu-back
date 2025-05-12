@@ -5,7 +5,7 @@ pipeline {
     }
     environment {
 		NODE_ENV = 'production'
-        IMAGE_NAME = 'almamyhaidara/mon-projet-nestjs'  // Ton image Docker
+        IMAGE_NAME = 'almamyhaidara159/sugu-back-nestjs'  // Ton image Docker
         IMAGE_TAG = 'latest'
         DOCKERHUB_CREDENTIALS = 'dockerhub-credentials-id' // ID des credentials Docker Hub dans Jenkins
         K8S_CLUSTER = 'your-kubernetes-cluster' // Nom de ton cluster Kubernetes
@@ -58,9 +58,12 @@ pipeline {
                     sh "docker build -t $IMAGE_NAME:$IMAGE_TAG ."
 
                     echo 'Connexion à Docker Hub...'
-                    withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-						sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
-                    }
+					withCredentials([usernamePassword(credentialsId: 'DOCKERHUB_CREDENTIALS', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+									sh '''
+							echo "Connexion avec l'utilisateur: $DOCKER_USERNAME"
+							echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+						'''
+					}
 
                     echo 'Pusher l\'image vers Docker Hub...'
                     sh "docker push $IMAGE_NAME:$IMAGE_TAG"
