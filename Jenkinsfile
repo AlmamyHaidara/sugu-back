@@ -10,6 +10,9 @@ pipeline {
         DOCKERHUB_CREDENTIALS = 'dockerhub-credentials-id' // ID des credentials Docker Hub dans Jenkins
         K8S_CLUSTER = 'your-kubernetes-cluster' // Nom de ton cluster Kubernetes
     }
+    script {
+		env.BRANCH_NAME = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
+    }
 
     stages {
 		stage('Kubernetes test') {
@@ -68,8 +71,8 @@ pipeline {
                     script {
 						echo 'Pusher l\'image vers Docker Hub...'
 							def gitCommit = env.GIT_COMMIT ? env.GIT_COMMIT.substring(0, 7) : sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-						def imageTag = "${IMAGE_NAME}:${env.BUILD_NUMBER}"
-						echo "Publication de l'image : ${imageTag}"
+						def imageTag = "${IMAGE_NAME}:${env.BUILD_NUMBER}-${gitCommit}"
+						echo "Publication de l'image : ${imageTag} $env.BRANCH_NAME "
 						sh "docker push ${imageTag}"
 						if (env.BRANCH_NAME == 'main') {
 								echo "Publication du tag 'latest'..."
