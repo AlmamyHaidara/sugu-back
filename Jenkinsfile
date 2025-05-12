@@ -10,9 +10,6 @@ pipeline {
         DOCKERHUB_CREDENTIALS = 'dockerhub-credentials-id' // ID des credentials Docker Hub dans Jenkins
         K8S_CLUSTER = 'your-kubernetes-cluster' // Nom de ton cluster Kubernetes
     }
-    script {
-		env.BRANCH_NAME = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
-    }
 
     stages {
 		stage('Kubernetes test') {
@@ -82,6 +79,10 @@ pipeline {
                 }
             }
         }
+         script {
+			env.BRANCH_NAME = sh(script: 'git rev-parse --abbrev-ref HEAD', returnStdout: true).trim()
+    }
+
 
         stage('Deploy to Kubernetes') {
 			steps {
