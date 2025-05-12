@@ -41,7 +41,7 @@ pipeline {
 			steps {
 				echo 'Installation des dépendances...'
 				sh 'npm install -g @nestjs/cli'
-                sh 'npm install --force && npm install --save-dev @types/express && npm install --save-dev @types/multer'
+                sh 'npm install --force '
 
                 echo 'Build du projet sugu-back...'
                 sh 'npm run build'
