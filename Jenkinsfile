@@ -73,12 +73,10 @@ pipeline {
         stage('Deploy to Kubernetes') {
 			steps {
 				withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-					sh 'cd k8s'
-					sh 'ls -l' // Débogage pour vérifier les fichiers
-					// Appliquer uniquement les fichiers spécifiques
-					sh 'kubectl apply -f deployment.yaml'
-					sh 'kubectl apply -f service.yaml'
-					sh 'kubectl apply -f configmap.yaml'
+					sh 'kubectl apply -f k8s/.'
+					//sh 'kubectl apply -f deployment.yaml'
+					//sh 'kubectl apply -f service.yaml'
+					//sh 'kubectl apply -f configmap.yaml'
 					sh 'kubectl get pods'
 				}
 
