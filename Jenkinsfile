@@ -17,12 +17,12 @@ pipeline {
                 }
             }
         }
-		stage('Clone') {
-			steps {
-				echo 'Clonage du dépôt Git sugu-back.git'
-                git 'https://github.com/AlmamyHaidara/sugu-back.git'
-            }
-        }
+		//stage('Clone') {
+		//	steps {
+		//		echo 'Clonage du dépôt Git sugu-back.git'
+        //        git 'https://github.com/AlmamyHaidara/sugu-back.git'
+        //    }
+        //}
 
         stage('Build') {
 			steps {
