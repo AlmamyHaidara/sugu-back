@@ -1,14 +1,13 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseInterceptors,
+  Get,
+  Param,
+  Post,
   Put,
   UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PublicityService } from './publicity.service';
 import { CreatePublicityDto } from './dto/create-publicity.dto';
@@ -18,6 +17,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Public } from 'src/auth/constants';
+import { Express } from 'express';
 
 @Controller('publicity')
 export class PublicityController {

@@ -1,17 +1,17 @@
 import {
-  Controller,
-  Get,
-  Post,
+  BadRequestException,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  NotFoundException,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
   UploadedFile,
   UseInterceptors,
-  BadRequestException,
-  Query,
-  ParseIntPipe,
-  NotFoundException,
 } from '@nestjs/common';
 import { ProduitService } from './produit.service';
 import { CreateProduitDto } from './dto/create-produit.dto';
@@ -19,9 +19,9 @@ import { UpdateProduitDto } from './dto/update-produit.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { FindAllProduitQueryDto } from './dto/FindAllProduitQuery.dto';
 import { Public } from 'src/auth/constants';
 import { SearchProduitsDto } from './dto/SearchProduits.dto';
+import { Express } from 'express';
 
 @Controller('produit')
 export class ProduitController {

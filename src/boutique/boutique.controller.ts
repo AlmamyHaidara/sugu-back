@@ -1,14 +1,14 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseInterceptors,
-  UploadedFile,
+  Get,
+  Param,
   ParseIntPipe,
+  Patch,
+  Post,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { BoutiqueService } from './boutique.service';
 import { CreateBoutiqueDto } from './dto/create-boutique.dto';
@@ -19,6 +19,7 @@ import { extname } from 'path';
 import { Public } from 'src/auth/constants';
 import { Roles } from 'src/auth/roles.guard';
 import { UpdateBoutiqueProfileDto } from './dto/update-boutique-profile.dto';
+import { Express } from 'express';
 
 const boutiqueStorage = {
   storage: diskStorage({

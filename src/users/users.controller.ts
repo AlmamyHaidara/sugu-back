@@ -4,7 +4,6 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Put,
   UploadedFile,
   UseInterceptors,
@@ -14,6 +13,7 @@ import { extname } from 'path';
 import { diskStorage } from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
+import { Express } from 'express';
 
 @Controller('users')
 export class UsersController {
