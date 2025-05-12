@@ -45,7 +45,6 @@ pipeline {
                     npm install -g @nestjs/cli &&
                     npm install --force &&
                     npm run build &&
-                    //npx prisma db push &&
                     npx prisma generate
                 '''
             }
