@@ -21,7 +21,7 @@ spec:
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
-                  name: my-db-secret
+                  name: sugu-back-secrets
                   key: DATABASE_URL
           volumeMounts:
             - name: sugu-uploads
