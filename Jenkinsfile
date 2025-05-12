@@ -1,9 +1,5 @@
 pipeline {
-	agent {
-		docker {
-			image 'node:18'
-        }
-	}
+	agent any
 
     environment {
 		NODE_ENV = 'production'
@@ -35,8 +31,7 @@ pipeline {
         stage('Build') {
 			steps {
 				echo 'Installation des dépendances...'
-				sh 'pwd'
-				sh 'ls'
+				sh 'npm -v'
                 sh 'npm install --force'
 
                 echo 'Build du projet sugu-back...'
