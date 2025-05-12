@@ -1,6 +1,8 @@
 pipeline {
 	agent any
-
+	tools {
+		nodejs 'NodeJS' // Name of Node.js installation in Global Tool Configuration
+    }
     environment {
 		NODE_ENV = 'production'
         IMAGE_NAME = 'almamyhaidara/mon-projet-nestjs'  // Ton image Docker
