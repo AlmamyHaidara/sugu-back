@@ -72,18 +72,27 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
 			steps {
-				script {
-					echo 'Déploiement sur Kubernetes...'
-
-                    // Applique le fichier de déploiement Kubernetes
-                    sh 'kubectl apply -f .'
-
-                    // Si tu veux scaler ton déploiement
-                    // sh 'kubectl scale deployment nestjs-app --replicas=3'
-
-                    // Optionnel: Vérifier que le pod est bien déployé
-                    sh 'kubectl get pods'
-                }
+				withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+					sh 'cd k8s'
+					sh 'ls -l' // Débogage pour vérifier les fichiers
+					// Appliquer uniquement les fichiers spécifiques
+					sh 'kubectl apply -f deployment.yaml'
+					sh 'kubectl apply -f service.yaml'
+					sh 'kubectl apply -f configmap.yaml'
+					sh 'kubectl get pods'
+				}
+				//script {
+				//	echo 'Déploiement sur Kubernetes...'
+				//
+                //    // Applique le fichier de déploiement Kubernetes
+                //    sh 'kubectl apply -f .'
+				//
+                //    // Si tu veux scaler ton déploiement
+                //    // sh 'kubectl scale deployment nestjs-app --replicas=3'
+				//
+                //    // Optionnel: Vérifier que le pod est bien déployé
+                //    sh 'kubectl get pods'
+                //}
             }
         }
     }
