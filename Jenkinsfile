@@ -40,9 +40,8 @@ pipeline {
         stage('Build') {
 			steps {
 				echo 'Installation des dépendances...'
-				sh 'pwd'
-				sh 'ls'
-                sh 'npm install --force'
+				sh 'npm install -g @nestjs/cli'
+                sh 'npm install --force && npm install --save-dev @types/express'
 
                 echo 'Build du projet sugu-back...'
                 sh 'npm run build'
