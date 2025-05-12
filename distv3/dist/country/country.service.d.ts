@@ -3,8 +3,8 @@ export declare class CountryService {
     private readonly prisma;
     constructor(prisma: PrismaService);
     findAll: () => Promise<{
-        name: string;
         id: number;
+        name: string;
         isoCode: string;
     }[]>;
 }

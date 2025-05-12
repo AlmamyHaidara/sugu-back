@@ -16,18 +16,18 @@ export declare class BoutiqueService {
         statusCode: number;
         message: string;
         data: {
-            id: number;
             nom: string;
             email: string | null;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            description: string;
+            img: string | null;
             categorie: import("@prisma/client").$Enums.CategorieBoutique;
             location: import("@prisma/client").$Enums.Location;
-            img: string | null;
-            description: string;
             phone: string | null;
             userId: number;
             countryId: number | null;
-            createdAt: Date;
-            updatedAt: Date;
         };
     }>;
     findAllShopAndProducts(): Promise<{
@@ -35,47 +35,47 @@ export declare class BoutiqueService {
         boutiques: ({
             country: {
                 id: number;
+                name: string;
                 createdAt: Date;
                 updatedAt: Date | null;
-                name: string;
                 isoCode: string | null;
             };
         } & {
-            id: number;
             nom: string;
             email: string | null;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            description: string;
+            img: string | null;
             categorie: import("@prisma/client").$Enums.CategorieBoutique;
             location: import("@prisma/client").$Enums.Location;
-            img: string | null;
-            description: string;
             phone: string | null;
             userId: number;
             countryId: number | null;
-            createdAt: Date;
-            updatedAt: Date;
         })[];
         products: {
             categorie: string;
             prix: import("@prisma/client/runtime/library").Decimal;
             quantiter: number;
             boutiqueId: number;
+            categories: {
+                nom: string;
+            };
             Prix: {
                 prix: import("@prisma/client/runtime/library").Decimal;
                 quantiter: number;
                 boutiqueId: number;
             }[];
-            categories: {
-                nom: string;
-            };
-            id: number;
             nom: string;
-            img: string;
-            description: string;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
+            status: import("@prisma/client").$Enums.ProduitStatus;
+            description: string;
+            img: string;
             tags: string | null;
             type: import("@prisma/client").$Enums.ProduitType;
-            status: import("@prisma/client").$Enums.ProduitStatus;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -90,19 +90,19 @@ export declare class BoutiqueService {
             prix: import("@prisma/client/runtime/library").Decimal;
             quantiter: number;
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
-            id: number;
             nom: string;
-            img: string;
-            description: string;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
+            status: import("@prisma/client").$Enums.ProduitStatus;
+            description: string;
+            img: string;
             tags: string | null;
             type: import("@prisma/client").$Enums.ProduitType;
-            status: import("@prisma/client").$Enums.ProduitStatus;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -111,18 +111,18 @@ export declare class BoutiqueService {
     findAllShopByUser(userId: number): Promise<{
         statusCode: number;
         data: {
-            id: number;
             nom: string;
             email: string | null;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            description: string;
+            img: string | null;
             categorie: import("@prisma/client").$Enums.CategorieBoutique;
             location: import("@prisma/client").$Enums.Location;
-            img: string | null;
-            description: string;
             phone: string | null;
             userId: number;
             countryId: number | null;
-            createdAt: Date;
-            updatedAt: Date;
         }[];
     }>;
     findAll(): Promise<{
@@ -130,66 +130,66 @@ export declare class BoutiqueService {
         data: ({
             country: {
                 id: number;
+                name: string;
                 createdAt: Date;
                 updatedAt: Date | null;
-                name: string;
                 isoCode: string | null;
             };
             Prix: ({
                 produits: {
-                    id: number;
                     nom: string;
-                    img: string;
-                    description: string;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
+                    status: import("@prisma/client").$Enums.ProduitStatus;
+                    description: string;
+                    img: string;
                     tags: string | null;
                     type: import("@prisma/client").$Enums.ProduitType;
-                    status: import("@prisma/client").$Enums.ProduitStatus;
                     rejectionComment: string | null;
                     categorieId: number;
                     isPublic: boolean | null;
                 };
             } & {
+                prix: import("@prisma/client/runtime/library").Decimal;
                 id: number;
                 createdAt: Date;
                 updatedAt: Date;
-                prix: import("@prisma/client/runtime/library").Decimal;
                 quantiter: number;
                 produitId: number;
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
         } & {
-            id: number;
             nom: string;
             email: string | null;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            description: string;
+            img: string | null;
             categorie: import("@prisma/client").$Enums.CategorieBoutique;
             location: import("@prisma/client").$Enums.Location;
-            img: string | null;
-            description: string;
             phone: string | null;
             userId: number;
             countryId: number | null;
-            createdAt: Date;
-            updatedAt: Date;
         })[];
     }>;
     findOne(id: number): Promise<{
         statusCode: number;
         data: {
-            id: number;
             nom: string;
             email: string | null;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            description: string;
+            img: string | null;
             categorie: import("@prisma/client").$Enums.CategorieBoutique;
             location: import("@prisma/client").$Enums.Location;
-            img: string | null;
-            description: string;
             phone: string | null;
             userId: number;
             countryId: number | null;
-            createdAt: Date;
-            updatedAt: Date;
         };
     }>;
     getStatistic(id: number): Promise<{
@@ -214,18 +214,18 @@ export declare class BoutiqueService {
     update(id: number, updateBoutiqueDto: UpdateBoutiqueDto): Promise<{
         statusCode: number;
         data: {
-            id: number;
             nom: string;
             email: string | null;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            description: string;
+            img: string | null;
             categorie: import("@prisma/client").$Enums.CategorieBoutique;
             location: import("@prisma/client").$Enums.Location;
-            img: string | null;
-            description: string;
             phone: string | null;
             userId: number;
             countryId: number | null;
-            createdAt: Date;
-            updatedAt: Date;
         };
     }>;
     updateProfile(id: number, updateBoutiqueDto: UpdateBoutiqueProfileDto): Promise<{

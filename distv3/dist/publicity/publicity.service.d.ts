@@ -23,8 +23,8 @@ export declare class PublicityService {
     }>;
     approved(createPublicityDto: CreatePublicityDto): string;
     validateProduct(adminId: number, produitId: number, isApproved: boolean, comment?: string): Promise<{
-        id: number;
         nom: string;
+        id: number;
         createdAt: Date;
         updatedAt: Date;
         status: import("@prisma/client").$Enums.ProduitStatus;

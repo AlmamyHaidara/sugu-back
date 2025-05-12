@@ -7,9 +7,9 @@ export declare class AdresseController {
     create(createAdresseDto: CreateAdresseDto): Promise<{
         status: number;
         data: {
-            id: number;
             nom: string;
             telephone: string;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
@@ -21,9 +21,9 @@ export declare class AdresseController {
     findAll(): Promise<{
         status: number;
         data: {
-            id: number;
             nom: string;
             telephone: string;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
@@ -35,9 +35,9 @@ export declare class AdresseController {
     findOne(id: string): Promise<{
         status: number;
         data: {
-            id: number;
             nom: string;
             telephone: string;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
@@ -49,9 +49,9 @@ export declare class AdresseController {
     findOneByUserId(userId: string): Promise<{
         status: number;
         data: {
-            id: number;
             nom: string;
             telephone: string;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
@@ -63,9 +63,9 @@ export declare class AdresseController {
     update(id: string, updateAdresseDto: UpdateAdresseDto): Promise<{
         status: import("@nestjs/common").HttpStatus;
         data: {
-            id: number;
             nom: string;
             telephone: string;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;

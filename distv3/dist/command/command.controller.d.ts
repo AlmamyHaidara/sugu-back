@@ -9,12 +9,12 @@ export declare class CommandController {
             ligneCommandInfo: any[];
             prixTotal: number;
             id: number;
+            createdAt: Date;
+            updatedAt: Date | null;
             commandeNbr: string;
             utilisateurId: number;
             adresseId: number | null;
             etat: import("@prisma/client").$Enums.EtatCommand;
-            createdAt: Date;
-            updatedAt: Date | null;
         };
     }>;
     createParticulier(createCammandDto: CreateCommandDto): Promise<{
@@ -23,29 +23,29 @@ export declare class CommandController {
             ligneCommandInfo: any[];
             prixTotal: number;
             id: number;
+            createdAt: Date;
+            updatedAt: Date | null;
             commandeNbr: string;
             utilisateurId: number;
             adresseId: number | null;
             etat: import("@prisma/client").$Enums.EtatCommand;
-            createdAt: Date;
-            updatedAt: Date | null;
         };
     }>;
     findAll(userId: string): Promise<{
         LigneCommand: any[];
         total: any;
         id: number;
+        createdAt: Date;
         commandeNbr: string;
         etat: import("@prisma/client").$Enums.EtatCommand;
-        createdAt: Date;
     }[]>;
     findAllParticulier(userId: string): Promise<{
         LigneCommand: any[];
         total: any;
         id: number;
+        createdAt: Date;
         commandeNbr: string;
         etat: import("@prisma/client").$Enums.EtatCommand;
-        createdAt: Date;
     }[]>;
     findOne(id: string, userId: string): Promise<{
         status: number;
@@ -59,20 +59,20 @@ export declare class CommandController {
         status: number;
         data: {
             utilisateur: {
-                id: number;
-                telephone: string;
-                email: string;
                 nom: string;
                 prenom: string;
+                email: string;
+                telephone: string;
+                id: number;
                 Adresse: {
+                    nom: string;
+                    telephone: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    telephone: string;
-                    nom: string;
-                    quartier: string;
                     description: string;
                     userId: number;
+                    quartier: string;
                     isdefault: boolean;
                 }[];
             };
@@ -82,19 +82,19 @@ export declare class CommandController {
                     quantiter: number;
                     prixId: number;
                     categories: {
-                        id: number;
                         nom: string;
+                        id: number;
                         description: string | null;
                     };
+                    nom: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    nom: string;
+                    status: import("@prisma/client").$Enums.ProduitStatus;
                     description: string;
                     img: string;
                     tags: string | null;
                     type: import("@prisma/client").$Enums.ProduitType;
-                    status: import("@prisma/client").$Enums.ProduitStatus;
                     rejectionComment: string | null;
                     categorieId: number;
                     isPublic: boolean | null;
@@ -102,20 +102,20 @@ export declare class CommandController {
                 Prix: {
                     produits: {
                         categories: {
-                            id: number;
                             nom: string;
+                            id: number;
                             description: string | null;
                         };
                     } & {
+                        nom: string;
                         id: number;
                         createdAt: Date;
                         updatedAt: Date;
-                        nom: string;
+                        status: import("@prisma/client").$Enums.ProduitStatus;
                         description: string;
                         img: string;
                         tags: string | null;
                         type: import("@prisma/client").$Enums.ProduitType;
-                        status: import("@prisma/client").$Enums.ProduitStatus;
                         rejectionComment: string | null;
                         categorieId: number;
                         isPublic: boolean | null;
@@ -138,27 +138,27 @@ export declare class CommandController {
                 commandeId: number | null;
             }[];
             id: number;
-            commandeNbr: string;
-            etat: import("@prisma/client").$Enums.EtatCommand;
             createdAt: Date;
             utilisateurs: {
-                id: number;
-                telephone: string;
-                email: string;
                 nom: string;
                 prenom: string;
+                email: string;
+                telephone: string;
+                id: number;
                 Adresse: {
+                    nom: string;
+                    telephone: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    telephone: string;
-                    nom: string;
-                    quartier: string;
                     description: string;
                     userId: number;
+                    quartier: string;
                     isdefault: boolean;
                 }[];
             };
+            commandeNbr: string;
+            etat: import("@prisma/client").$Enums.EtatCommand;
         }[];
     }>;
     updateCommandeEtat(id: string, updateCammandDto: {

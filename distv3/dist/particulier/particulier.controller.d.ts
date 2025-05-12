@@ -20,8 +20,8 @@ export declare class ParticulierController {
             boutiqueId: number | null;
             particularId: number | null;
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             Prix: {
@@ -30,10 +30,10 @@ export declare class ParticulierController {
                 quantiter: number;
             }[];
             nom: string;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             type: import("@prisma/client").$Enums.ProduitType;
-            status: import("@prisma/client").$Enums.ProduitStatus;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -48,17 +48,17 @@ export declare class ParticulierController {
             prixId: number;
             quantiter: number;
             particularId: number;
-            id: number;
             nom: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
             type: import("@prisma/client").$Enums.ProduitType;
-            status: import("@prisma/client").$Enums.ProduitStatus;
             rejectionComment: string | null;
             categorieId: number;
-            createdAt: Date;
-            updatedAt: Date;
             isPublic: boolean | null;
         }[];
     }>;
@@ -77,23 +77,23 @@ export declare class ParticulierController {
                 email: string;
             };
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             Prix: ({
                 particular: {
                     utilisateur: {
-                        id: number;
                         nom: string;
-                        createdAt: Date;
-                        updatedAt: Date;
                         prenom: string | null;
-                        telephone: string;
                         email: string;
+                        telephone: string;
                         password: string;
                         profile: import("@prisma/client").$Enums.Profile;
                         avatar: string | null;
+                        id: number;
+                        createdAt: Date;
+                        updatedAt: Date;
                     };
                 } & {
                     id: number;
@@ -111,17 +111,17 @@ export declare class ParticulierController {
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
-            id: number;
             nom: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
             type: import("@prisma/client").$Enums.ProduitType;
-            status: import("@prisma/client").$Enums.ProduitStatus;
             rejectionComment: string | null;
             categorieId: number;
-            createdAt: Date;
-            updatedAt: Date;
             isPublic: boolean | null;
         }[];
         totalCount: number;
@@ -144,8 +144,8 @@ export declare class ParticulierController {
                 userId: number;
             };
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             Prix: ({
@@ -183,17 +183,17 @@ export declare class ParticulierController {
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
-            id: number;
             nom: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
             type: import("@prisma/client").$Enums.ProduitType;
-            status: import("@prisma/client").$Enums.ProduitStatus;
             rejectionComment: string | null;
             categorieId: number;
-            createdAt: Date;
-            updatedAt: Date;
             isPublic: boolean | null;
         }[];
     }>;
@@ -213,8 +213,8 @@ export declare class ParticulierController {
                 userId: number;
             };
             categories: {
-                id: number;
                 nom: string;
+                id: number;
                 description: string | null;
             };
             Prix: ({
@@ -252,17 +252,17 @@ export declare class ParticulierController {
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
-            id: number;
             nom: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
             type: import("@prisma/client").$Enums.ProduitType;
-            status: import("@prisma/client").$Enums.ProduitStatus;
             rejectionComment: string | null;
             categorieId: number;
-            createdAt: Date;
-            updatedAt: Date;
             isPublic: boolean | null;
         }[];
     }>;
