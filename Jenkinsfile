@@ -31,6 +31,7 @@ pipeline {
         stage('Build') {
 			steps {
 				echo 'Installation des dépendances...'
+				sh 'pwd'
 				sh 'ls'
                 sh 'npm install --force'
 
