@@ -75,9 +75,6 @@ pipeline {
 				script {
 					echo 'Déploiement sur Kubernetes...'
 
-					// Change directory
-					sh 'cd k8s'
-
                     // Applique le fichier de déploiement Kubernetes
                     sh 'kubectl apply -f .'
 
