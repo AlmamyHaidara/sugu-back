@@ -1,8 +1,8 @@
 import {
-  Injectable,
-  NotFoundException,
-  InternalServerErrorException,
   HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProduitDto } from './dto/create-produit.dto';
@@ -16,6 +16,8 @@ import {
 } from '@prisma/client';
 import { Location } from 'src/boutique/dto/create-boutique.dto';
 import * as fs from 'fs';
+import { Express } from 'express';
+
 @Injectable()
 export class ProduitService {
   constructor(private readonly prisma: PrismaService) {}
