@@ -45,6 +45,7 @@ pipeline {
                     npm install -g @nestjs/cli &&
                     npm install --force &&
                     npm run build &&
+                    npx prisma db push &&
                     npx prisma generate
                 '''
             }
@@ -64,17 +65,8 @@ pipeline {
 						'''
 					}
 
-                    script {
-						echo 'Pusher l\'image vers Docker Hub...'
-							def gitCommit = env.GIT_COMMIT ? env.GIT_COMMIT.substring(0, 7) : sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-						def imageTag = "${IMAGE_NAME}:${env.BUILD_NUMBER}"
-						echo "Publication de l'image : ${imageTag}"
-						sh "docker push ${imageTag}"
-						if (env.BRANCH_NAME == 'main') {
-								echo "Publication du tag 'latest'..."
-							sh "docker push ${IMAGE_NAME}:latest"
-						}
-                	}
+                    echo 'Pusher l\'image vers Docker Hub...'
+                    sh "docker push $IMAGE_NAME:$IMAGE_TAG"
                 }
             }
         }
@@ -83,6 +75,9 @@ pipeline {
 			steps {
 				script {
 					echo 'Déploiement sur Kubernetes...'
+
+					// Change directory
+					sh 'cd k8s'
 
                     // Applique le fichier de déploiement Kubernetes
                     sh 'kubectl apply -f .'
