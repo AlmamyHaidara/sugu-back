@@ -68,12 +68,12 @@ pipeline {
                     script {
 						echo 'Pusher l\'image vers Docker Hub...'
 							def gitCommit = env.GIT_COMMIT ? env.GIT_COMMIT.substring(0, 7) : sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-						def imageTag = "almamyhaidara/mon-projet-nestjs:${env.BRANCH_NAME}-${env.BUILD_NUMBER}-${gitCommit}"
-						echo "Publication de l'image : ${imageTag}"
+						def imageTag = "${IMAGE_NAME}:${env.BUILD_NUMBER}-${gitCommit}"
+						echo "Publication de l'image : ${imageTag} $env.BRANCH_NAME "
 						sh "docker push ${imageTag}"
 						if (env.BRANCH_NAME == 'main') {
 								echo "Publication du tag 'latest'..."
-							sh "docker push almamyhaidara/mon-projet-nestjs:latest"
+							sh "docker push ${IMAGE_NAME}:latest"
 						}
                 	}
                 }
