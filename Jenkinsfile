@@ -17,10 +17,13 @@ pipeline {
                 }
             }
         }
-		stage('Clone') {
+        stage('Checkout Git Branch') {
 			steps {
 				echo 'Clonage du dépôt Git sugu-back.git'
-                git 'https://github.com/AlmamyHaidara/sugu-back.git'
+				git(
+                    branch: 'main',
+                    url:'https://github.com/AlmamyHaidara/sugu-back.git'
+                )
             }
         }
 
