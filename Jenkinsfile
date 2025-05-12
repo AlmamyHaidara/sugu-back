@@ -42,7 +42,7 @@ pipeline {
 			steps {
 				echo 'Installation des dépendances, build du projet, et génération de la base de données...'
                 sh '''
-                    ls &&
+                    ls -la &&
                     set -a && . .env && set +a &&
                     npm install -g @nestjs/cli &&
                     npm install --force &&
