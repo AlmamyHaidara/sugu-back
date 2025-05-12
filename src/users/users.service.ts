@@ -12,6 +12,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { compare, hash } from 'src/utils/bcrypt';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
+import { Express } from 'express';
 
 // This should be a real class/interface representing a user entity
 export type User = any;

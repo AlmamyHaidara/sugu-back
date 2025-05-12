@@ -9,13 +9,10 @@ import { CreateParticulierDto } from './dto/create-particulier.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as fs from 'fs';
 import { UpdateParticulierDto } from './dto/update-particulier.dto';
-import {
-  CategorieBoutique,
-  Prisma,
-  ProduitStatus,
-  ProduitType,
-} from '@prisma/client';
+import { Prisma, ProduitStatus, ProduitType } from '@prisma/client';
 import { SearchProduitsDto } from 'src/produit/dto/SearchProduits.dto';
+import { Express } from 'express';
+
 @Injectable()
 export class ParticulierService {
   constructor(
@@ -412,7 +409,7 @@ export class ParticulierService {
 
       const result = products.map((element) => {
         const firstPrix = element.Prix[0];
-        const { Prix, ...rest } = element;
+        const { ...rest } = element;
         return {
           ...rest,
           published: element.isPublic,
@@ -696,8 +693,6 @@ export class ParticulierService {
       categorieId,
       prixMin,
       prixMax,
-      countryId,
-      location,
       page,
       limit,
     } = query;

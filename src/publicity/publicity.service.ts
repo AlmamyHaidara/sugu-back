@@ -9,6 +9,8 @@ import { CreatePublicityDto } from './dto/create-publicity.dto';
 import { UpdatePublicityDto } from './dto/update-publicity.dto';
 import { PrismaService } from 'src/prisma/prisma.service copy';
 import * as fs from 'fs';
+import { Express } from 'express';
+
 @Injectable()
 export class PublicityService {
   constructor(

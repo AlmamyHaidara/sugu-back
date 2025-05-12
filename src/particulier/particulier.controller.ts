@@ -1,15 +1,15 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseInterceptors,
-  UploadedFile,
   BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ParticulierService } from './particulier.service';
 import { CreateParticulierDto } from './dto/create-particulier.dto';
@@ -20,6 +20,7 @@ import { extname } from 'path';
 import { ProduitStatus } from '@prisma/client';
 import { SearchProduitsDto } from 'src/produit/dto/SearchProduits.dto';
 import { Public } from 'src/auth/constants';
+import { Express } from 'express';
 
 @Controller('particulier')
 export class ParticulierController {
