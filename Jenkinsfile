@@ -23,7 +23,7 @@ pipeline {
 				git(
                     branch: 'main',
                     url:'https://github.com/AlmamyHaidara/sugu-back.git',
-                    credentialId: '0d501e9b-37ae-44ef-9ccf-42d34a9cfe8c'
+                    credentialsId: '0d501e9b-37ae-44ef-9ccf-42d34a9cfe8c'
                 )
             }
         }
