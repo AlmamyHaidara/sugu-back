@@ -42,7 +42,7 @@ pipeline {
 			steps {
 				echo 'Installation des dépendances, build du projet, et génération de la base de données...'
                 sh '''
-                    set -a && source .env && set +a &&
+                    set -a && . .env && set +a &&
                     npm install -g @nestjs/cli &&
                     npm install --force &&
                     npm run build &&
@@ -92,6 +92,7 @@ pipeline {
 
     post {
 		always {
+			sh 'rm -f .env'
 			echo 'Pipeline terminé.'
         }
         failure {
