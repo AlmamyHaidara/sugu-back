@@ -12,7 +12,7 @@ pipeline {
     stages {
 		stage('Kubernetes test') {
 			steps {
-				withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+				withCredentials([file(credentialsId: 'kubeconfig', variable: $KUBECONFIG)]) {
 					sh 'kubectl get pods'
                 }
             }
