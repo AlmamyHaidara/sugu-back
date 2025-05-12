@@ -81,18 +81,7 @@ pipeline {
 					sh 'kubectl apply -f configmap.yaml'
 					sh 'kubectl get pods'
 				}
-				//script {
-				//	echo 'Déploiement sur Kubernetes...'
-				//
-                //    // Applique le fichier de déploiement Kubernetes
-                //    sh 'kubectl apply -f .'
-				//
-                //    // Si tu veux scaler ton déploiement
-                //    // sh 'kubectl scale deployment nestjs-app --replicas=3'
-				//
-                //    // Optionnel: Vérifier que le pod est bien déployé
-                //    sh 'kubectl get pods'
-                //}
+
             }
         }
     }
