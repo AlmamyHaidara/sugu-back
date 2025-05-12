@@ -12,13 +12,6 @@ pipeline {
     }
 
     stages {
-		stage('Debug') {
-			steps {
-				sh 'node -v'
-                        sh 'npm -v'
-                        sh 'echo $PATH'
-                    }
-        }
 		stage('Kubernetes test') {
 			steps {
 				withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
@@ -37,17 +30,25 @@ pipeline {
             }
         }
 
+		stage('Setup Environment') {
+				steps {
+					withCredentials([file(credentialsId: 'SUGU_ENV_FILE', variable: 'ENV_FILE_PATH')]) {
+						// Copier le fichier .env dans le répertoire de travail
+                    sh 'cp $ENV_FILE_PATH .env'
+                }
+            }
+        }
         stage('Build') {
 			steps {
-				echo 'Installation des dépendances...'
-				sh 'npm install -g @nestjs/cli'
-                sh 'npm install --force '
-
-                echo 'Build du projet sugu-back...'
-                sh 'npm run build'
-
-                echo 'Génération de la base de données avec Prisma...'
-                sh 'npx prisma db push && npx prisma generate'
+				echo 'Installation des dépendances, build du projet, et génération de la base de données...'
+                sh '''
+                    set -a && source .env && set +a &&
+                    npm install -g @nestjs/cli &&
+                    npm install --force &&
+                    npm run build &&
+                    npx prisma db push &&
+                    npx prisma generate
+                '''
             }
         }
 
