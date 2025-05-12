@@ -31,7 +31,8 @@ pipeline {
         stage('Build') {
 			steps {
 				echo 'Installation des dépendances...'
-				sh 'npm -v'
+				sh 'pwd'
+				sh 'ls'
                 sh 'npm install --force'
 
                 echo 'Build du projet sugu-back...'
