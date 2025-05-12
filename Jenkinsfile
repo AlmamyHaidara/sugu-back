@@ -15,6 +15,8 @@ pipeline {
 				withCredentials([file(credentialsId: 'kubeconfig', variable: $KUBECONFIG)]) {
 					sh 'kubectl get pods'
                 }
+					sh 'kubectl get pods'
+
             }
         }
 		//stage('Clone') {
