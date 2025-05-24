@@ -25,6 +25,7 @@ const boutiqueStorage = {
   storage: diskStorage({
     destination: './uploads/boutiques',
     filename: (req, file, callback) => {
+      console.log('pppppppppppppfile', file);
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
       const ext = extname(file.originalname);
       callback(null, `boutique-${uniqueSuffix}${ext}`);
@@ -53,6 +54,7 @@ export class BoutiqueController {
     @UploadedFile() file: Express.Multer.File,
     @Body() createBoutiqueDto: CreateBoutiqueDto,
   ) {
+    console.log('createBoutiqueDto', file);
     // Si un fichier est présent, on stocke son chemin dans le DTO
     if (file) {
       createBoutiqueDto.img = file.path.split('uploads/')[1];
@@ -109,12 +111,12 @@ export class BoutiqueController {
   @Patch(':id')
   @UseInterceptors(FileInterceptor('img', boutiqueStorage))
   async update(
+    @UploadedFile() file: Express.Multer.File,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateBoutiqueDto: UpdateBoutiqueDto,
-    @UploadedFile() file: Express.Multer.File,
   ) {
     // Si un fichier est présent, on le met dans le DTO
-    console.log('updateBoutiqueDto', updateBoutiqueDto.img);
+    console.log('updateBoutiqueDto', file);
     if (file) {
       updateBoutiqueDto.img = file.path.split('uploads/')[1];
     }

@@ -48,6 +48,13 @@ export declare class ParticulierController {
             prixId: number;
             quantiter: number;
             particularId: number;
+            Prix: {
+                prix: import("@prisma/client/runtime/library").Decimal;
+                id: number;
+                quantiter: number;
+                boutiqueId: number;
+                particularId: number;
+            }[];
             nom: string;
             id: number;
             createdAt: Date;

@@ -59,6 +59,13 @@ export declare class ParticulierService {
             prixId: number;
             quantiter: number;
             particularId: number;
+            Prix: {
+                prix: Prisma.Decimal;
+                id: number;
+                quantiter: number;
+                boutiqueId: number;
+                particularId: number;
+            }[];
             nom: string;
             id: number;
             createdAt: Date;

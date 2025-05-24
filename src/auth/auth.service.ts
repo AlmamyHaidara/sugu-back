@@ -78,11 +78,13 @@ export class AuthService {
     }
   }
 
-  async refreshToken(email: string): Promise<{ access_token: string; data: UpdateUserDto; date: string }> {
+  async refreshToken(
+    email: string,
+  ): Promise<{ access_token: string; data: UpdateUserDto; date: string }> {
     try {
       this.logger.log(`Refreshing token for user ID: ${email}`);
       const user = await this.usersService.findOne({ email: email });
-      
+
       if (!user) {
         this.logger.warn(`User not found for refresh token: ${email}`);
         throw new UnauthorizedException('User not found');
@@ -101,7 +103,11 @@ export class AuthService {
       }
 
       const accessToken = await this.jwtService.signAsync(payload);
-      const boutique = await this.prixService.findOneByUserId(user?.id);
+
+      const boutique =
+        user?.profile === 'BOUTIQUIER'
+          ? await this.prixService.findOneByUserId(user?.id)
+          : null;
 
       if (boutique) {
         currentUser = { ...currentUser, boutique };

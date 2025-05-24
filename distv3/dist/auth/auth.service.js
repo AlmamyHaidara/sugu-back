@@ -88,7 +88,9 @@ let AuthService = AuthService_1 = class AuthService {
                 throw new common_1.UnauthorizedException('User not found');
             }
             const accessToken = await this.jwtService.signAsync(payload);
-            const boutique = await this.prixService.findOneByUserId(user?.id);
+            const boutique = user?.profile === 'BOUTIQUIER'
+                ? await this.prixService.findOneByUserId(user?.id)
+                : null;
             if (boutique) {
                 currentUser = { ...currentUser, boutique };
             }

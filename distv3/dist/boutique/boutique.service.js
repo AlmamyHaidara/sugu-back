@@ -383,11 +383,7 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                     img: updateBoutiqueDto.img,
                     description: updateBoutiqueDto.description,
                     categorie: updateBoutiqueDto.categorie,
-                    utilisateurs: {
-                        connect: {
-                            id: Number(updateBoutiqueDto.userId),
-                        },
-                    },
+                    email: updateBoutiqueDto.email,
                     country: {
                         connect: {
                             id: Number(updateBoutiqueDto.countryId),
@@ -395,8 +391,6 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                     },
                 },
             });
-            console.log(updateBoutiqueDto.img, '|', existing.img);
-            console.log(updateBoutiqueDto.img, '|', updated.img, '|', existing.img);
             return {
                 statusCode: 200,
                 data: updated,

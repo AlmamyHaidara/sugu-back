@@ -74,9 +74,6 @@ pipeline {
 			steps {
 				withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
 					sh 'kubectl apply -f k8s/.'
-					//sh 'kubectl apply -f deployment.yaml'
-					//sh 'kubectl apply -f service.yaml'
-					//sh 'kubectl apply -f configmap.yaml'
 					sh 'kubectl get pods'
 				}
 

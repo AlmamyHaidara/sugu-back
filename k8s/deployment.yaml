@@ -1,22 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nestjs-app
+  name: sugu-back-nestjs
+  namespace: sugu
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: nestjs-app
+      app: sugu-back-nestjs
   template:
     metadata:
       labels:
-        app: nestjs-app
+        app: sugu-back-nestjs
     spec:
       containers:
-        - name: nestjs-container
+        - name: sugu-back-nestjs-container
           image: almamyhaidara159/sugu-back-nestjs
           ports:
-            - containerPort: 3000
+            - containerPort: 8080
           env:
             - name: DATABASE_URL
               valueFrom:

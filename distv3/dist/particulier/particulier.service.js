@@ -336,7 +336,7 @@ let ParticulierService = class ParticulierService {
             });
             const result = products.map((element) => {
                 const firstPrix = element.Prix[0];
-                const { Prix, ...rest } = element;
+                const { ...rest } = element;
                 return {
                     ...rest,
                     published: element.isPublic,
@@ -589,7 +589,7 @@ let ParticulierService = class ParticulierService {
         }
     }
     async findAllApprovedProducts(query) {
-        const { nom, categorieBoutique, categorieId, prixMin, prixMax, countryId, location, page, limit, } = query;
+        const { nom, categorieBoutique, categorieId, prixMin, prixMax, page, limit, } = query;
         const whereClause = {};
         if (nom) {
             whereClause.nom = { contains: nom };
