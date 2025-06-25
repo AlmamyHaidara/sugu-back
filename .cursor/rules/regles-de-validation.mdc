@@ -1,0 +1,48 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Règles de Validation
+
+## DTOs
+- Tous les DTOs doivent utiliser les décorateurs de validation de class-validator
+- Les champs obligatoires doivent être marqués avec @IsNotEmpty()
+- Les champs optionnels doivent être marqués avec @IsOptional()
+- Les types de données doivent être validés :
+  - @IsEmail() pour les emails
+  - @IsString() pour les chaînes
+  - @IsNumber() pour les nombres
+  - @IsDate() pour les dates
+  - @IsEnum() pour les énumérations
+
+## Messages d'Erreur
+- Les messages d'erreur doivent être clairs et informatifs
+- Utiliser des messages en français pour la cohérence
+- Les messages doivent indiquer le champ en erreur
+- Exemple : "L'email est requis" au lieu de "Email is required"
+
+## Exemple de DTO Valide
+```typescript
+export class CreateUserDto {
+  @IsNotEmpty({ message: "L'email est requis" })
+  @IsEmail({}, { message: "Format d'email invalide" })
+  email: string;
+
+  @IsNotEmpty({ message: "Le mot de passe est requis" })
+  @IsString()
+  @MinLength(8, { message: "Le mot de passe doit contenir au moins 8 caractères" })
+  password: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(50, { message: "Le nom ne peut pas dépasser 50 caractères" })
+  name?: string;
+}
+```
+
+## Validation des Requêtes
+- Tous les endpoints doivent valider les données d'entrée
+- Utiliser les pipes de validation de NestJS (@UsePipes())
+- Les erreurs de validation doivent retourner un code 400
+- Les messages d'erreur doivent être formatés de manière cohérente

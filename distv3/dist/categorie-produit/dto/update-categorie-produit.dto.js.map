@@ -1,1 +1,1 @@
-{"version":3,"file":"update-categorie-produit.dto.js","sourceRoot":"","sources":["../../../src/categorie-produit/dto/update-categorie-produit.dto.ts"],"names":[],"mappings":";;;AAAA,uDAAmD;AACnD,iFAA2E;AAE3E,MAAa,yBAA0B,SAAQ,IAAA,0BAAW,EACxD,wDAAyB,CAC1B;CAEA;AAJD,8DAIC"}
+{"version":3,"file":"update-categorie-produit.dto.js","sourceRoot":"","sources":["../../../../src/categorie-produit/dto/update-categorie-produit.dto.ts"],"names":[],"mappings":";;;AAAA,uDAAmD;AACnD,iFAA2E;AAE3E,MAAa,yBAA0B,SAAQ,IAAA,0BAAW,EACxD,wDAAyB,CAC1B;CAEA;AAJD,8DAIC"}

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   HttpException,
   HttpStatus,
@@ -8,8 +9,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-// import { Utilisateur } from '@prisma/client';
-import { hash } from 'src/utils/bcrypt';
+import { compare, hash } from 'src/utils/bcrypt';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
 
@@ -195,7 +195,7 @@ export class UsersService {
       console.log(user.email);
 
       if (user.email) {
-        const userExist = this.prisma.utilisateur.findUnique({
+        const userExist = await this.prisma.utilisateur.findUnique({
           where: {
             email: user.email,
           },
@@ -309,7 +309,7 @@ export class UsersService {
       }
 
       if (file) {
-        updateProduitDto.avatar = file.path;
+        updateProduitDto.avatar = file.path.split('uploads/')[1];
       }
 
       // delete updateProduitDto?.password;
@@ -353,6 +353,97 @@ export class UsersService {
         case 500:
           throw Error(
             "Une Erreur c'est produit lord de la mise a jours de utilisateur",
+          );
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  async passwordUpdate(
+    userId: number,
+    newPassword: string,
+    currentPassword: string,
+  ) {
+    this.logger.log('Mise a jours du mots de passe');
+    try {
+      const isExiste = await this.prisma.utilisateur.findFirst({
+        where: {
+          id: userId,
+        },
+      });
+
+      if (!isExiste) {
+        throw new HttpException(
+          {
+            status: HttpStatus.CONFLICT,
+            message: "Utilisateur n'existe pas.",
+            error: 'Conflict',
+          },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const isValidated = await compare(currentPassword, isExiste.password);
+
+      if (!isValidated) {
+        throw new HttpException(
+          {
+            status: HttpStatus.BAD_REQUEST,
+            message: 'Le mots de passe courant est invalide',
+            error: 'Conflict',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      // delete updateProduitDto?.password;
+      const user = await this.prisma.$transaction(async (prisma) => {
+        return await prisma.utilisateur.update({
+          where: {
+            id: isExiste?.id,
+          },
+          data: {
+            password: await hash(newPassword),
+          },
+          select: {
+            id: true,
+            nom: true,
+            prenom: true,
+            email: true,
+            telephone: true,
+            profile: true,
+            avatar: true,
+          },
+        });
+      });
+      return {
+        status: 200,
+        data: { ...user },
+        msg: `Le mots de passe de  ${user.nom} ${user.prenom} a a ete mis àjours avec success`,
+      };
+    } catch (error) {
+      console.error(error.status);
+      switch (error.status) {
+        case 404:
+          throw new HttpException(
+            {
+              status: HttpStatus.NOT_FOUND,
+              message: 'Utilisateur introuvable.',
+              error: 'Not found',
+            },
+            HttpStatus.NOT_FOUND,
+          );
+          break;
+        case 500:
+          throw Error(
+            "Une Erreur c'est produit lord de la mise a jours de utilisateur",
+          );
+          break;
+
+        case 400:
+          throw new BadRequestException(
+            'Le mots de passe courant est invalide',
           );
           break;
         default:

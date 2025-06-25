@@ -12,7 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProduitService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
-const fs_1 = require("fs");
+const client_1 = require("@prisma/client");
+const fs = require("fs");
 let ProduitService = class ProduitService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -37,7 +38,9 @@ let ProduitService = class ProduitService {
                     nom: createProduitDto.nom,
                     description: createProduitDto.description,
                     img: createProduitDto.img,
-                    tags: JSON.parse(createProduitDto.tags),
+                    tags: createProduitDto.tags,
+                    isPublic: true,
+                    status: client_1.ProduitStatus.APPROVED,
                     categories: {
                         connect: { id: Number(createProduitDto.categorie) },
                     },
@@ -77,9 +80,144 @@ let ProduitService = class ProduitService {
             throw new common_1.InternalServerErrorException('Une erreur est survenue lors de la création du produit.');
         }
     }
+    async createParticular(createProduitDto) {
+        try {
+            const categorie = await this.prisma.categorieProduit.findUnique({
+                where: { id: Number(createProduitDto.categorie) },
+            });
+            if (!categorie) {
+                throw new common_1.NotFoundException('Catégorie inexistante');
+            }
+            const boutiqueId = Number(createProduitDto.boutique);
+            const boutique = await this.prisma.boutique.findUnique({
+                where: { id: boutiqueId },
+            });
+            if (!boutique) {
+                throw new common_1.NotFoundException(`Boutique #${createProduitDto.boutique} introuvable`);
+            }
+            const produit = await this.prisma.produit.create({
+                data: {
+                    nom: createProduitDto.nom,
+                    description: createProduitDto.description,
+                    img: createProduitDto.img,
+                    tags: createProduitDto.tags,
+                    status: client_1.ProduitStatus.PENDING,
+                    categories: {
+                        connect: { id: Number(createProduitDto.categorie) },
+                    },
+                    Prix: {
+                        create: {
+                            prix: createProduitDto.prix,
+                            quantiter: Number(createProduitDto.quantiter),
+                            boutiques: {
+                                connect: { id: boutiqueId },
+                            },
+                        },
+                    },
+                },
+                include: {
+                    categories: true,
+                    Prix: {
+                        select: {
+                            id: true,
+                            prix: true,
+                            quantiter: true,
+                        },
+                    },
+                },
+            });
+            const prixId = produit.Prix[0].id;
+            delete produit.Prix[0].id;
+            const productFiltered = { ...produit, ...produit.Prix[0], prixId };
+            delete productFiltered.Prix;
+            return {
+                statusCode: common_1.HttpStatus.CREATED,
+                message: 'Produit créé avec succès',
+                data: productFiltered,
+            };
+        }
+        catch (error) {
+            console.error(error);
+            throw new common_1.InternalServerErrorException('Une erreur est survenue lors de la création du produit.');
+        }
+    }
+    async createA(createProduitDto) {
+        try {
+            const categorie = await this.prisma.categorieProduit.findUnique({
+                where: { id: Number(createProduitDto.categorie) },
+            });
+            if (!categorie) {
+                throw new common_1.NotFoundException('Catégorie inexistante');
+            }
+            const boutiqueId = Number(createProduitDto.boutique);
+            console.log('boutiqueIdboutiqueIdboutiqueIdboutiqueId');
+            console.log(boutiqueId);
+            const boutique = await this.prisma.boutique.findFirst({
+                where: { userId: boutiqueId },
+            });
+            if (!boutique) {
+                throw new common_1.NotFoundException(`Boutique #${createProduitDto.boutique} introuvable`);
+            }
+            const produit = await this.prisma.produit.create({
+                data: {
+                    nom: createProduitDto.nom,
+                    description: createProduitDto.description,
+                    img: createProduitDto.img,
+                    tags: createProduitDto.tags,
+                    status: client_1.ProduitStatus.APPROVED,
+                    isPublic: true,
+                    categories: {
+                        connect: { id: Number(createProduitDto.categorie) },
+                    },
+                    Prix: {
+                        create: {
+                            prix: createProduitDto.prix,
+                            quantiter: Number(createProduitDto.quantiter),
+                            boutiques: {
+                                connect: { id: boutique.id },
+                            },
+                        },
+                    },
+                },
+                include: {
+                    categories: true,
+                    Prix: {
+                        select: {
+                            id: true,
+                            prix: true,
+                            quantiter: true,
+                        },
+                    },
+                },
+            });
+            const prixId = produit.Prix[0].id;
+            delete produit.Prix[0].id;
+            const productFiltered = {
+                ...produit,
+                ...produit.Prix[0],
+                prixId,
+                tags: JSON.parse(produit.tags),
+            };
+            delete productFiltered.Prix;
+            return {
+                statusCode: common_1.HttpStatus.CREATED,
+                message: 'Produit créé avec succès',
+                data: productFiltered,
+            };
+        }
+        catch (error) {
+            console.error(error);
+            throw new common_1.InternalServerErrorException('Une erreur est survenue lors de la création du produit.');
+        }
+    }
     async findAll() {
         try {
-            const produits = await this.prisma.produit.findMany();
+            const produits = await this.prisma.produit.findMany({
+                where: {
+                    status: client_1.ProduitStatus.APPROVED,
+                    isPublic: true,
+                },
+            });
             return {
                 statusCode: common_1.HttpStatus.OK,
                 message: 'Liste de tous les produits',
@@ -154,6 +292,48 @@ let ProduitService = class ProduitService {
             throw new common_1.InternalServerErrorException('Erreur lors de la récupération du produit');
         }
     }
+    async findByShopId(shopId) {
+        try {
+            const prixs = await this.prisma.prix.findMany({
+                where: {
+                    boutiqueId: shopId,
+                },
+                include: {
+                    produits: {
+                        select: {
+                            id: true,
+                            categorieId: true,
+                            description: true,
+                            img: true,
+                            nom: true,
+                            tags: true,
+                            categories: true,
+                        },
+                    },
+                },
+            });
+            const products = prixs.flatMap((prix) => {
+                const prixId = prix.id;
+                const products = {
+                    ...prix.produits,
+                    tags: JSON.parse(prix.produits.tags),
+                };
+                delete prix.boutiqueId;
+                delete prix.produitId;
+                delete prix.produits;
+                return { ...prix, prixId, ...products };
+            });
+            return {
+                statusCode: common_1.HttpStatus.OK,
+                message: `La liste des produits`,
+                data: products,
+            };
+        }
+        catch (error) {
+            console.error(error);
+            throw new common_1.InternalServerErrorException('Erreur lors de la récupération du produit');
+        }
+    }
     async findByUserIdAndShopId(shopId, userId) {
         try {
             const prixs = await this.prisma.prix.findMany({
@@ -215,7 +395,14 @@ let ProduitService = class ProduitService {
             }
             if (file && existingProduit.img) {
                 try {
-                    fs_1.default.unlinkSync(existingProduit.img);
+                    fs.access('uploads/' + existingProduit.img, fs.constants.F_OK, (err) => {
+                        if (err) {
+                            console.log("Le fichier n'existe pas.");
+                        }
+                        else {
+                            fs.unlinkSync('uploads/' + existingProduit.img);
+                        }
+                    });
                 }
                 catch (error) {
                     console.error(`Erreur de suppression de l'ancien fichier :`, error);
@@ -225,15 +412,15 @@ let ProduitService = class ProduitService {
                 ...updateProduitDto,
             };
             if (file) {
-                dataToUpdate.img = file.path;
+                dataToUpdate.img = file.path.split('uploads/')[1];
             }
             const updatedProduit = await this.prisma.produit.update({
                 where: { id: Number(id) },
                 data: {
                     nom: updateProduitDto.nom,
                     description: updateProduitDto.description,
-                    img: updateProduitDto.img,
-                    tags: JSON.parse(updateProduitDto.tags),
+                    img: dataToUpdate.img,
+                    tags: updateProduitDto.tags,
                     categories: {
                         connect: { id: Number(updateProduitDto.categorie) },
                     },
@@ -289,7 +476,14 @@ let ProduitService = class ProduitService {
             }
             if (existingProduit.img) {
                 try {
-                    fs_1.default.unlinkSync(existingProduit.img);
+                    fs.access(existingProduit.img, fs.constants.F_OK, (err) => {
+                        if (err) {
+                            console.log("Le fichier n'existe pas.");
+                        }
+                        else {
+                            fs.unlinkSync('uploads/' + existingProduit.img);
+                        }
+                    });
                 }
                 catch (error) {
                     console.error(`Erreur de suppression de l'image :`, error);
@@ -308,12 +502,74 @@ let ProduitService = class ProduitService {
             throw new common_1.InternalServerErrorException('Erreur lors de la suppression du produit');
         }
     }
+    async findAllProduitsByCountryId(countryId) {
+        const existingContry = await this.prisma.country.findUnique({
+            where: { id: Number(countryId) },
+        });
+        if (!existingContry) {
+            throw new common_1.NotFoundException(`Pays #${countryId} introuvable.`);
+        }
+        const produits = await this.prisma.produit.findMany({
+            where: {
+                Prix: {
+                    some: {
+                        boutiques: {
+                            countryId: countryId,
+                        },
+                    },
+                },
+            },
+            include: {
+                categories: true,
+                Prix: {
+                    include: {
+                        boutiques: true,
+                    },
+                },
+            },
+        });
+        const products = produits.filter((item) => {
+            if (item.Prix.length > 0) {
+                return item;
+            }
+        });
+        const dataFiltered = products.map((res) => {
+            const filter = res.Prix.map((prix) => {
+                return {
+                    prix: prix.prix,
+                    boutique: {
+                        id: prix.boutiques.id,
+                        nom: prix.boutiques.nom,
+                        location: prix.boutiques.location,
+                        phone: prix.boutiques.phone,
+                        categorie: prix.boutiques.categorie,
+                    },
+                };
+            });
+            return filter.map((el) => {
+                const categorie = res?.categories?.nom;
+                delete res.Prix;
+                delete res.categories;
+                return {
+                    ...res,
+                    categorie,
+                    prix: el.prix,
+                    boutique: el.boutique,
+                };
+            })[0];
+        });
+        return {
+            statusCode: common_1.HttpStatus.OK,
+            message: 'Liste des produits',
+            data: dataFiltered,
+        };
+    }
     async findAllProduits(query) {
         const { nom, categorieBoutique, categorieId, prixMin, prixMax, countryId, location, page, limit, } = query;
         const whereClause = {};
         const whereBoutiqueClause = {};
         if (nom) {
-            whereClause.nom = { contains: nom, mode: 'insensitive' };
+            whereClause.nom = { contains: nom };
         }
         if (categorieId) {
             whereClause.categorieId = Number(categorieId);
@@ -346,7 +602,11 @@ let ProduitService = class ProduitService {
             const [totalCount, produits] = await Promise.all([
                 this.prisma.produit.count({ where: whereClause }),
                 this.prisma.produit.findMany({
-                    where: whereClause,
+                    where: {
+                        ...whereClause,
+                        status: client_1.ProduitStatus.APPROVED,
+                        type: client_1.ProduitType.BOUTIQUE,
+                    },
                     skip,
                     take: pageSize,
                     include: {
@@ -370,7 +630,6 @@ let ProduitService = class ProduitService {
                 }
                 return false;
             });
-            console.log('============================================');
             const dataFiltered = products.map((res) => {
                 const filter = res.Prix.map((prix) => {
                     return {

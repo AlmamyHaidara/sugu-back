@@ -33,88 +33,175 @@ let PanierService = class PanierService {
                     error: 'Non trouve',
                 }, common_1.HttpStatus.NOT_FOUND);
             }
-            const boutique = await this.prisma.boutique.findFirst({
-                where: {
-                    id: data.boutiqueId,
-                },
-                select: {
-                    id: true,
-                },
-            });
-            if (!boutique) {
-                throw new common_1.HttpException({
-                    status: common_1.HttpStatus.NOT_FOUND,
-                    message: 'Ressource non trover.',
-                    error: 'Non trouve',
-                }, common_1.HttpStatus.NOT_FOUND);
-            }
-            const produit = await this.prisma.produit.findFirst({
-                where: {
-                    id: data.produitId,
-                },
-                select: {
-                    id: true,
-                },
-            });
-            if (!produit) {
-                throw new common_1.HttpException({
-                    status: common_1.HttpStatus.NOT_FOUND,
-                    message: 'Ressource non trover.',
-                    error: 'Non trouve',
-                }, common_1.HttpStatus.NOT_FOUND);
-            }
-            const isExiste = await this.prisma.panier.findFirst({
-                where: {
-                    boutiqueId: boutique.id,
-                    produitId: produit.id,
-                    utilisateurId: user.id,
-                },
-                select: {
-                    id: true,
-                    count: true,
-                },
-            });
-            console.log(isExiste);
-            if (isExiste) {
-                const updateBasket = await this.prisma.panier.update({
+            if (data.boutiqueId != null) {
+                const boutique = await this.prisma.boutique.findFirst({
                     where: {
-                        id: isExiste.id,
+                        id: data.boutiqueId,
                     },
-                    data: {
-                        count: data.count + isExiste.count,
+                    select: {
+                        id: true,
                     },
                 });
-                return updateBasket;
+                if (!boutique) {
+                    throw new common_1.HttpException({
+                        status: common_1.HttpStatus.NOT_FOUND,
+                        message: 'Ressource non trover.',
+                        error: 'Non trouve',
+                    }, common_1.HttpStatus.NOT_FOUND);
+                }
+                const produit = await this.prisma.produit.findFirst({
+                    where: {
+                        id: data.produitId,
+                    },
+                    select: {
+                        id: true,
+                    },
+                });
+                if (!produit) {
+                    throw new common_1.HttpException({
+                        status: common_1.HttpStatus.NOT_FOUND,
+                        message: 'Ressource non trover.',
+                        error: 'Non trouve',
+                    }, common_1.HttpStatus.NOT_FOUND);
+                }
+                const isExiste = await this.prisma.panier.findFirst({
+                    where: {
+                        boutiqueId: boutique.id,
+                        produitId: produit.id,
+                        utilisateurId: user.id,
+                    },
+                    select: {
+                        id: true,
+                        count: true,
+                    },
+                });
+                console.log(isExiste);
+                if (isExiste) {
+                    const updateBasket = await this.prisma.panier.update({
+                        where: {
+                            id: isExiste.id,
+                        },
+                        data: {
+                            count: data.count + isExiste.count,
+                        },
+                    });
+                    return updateBasket;
+                }
+                else {
+                    const newPanier = await this.prisma.panier.create({
+                        data: {
+                            count: data.count,
+                            boutiques: {
+                                connect: {
+                                    id: data.boutiqueId,
+                                },
+                            },
+                            produits: {
+                                connect: {
+                                    id: data.produitId,
+                                },
+                            },
+                            utilisateurs: {
+                                connect: {
+                                    id: data.utilisateurId,
+                                },
+                            },
+                        },
+                    });
+                    if (!newPanier) {
+                        throw new common_1.HttpException({
+                            status: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
+                            message: 'Internal error',
+                            error: 'Internal error',
+                        }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                    return newPanier;
+                }
             }
             else {
-                const newPanier = await this.prisma.panier.create({
-                    data: {
-                        count: data.count,
-                        boutiques: {
-                            connect: {
-                                id: data.boutiqueId,
-                            },
-                        },
-                        produits: {
-                            connect: {
-                                id: data.produitId,
-                            },
-                        },
-                        utilisateurs: {
-                            connect: {
-                                id: data.utilisateurId,
-                            },
-                        },
+                const particulier = await this.prisma.particular.findFirst({
+                    where: {
+                        id: data.particulierId,
+                    },
+                    select: {
+                        id: true,
                     },
                 });
-                if (!newPanier) {
+                if (!particulier) {
                     throw new common_1.HttpException({
-                        status: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
-                        message: 'Internal error',
-                        error: 'Internal error',
-                    }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+                        status: common_1.HttpStatus.NOT_FOUND,
+                        message: 'Ressource non trover.',
+                        error: 'Non trouve',
+                    }, common_1.HttpStatus.NOT_FOUND);
                 }
-                return newPanier;
+                const produit = await this.prisma.produit.findFirst({
+                    where: {
+                        id: data.produitId,
+                    },
+                    select: {
+                        id: true,
+                    },
+                });
+                if (!produit) {
+                    throw new common_1.HttpException({
+                        status: common_1.HttpStatus.NOT_FOUND,
+                        message: 'Ressource non trover.',
+                        error: 'Non trouve',
+                    }, common_1.HttpStatus.NOT_FOUND);
+                }
+                const isExiste = await this.prisma.panier.findFirst({
+                    where: {
+                        particulierId: particulier.id,
+                        produitId: produit.id,
+                        utilisateurId: user.id,
+                    },
+                    select: {
+                        id: true,
+                        count: true,
+                    },
+                });
+                console.log(isExiste);
+                if (isExiste) {
+                    const updateBasket = await this.prisma.panier.update({
+                        where: {
+                            id: isExiste.id,
+                        },
+                        data: {
+                            count: data.count + isExiste.count,
+                        },
+                    });
+                    return updateBasket;
+                }
+                else {
+                    const newPanier = await this.prisma.panier.create({
+                        data: {
+                            count: data.count,
+                            particuliers: {
+                                connect: {
+                                    id: data.particulierId,
+                                },
+                            },
+                            produits: {
+                                connect: {
+                                    id: data.produitId,
+                                },
+                            },
+                            utilisateurs: {
+                                connect: {
+                                    id: data.utilisateurId,
+                                },
+                            },
+                        },
+                    });
+                    if (!newPanier) {
+                        throw new common_1.HttpException({
+                            status: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
+                            message: 'Internal error',
+                            error: 'Internal error',
+                        }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                    return newPanier;
+                }
             }
         }
         catch (error) {
@@ -133,6 +220,7 @@ let PanierService = class PanierService {
             include: {
                 produits: true,
                 boutiques: true,
+                particuliers: true,
             },
         });
     }
@@ -150,6 +238,20 @@ let PanierService = class PanierService {
                         categorie: true,
                         description: true,
                         img: true,
+                    },
+                },
+                particuliers: {
+                    select: {
+                        id: true,
+                        userId: true,
+                        utilisateur: {
+                            select: {
+                                id: true,
+                                nom: true,
+                                prenom: true,
+                                email: true,
+                            },
+                        },
                     },
                 },
                 produits: {
@@ -214,13 +316,23 @@ let PanierService = class PanierService {
         });
     }
     async removeFromCart(id) {
-        return this.prisma.panier.delete({
-            where: { id },
-        });
+        try {
+            const isDeleted = await this.prisma.panier.delete({
+                where: { id },
+            });
+            console.log(isDeleted);
+            return true;
+        }
+        catch (error) {
+            console.log(error?.code);
+            return null;
+        }
     }
-    async emptyCart(boutiqueId) {
+    async emptyCart(id) {
         return this.prisma.panier.deleteMany({
-            where: { boutiqueId },
+            where: {
+                OR: [{ boutiqueId: id }, { particulierId: id }],
+            },
         });
     }
 };

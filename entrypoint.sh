@@ -1,10 +1,4 @@
 #!/bin/sh
-# entrypoint.sh
-
-echo "=== Pushing Prisma schema to DB ==="
-npx prisma db push
-
-echo "=== Starting application ==="
-# Exécute le process principal (Nest en l’occurrence)
+npm run prisma:generate
+npm run prisma:migrate
 exec node dist/main.js
-

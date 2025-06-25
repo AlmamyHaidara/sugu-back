@@ -17,7 +17,9 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
@@ -35,6 +37,8 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.7",
+    "expo": "^52.0.39",
+    "handlebars": "^4.7.8",
     "jwt-decode": "^4.0.0",
     "nest-winston": "^1.10.1",
     "nodemailer": "^6.10.0",
@@ -43,7 +47,9 @@
     "reflect-metadata": "^0.2.0",
     "resend": "^4.1.2",
     "rxjs": "^7.8.1",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "react": "18.3.1",
+    "react-native": "0.76.7"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

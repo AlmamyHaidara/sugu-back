@@ -16,6 +16,7 @@ import { PrixService } from 'src/prix/prix.service';
     MailService,
     AuthService,
     PrixService,
+    
   ],
 })
 export class BoutiqueModule {}

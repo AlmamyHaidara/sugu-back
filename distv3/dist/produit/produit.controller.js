@@ -32,12 +32,15 @@ let ProduitController = class ProduitController {
         }
         const created = await this.produitService.create({
             ...createProduitDto,
-            img: file.path,
+            img: file.path.split('uploads/')[1],
         });
         return created;
     }
     async findAll(query) {
         return this.produitService.findAllProduits(query);
+    }
+    async findAllProductByCountryId(id) {
+        return this.produitService.findAllProduitsByCountryId(id);
     }
     findAllByShop(id) {
         return this.produitService.findAllByShop(id);
@@ -50,6 +53,7 @@ let ProduitController = class ProduitController {
         return produit;
     }
     async update(id, file, updateProduitDto) {
+        console.log(updateProduitDto);
         const updatedProduit = await this.produitService.update(id, updateProduitDto, file);
         return updatedProduit;
     }
@@ -61,8 +65,10 @@ let ProduitController = class ProduitController {
         };
     }
     async getByShopIdAndUserId(shopId, userId) {
-        const produitSupprimé = await this.produitService.findByUserIdAndShopId(shopId, userId);
-        return produitSupprimé;
+        return await this.produitService.findByUserIdAndShopId(shopId, userId);
+    }
+    async getByShopId(shopId) {
+        return await this.produitService.findByShopId(shopId);
     }
 };
 exports.ProduitController = ProduitController;
@@ -102,6 +108,14 @@ __decorate([
     __metadata("design:paramtypes", [SearchProduits_dto_1.SearchProduitsDto]),
     __metadata("design:returntype", Promise)
 ], ProduitController.prototype, "findAll", null);
+__decorate([
+    (0, constants_1.Public)(),
+    (0, common_1.Get)('country/:id'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], ProduitController.prototype, "findAllProductByCountryId", null);
 __decorate([
     (0, common_1.Get)('shop-products/:id'),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
@@ -156,6 +170,13 @@ __decorate([
     __metadata("design:paramtypes", [Number, Number]),
     __metadata("design:returntype", Promise)
 ], ProduitController.prototype, "getByShopIdAndUserId", null);
+__decorate([
+    (0, common_1.Get)('by-shop-id/:shopId/'),
+    __param(0, (0, common_1.Param)('shopId', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], ProduitController.prototype, "getByShopId", null);
 exports.ProduitController = ProduitController = __decorate([
     (0, common_1.Controller)('produit'),
     __metadata("design:paramtypes", [produit_service_1.ProduitService])

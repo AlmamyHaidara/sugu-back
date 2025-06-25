@@ -23,6 +23,11 @@ export class CommandController {
     return this.commandService.create(createCammandDto);
   }
 
+  @Post('particulier')
+  createParticulier(@Body() createCammandDto: CreateCommandDto) {
+    return this.commandService.createParticulier(createCammandDto);
+  }
+
   @Get()
   findAll(@Query('userId') userId: string) {
     return this.commandService.findAll(+userId);
@@ -31,6 +36,11 @@ export class CommandController {
   @Get(':id')
   findOne(@Param('id') id: string, @Query('userId') userId: string) {
     return this.commandService.findOne(+id, +userId);
+  }
+
+  @Get(':id/shop/:shopId')
+  findOneByShopId(@Param('id') id: string, @Param('shopId') shopId: string) {
+    return this.commandService.findOneByShopId(+id, +shopId);
   }
 
   @Get('by-shop-id/:shopId')

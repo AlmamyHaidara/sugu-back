@@ -2,6 +2,7 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MinLength,
 } from 'class-validator';
@@ -9,6 +10,7 @@ import {
 export enum Location {
   NATIONAL = 'NATIONAL',
   INTERNATIONAL = 'INTERNATIONAL',
+  PARTICULIER = 'PARTICULIER',
 }
 
 export enum CategorieBoutique {
@@ -48,7 +50,9 @@ export class CreateBoutiqueDto {
   @MinLength(8)
   phone: string;
 
-  img: string;
+  @IsOptional()
+  @IsString()
+  img?: string;
 
   @IsNotEmpty()
   @IsString()

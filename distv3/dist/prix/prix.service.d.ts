@@ -13,7 +13,8 @@ export declare class PrixService {
             updatedAt: Date;
             quantiter: number;
             produitId: number;
-            boutiqueId: number;
+            boutiqueId: number | null;
+            particularId: number | null;
         };
     }>;
     findAll(): Promise<{
@@ -25,7 +26,8 @@ export declare class PrixService {
             updatedAt: Date;
             quantiter: number;
             produitId: number;
-            boutiqueId: number;
+            boutiqueId: number | null;
+            particularId: number | null;
         }[];
     }>;
     findOne(id: number, productId: number, boutiqueId: number): Promise<{
@@ -41,7 +43,8 @@ export declare class PrixService {
             updatedAt: Date;
             quantiter: number;
             produitId: number;
-            boutiqueId: number;
+            boutiqueId: number | null;
+            particularId: number | null;
         };
     }>;
     findOneManyById(ids: number[]): Promise<{

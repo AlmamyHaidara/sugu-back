@@ -22,6 +22,7 @@ const multer_1 = require("multer");
 const path_1 = require("path");
 const constants_1 = require("../auth/constants");
 const roles_guard_1 = require("../auth/roles.guard");
+const update_boutique_profile_dto_1 = require("./dto/update-boutique-profile.dto");
 const boutiqueStorage = {
     storage: (0, multer_1.diskStorage)({
         destination: './uploads/boutiques',
@@ -44,15 +45,14 @@ let BoutiqueController = class BoutiqueController {
     }
     async create(file, createBoutiqueDto) {
         if (file) {
-            createBoutiqueDto.img = file.path;
+            createBoutiqueDto.img = file.path.split('uploads/')[1];
         }
+        console.log(file);
         const boutique = await this.boutiqueService.create(createBoutiqueDto);
-        return {
-            message: 'Boutique créée avec succès',
-            data: boutique,
-        };
+        return boutique;
     }
     async findAll() {
+        console.log('pppp');
         return this.boutiqueService.findAll();
     }
     async findOne(id) {
@@ -71,10 +71,24 @@ let BoutiqueController = class BoutiqueController {
         return this.boutiqueService.findAllShopByUser(userId);
     }
     async update(id, updateBoutiqueDto, file) {
+        console.log('updateBoutiqueDto', updateBoutiqueDto.img);
         if (file) {
-            updateBoutiqueDto.img = file.path;
+            updateBoutiqueDto.img = file.path.split('uploads/')[1];
         }
+        console.log('updateBoutiqueDto', updateBoutiqueDto.img);
         const updated = await this.boutiqueService.update(id, updateBoutiqueDto);
+        return {
+            message: 'Boutique mise à jour avec succès',
+            data: updated,
+        };
+    }
+    async updateProfile(id, updateBoutiqueDto, file) {
+        console.log('updateBoutiqueDto', updateBoutiqueDto.img);
+        if (file) {
+            updateBoutiqueDto.img = file.path.split('uploads/')[1];
+        }
+        console.log('updateBoutiqueDto', updateBoutiqueDto.img);
+        const updated = await this.boutiqueService.updateProfile(id, updateBoutiqueDto);
         return {
             message: 'Boutique mise à jour avec succès',
             data: updated,
@@ -153,6 +167,16 @@ __decorate([
     __metadata("design:paramtypes", [Number, update_boutique_dto_1.UpdateBoutiqueDto, Object]),
     __metadata("design:returntype", Promise)
 ], BoutiqueController.prototype, "update", null);
+__decorate([
+    (0, common_1.Patch)('profile/:id'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('img', boutiqueStorage)),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, update_boutique_profile_dto_1.UpdateBoutiqueProfileDto, Object]),
+    __metadata("design:returntype", Promise)
+], BoutiqueController.prototype, "updateProfile", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),

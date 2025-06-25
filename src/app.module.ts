@@ -9,7 +9,7 @@ import { PrismaService } from './prisma/prisma.service';
 import { ProduitModule } from './produit/produit.module';
 import { BoutiqueModule } from './boutique/boutique.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+import { extname, join } from 'path';
 import { PrixModule } from './prix/prix.module';
 import { PanierModule } from './panier/panier.module';
 import { ConfigModule } from '@nestjs/config';
@@ -22,6 +22,12 @@ import { CountryService } from './country/country.service';
 import { NotificationsModule } from './notifications/notifications.module';
 import { UsersController } from './users/users.controller';
 import { MailModule } from './mail/mail.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { FilesController } from './files/files.controller';
+import { FilesService } from './files/files.service';
+import { ParticulierModule } from './particulier/particulier.module';
+import { PublicityModule } from './publicity/publicity.module';
 
 @Module({
   imports: [
@@ -33,8 +39,11 @@ import { MailModule } from './mail/mail.module';
     UsersModule,
     ProduitModule,
     BoutiqueModule,
+    MulterModule.register({
+      dest: './uploads',
+    }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
+      rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
     }),
     PrixModule,
@@ -45,8 +54,10 @@ import { MailModule } from './mail/mail.module';
     SearchModule,
     NotificationsModule,
     MailModule,
+    ParticulierModule,
+    PublicityModule,
   ],
-  controllers: [AppController, CountryController, UsersController],
+  controllers: [AppController, CountryController, UsersController, FilesController],
   providers: [
     AppService,
     {
@@ -55,6 +66,7 @@ import { MailModule } from './mail/mail.module';
     },
     PrismaService,
     CountryService,
+    FilesService,
   ],
 })
 export class AppModule {}

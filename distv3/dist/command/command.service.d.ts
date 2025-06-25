@@ -12,79 +12,42 @@ export declare class CommandService {
     create(createCommandDto: CreateCommandDto): Promise<{
         status: number;
         data: {
+            ligneCommandInfo: any[];
+            prixTotal: number;
             id: number;
-            createdAt: Date;
-            updatedAt: Date | null;
             commandeNbr: string;
             utilisateurId: number;
             etat: import(".prisma/client").$Enums.EtatCommand;
+            createdAt: Date;
+            updatedAt: Date | null;
+        };
+    }>;
+    createParticulier(createCommandDto: CreateCommandDto): Promise<{
+        status: number;
+        data: {
+            ligneCommandInfo: any[];
+            prixTotal: number;
+            id: number;
+            commandeNbr: string;
+            utilisateurId: number;
+            etat: import(".prisma/client").$Enums.EtatCommand;
+            createdAt: Date;
+            updatedAt: Date | null;
         };
     }>;
     findAll(userId: number): Promise<{
-        LigneCommand: {
-            produits: {
-                nom: string;
-                id: number;
-                createdAt: Date;
-                updatedAt: Date;
-                description: string;
-                img: string;
-                tags: string[];
-                categorieId: number;
-            };
-            boutiques: {
-                nom: string;
-                id: number;
-                description: string;
-                categorie: import(".prisma/client").$Enums.CategorieBoutique;
-                location: import(".prisma/client").$Enums.Location;
-                phone: string;
-            };
-            prix: import("@prisma/client/runtime/library").Decimal;
-            id: number;
-            createdAt: Date;
-            updatedAt: Date;
-            quantiter: number;
-            produitId: number;
-            boutiqueId: number;
-            Prix: {
-                produits: {
-                    nom: string;
-                    id: number;
-                    createdAt: Date;
-                    updatedAt: Date;
-                    description: string;
-                    img: string;
-                    tags: string[];
-                    categorieId: number;
-                };
-                boutiques: {
-                    nom: string;
-                    id: number;
-                    description: string;
-                    categorie: import(".prisma/client").$Enums.CategorieBoutique;
-                    location: import(".prisma/client").$Enums.Location;
-                    phone: string;
-                };
-            } & {
-                prix: import("@prisma/client/runtime/library").Decimal;
-                id: number;
-                createdAt: Date;
-                updatedAt: Date;
-                quantiter: number;
-                produitId: number;
-                boutiqueId: number;
-            };
-            prixId: number | null;
-            commandeId: number | null;
-        }[];
+        LigneCommand: any[];
         total: any;
         id: number;
-        createdAt: Date;
         commandeNbr: string;
         etat: import(".prisma/client").$Enums.EtatCommand;
+        createdAt: Date;
     }[]>;
     findOne(id: number, userId: number): Promise<{
+        status: number;
+        data: {};
+    }>;
+    findOneByShopId(id: number, shopId: number): Promise<{
         status: number;
         data: {};
     }>;
@@ -92,17 +55,17 @@ export declare class CommandService {
         status: number;
         data: {
             utilisateur: {
+                id: number;
+                telephone: string;
+                email: string;
                 nom: string;
                 prenom: string;
-                email: string;
-                telephone: string;
-                id: number;
                 Adresse: {
-                    nom: string;
-                    telephone: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
+                    telephone: string;
+                    nom: string;
                     description: string;
                     userId: number;
                     quartier: string;
@@ -114,35 +77,43 @@ export declare class CommandService {
                     quantiter: number;
                     prixId: number;
                     categories: {
-                        nom: string;
                         id: number;
+                        nom: string;
                         description: string | null;
                     };
-                    nom: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    description: string;
+                    nom: string;
                     img: string;
-                    tags: string[];
+                    description: string;
+                    tags: string | null;
+                    type: import(".prisma/client").$Enums.ProduitType;
+                    status: import(".prisma/client").$Enums.ProduitStatus;
+                    rejectionComment: string | null;
                     categorieId: number;
+                    isPublic: boolean | null;
                 };
                 Prix: {
                     produits: {
                         categories: {
-                            nom: string;
                             id: number;
+                            nom: string;
                             description: string | null;
                         };
                     } & {
-                        nom: string;
                         id: number;
                         createdAt: Date;
                         updatedAt: Date;
-                        description: string;
+                        nom: string;
                         img: string;
-                        tags: string[];
+                        description: string;
+                        tags: string | null;
+                        type: import(".prisma/client").$Enums.ProduitType;
+                        status: import(".prisma/client").$Enums.ProduitStatus;
+                        rejectionComment: string | null;
                         categorieId: number;
+                        isPublic: boolean | null;
                     };
                 } & {
                     prix: import("@prisma/client/runtime/library").Decimal;
@@ -151,7 +122,8 @@ export declare class CommandService {
                     updatedAt: Date;
                     quantiter: number;
                     produitId: number;
-                    boutiqueId: number;
+                    boutiqueId: number | null;
+                    particularId: number | null;
                 };
                 id: number;
                 createdAt: Date;
@@ -161,26 +133,26 @@ export declare class CommandService {
                 commandeId: number | null;
             }[];
             id: number;
+            commandeNbr: string;
+            etat: import(".prisma/client").$Enums.EtatCommand;
             createdAt: Date;
             utilisateurs: {
+                id: number;
+                telephone: string;
+                email: string;
                 nom: string;
                 prenom: string;
-                email: string;
-                telephone: string;
-                id: number;
                 Adresse: {
-                    nom: string;
-                    telephone: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
+                    telephone: string;
+                    nom: string;
                     description: string;
                     userId: number;
                     quartier: string;
                 }[];
             };
-            commandeNbr: string;
-            etat: import(".prisma/client").$Enums.EtatCommand;
         }[];
     }>;
     updateCommandeEtat(commandeId: number, nouvelEtat: EtatCommand): Promise<{

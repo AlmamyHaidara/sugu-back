@@ -11,7 +11,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -26,8 +26,14 @@ enum Profile {
 enum Location {
   NATIONAL
   INTERNATIONAL
+  PARTICULIER
 }
-
+enum PubliciteStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
 enum CategorieBoutique {
   DETAILLANT
   GROSSISTE
@@ -39,6 +45,16 @@ enum EtatCommand {
   ATTENTE
   LIVRER
 }
+enum ProduitStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+enum ProduitType {
+  BOUTIQUE
+  PARTICULAR
+}
+
 
 // ====================== MODELS ======================
 
@@ -59,6 +75,10 @@ model Utilisateur {
   Panier        Panier[]
   Commande      Commande[]
   notifications Notification[]
+
+  Particular Particular[]
+
+  ProduitValidationLog ProduitValidationLog[]
 }
 
 model Adresse {
@@ -75,21 +95,73 @@ model Adresse {
 }
 
 model Produit {
-  id          Int      @id @default(autoincrement())
+  id          Int    @id @default(autoincrement())
   nom         String
-  description String
+  description String @db.Text
   img         String
   // Tableau de mots-clés pour la recherche avancée (facultatif)
-  tags        String[]
-
+  tags        String?
+  type        ProduitType @default(BOUTIQUE)
+  status       ProduitStatus @default(PENDING)
+  rejectionComment String?   @db.Text 
   categorieId Int
   categories  CategorieProduit @relation(fields: [categorieId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+  isPublic  Boolean? @default(false)
   Prix   Prix[]
   Panier Panier[]
+
+  Publicite Publicite[]
+    validationLogs ProduitValidationLog[]
+
+}
+
+model Particular {
+  id        Int               @id @default(autoincrement())
+  userId    Int               @unique
+  utilisateur Utilisateur @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  Prix   Prix[]
+  Panier Panier[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProduitValidationLog {
+  id            Int      @id @default(autoincrement())
+  produitId     Int
+  adminId       Int      // Utilisateur avec profil ADMIN
+  action        ProduitStatus // Action effectuée (APPROVED ou REJECTED)
+  comment       String?  @db.Text // Commentaire, obligatoire en cas de REJECTED
+  createdAt     DateTime @default(now())
+
+  produit       Produit     @relation(fields: [produitId], references: [id], onDelete: Cascade)
+  admin         Utilisateur @relation(fields: [adminId], references: [id], onDelete: Cascade)
+}
+
+model Publicite {
+  id        Int               @id @default(autoincrement())
+  startDate DateTime
+  endDate   DateTime
+  produitId Int?
+  status PubliciteStatus @default(PENDING)
+
+  produit   Produit? @relation(fields: [produitId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OffreSpeciale {
+  id        Int               @id @default(autoincrement())
+  titre     String
+  description String @db.Text
+  img String?
+  pourcentage Int
+  dateFin DateTime
+  dateDebut DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Boutique {
@@ -101,7 +173,7 @@ model Boutique {
 
   // Ajout d'un champ facultatif pour l'image
   img         String?
-  description String
+  description String  @db.Text
   phone       String?
 
   // L'utilisateur à qui appartient la boutique
@@ -126,10 +198,13 @@ model Prix {
   quantiter Int
 
   produitId  Int
-  boutiqueId Int
+  boutiqueId Int?
+  particularId Int? 
 
   produits  Produit  @relation(fields: [produitId], references: [id], onDelete: Cascade)
-  boutiques Boutique @relation(fields: [boutiqueId], references: [id])
+  boutiques Boutique? @relation(fields: [boutiqueId], references: [id], onDelete: Cascade)
+
+  particular Particular? @relation(fields: [particularId], references: [id], onDelete: Cascade)
 
   LigneCommand LigneCommand[]
 
@@ -157,7 +232,7 @@ model LigneCommand {
   commandeId Int?
   quantiter  Int
 
-  Prix     Prix?     @relation(fields: [prixId], references: [id])
+  Prix     Prix?     @relation(fields: [prixId], references: [id], onDelete: SetNull)
   Commande Commande? @relation(fields: [commandeId], references: [id])
 
   createdAt DateTime @default(now())
@@ -167,7 +242,7 @@ model LigneCommand {
 model CategorieProduit {
   id          Int     @id @default(autoincrement())
   nom         String
-  description String?
+  description String? @db.Text
 
   produits Produit[]
 }
@@ -178,11 +253,13 @@ model Panier {
 
   utilisateurId Int
   produitId     Int
-  boutiqueId    Int
-
+  boutiqueId    Int?
+  particulierId Int?
   utilisateurs Utilisateur @relation(fields: [utilisateurId], references: [id])
-  boutiques    Boutique    @relation(fields: [boutiqueId], references: [id])
+  boutiques    Boutique?    @relation(fields: [boutiqueId], references: [id], onDelete: Cascade)
   produits     Produit     @relation(fields: [produitId], references: [id])
+
+  particuliers Particular? @relation(fields: [particulierId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -222,7 +299,7 @@ model Notification {
 
   title String?
 
-  message String
+  message String @db.Text
 
   data Json?
 

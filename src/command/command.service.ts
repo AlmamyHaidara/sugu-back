@@ -15,11 +15,180 @@ export class CommandService {
     private readonly notification: NotificationsService,
   ) {}
 
+  // async create(createCommandDto: CreateCommandDto) {
+  //   try {
+  //     const ligneCommandInfo = [];
+  //     // Vérification de l'utilisateur
+  //     const usr = await this.user.findOneById(createCommandDto.usetilisateurId);
+  //     if (!usr || !usr.id) {
+  //       throw new Error('Utilisateur non trouvé.');
+  //     }
+
+  //     // Vérification des prix associés aux lignes de commande
+  //     const prixIds = createCommandDto.ligneCommands.map((lc) => lc.prixId);
+  //     const prixExistants = await this.prisma.prix.findMany({
+  //       where: { id: { in: prixIds } },
+  //       select: { id: true },
+  //     });
+
+  //     if (prixExistants.length !== prixIds.length) {
+  //       throw new Error(
+  //         'Certains prix associés aux lignes de commande sont introuvables.',
+  //       );
+  //     }
+
+  //     // Utilisation d'une transaction pour assurer l'intégrité des données
+  //     const result = await this.prisma.$transaction(async (prisma) => {
+  //       // Création de la commande
+  //       const cmd = await prisma.commande.create({
+  //         data: {
+  //           utilisateurs: {
+  //             connect: {
+  //               id: createCommandDto.usetilisateurId,
+  //             },
+  //           },
+  //           etat: createCommandDto.etat,
+  //           commandeNbr: createCommandDto.commandeNbr,
+  //           LigneCommand: {
+  //             createMany: {
+  //               data: createCommandDto.ligneCommands || [],
+  //             },
+  //           },
+  //         },
+  //       });
+
+  //       // Mise à jour des quantités pour chaque ligne
+  //       for (const element of createCommandDto.ligneCommands) {
+  //         const prix = await prisma.prix.findUnique({
+  //           where: { id: element.prixId },
+  //           select: {
+  //             quantiter: true,
+  //             id: true,
+  //             boutiques: true,
+  //             produits: true,
+  //             prix: true,
+  //           },
+  //         });
+  //         ligneCommandInfo.push({
+  //           ...prix,
+  //         });
+  //         if (
+  //           !prix ||
+  //           prix.quantiter === undefined ||
+  //           prix.quantiter < element.quantiter
+  //         ) {
+  //           throw new Error(
+  //             `Quantité insuffisante pour le prix ID ${element.prixId}.`,
+  //           );
+  //         }
+
+  //         await prisma.prix.update({
+  //           where: { id: element.prixId },
+  //           data: { quantiter: prix.quantiter - element.quantiter },
+  //         });
+  //       }
+
+  //       return cmd;
+  //     });
+
+  //     await this.prisma.panier.deleteMany({
+  //       where: {
+  //         utilisateurId: createCommandDto.usetilisateurId,
+  //       },
+  //     });
+
+  //     const newNotification = await this.prisma.notification.create({
+  //       data: {
+  //         title: 'Création de commande',
+  //         type: 'INFO',
+  //         message: `Nous avons le plaisir de vous confirmer que votre commande a été acceptée et est en cours de traitement. Vous recevrez prochainement un e-mail de confirmation avec les détails de votre commande et les informations de suivi.
+  //         Nous vous remercions pour votre confiance et restons à votre disposition pour toute question supplémentaire.`,
+  //         data: {
+  //           commandNbr: createCommandDto.commandeNbr,
+  //           ligneCommand: ligneCommandInfo,
+  //           etat: result.etat,
+  //           createdAt: result.createdAt,
+  //         },
+  //         status: 'UNREAD',
+  //         utilisateurId: createCommandDto.usetilisateurId,
+  //         // utilisateur: {
+  //         //   connect: {
+  //         //     id: createCommandDto.usetilisateurId,
+  //         //   },
+  //         // },
+  //       },
+  //     });
+
+  //     const newNotificationBoutiquier = await this.prisma.notification.create({
+  //       data: {
+  //         title: 'Nouvelle commande reçue',
+  //         type: 'ORDER',
+  //         message: `Une nouvelle commande a été passée sur votre boutique. Veuillez consulter les détails ci-dessous pour préparer l'expédition.`,
+  //         data: {
+  //           commandNbr: createCommandDto.commandeNbr,
+  //           ligneCommand: ligneCommandInfo,
+  //           etat: result.etat,
+  //           createdAt: result.createdAt,
+  //         },
+  //         status: 'UNREAD',
+  //         utilisateurId: createCommandDto.usetilisateurId,
+  //         // utilisateur: {
+  //         //   connect: {
+  //         //     id: createCommandDto.usetilisateurId,
+  //         //   },
+  //         // },
+  //       },
+  //     });
+
+  //     console.log(newNotification);
+
+  //     return {
+  //       status: 201,
+  //       data: result,
+  //     };
+  //   } catch (error) {
+  //     console.error('Erreur lors de la création de la commande:', error);
+  //     throw error;
+  //   }
+  // }
+
   async create(createCommandDto: CreateCommandDto) {
     try {
-      const ligneCommandInfo = [];
+      const ligneCommandInfo: any[] = [];
+      let prixTotal = 0;
+
       // Vérification de l'utilisateur
-      const usr = await this.user.findOneById(createCommandDto.usetilisateurId);
+      const usr = await this.prisma.utilisateur.findFirst({
+        where: {
+          id: createCommandDto.usetilisateurId,
+          Adresse: {
+            some: {
+              id: createCommandDto.adresseId,
+            },
+          },
+        },
+        omit: {
+          password: true,
+          updatedAt: true,
+        },
+        include: {
+          Adresse: {
+            where: {
+              id: createCommandDto.adresseId,
+            },
+          },
+        },
+      });
+
+      console.log(
+        await this.prisma.utilisateur.findFirst({
+          where: {
+            id: createCommandDto.usetilisateurId,
+          },
+        }),
+      );
+
+      // const usr = await this.user.findOneById(createCommandDto.usetilisateurId);
       if (!usr || !usr.id) {
         throw new Error('Utilisateur non trouvé.');
       }
@@ -57,31 +226,64 @@ export class CommandService {
           },
         });
 
-        // Mise à jour des quantités pour chaque ligne
+        // Pour chaque ligne de commande, vérifier les quantités et mettre à jour le stock
         for (const element of createCommandDto.ligneCommands) {
+          // Validation de la quantité
+          if (element.quantiter <= 0) {
+            throw new Error(
+              `La quantité doit être positive pour le prix ID ${element.prixId}`,
+            );
+          }
+
           const prix = await prisma.prix.findUnique({
             where: { id: element.prixId },
             select: {
               quantiter: true,
               id: true,
-              boutiques: true,
+              boutiques: {
+                select: { id: true },
+              },
               produits: true,
               prix: true,
+              particular: {
+                select: { id: true },
+              },
             },
           });
-          ligneCommandInfo.push({
-            ...prix,
-          });
-          if (
-            !prix ||
-            prix.quantiter === undefined ||
-            prix.quantiter < element.quantiter
-          ) {
+
+          if (!prix || prix.quantiter === undefined) {
+            throw new Error(`Prix non trouvé pour l'ID ${element.prixId}`);
+          }
+
+          if (prix.quantiter < element.quantiter) {
             throw new Error(
-              `Quantité insuffisante pour le prix ID ${element.prixId}.`,
+              `Stock insuffisant pour le prix ID ${element.prixId}. Disponible: ${prix.quantiter}, Demandé: ${element.quantiter}`,
             );
           }
 
+          // Calcul du prix pour cette ligne
+          const prixLigne = Number(prix.prix) * element.quantiter;
+          prixTotal += prixLigne;
+
+          // Stockage des informations de la ligne avec son prix
+          if (prix.boutiques?.id) {
+            ligneCommandInfo.push({
+              ...prix,
+              boutiqueId: prix.boutiques?.id,
+              quantiteCommandee: element.quantiter,
+              prixUnitaire: Number(prix.prix),
+              prixLigne: prixLigne,
+            });
+          } else if (prix.particular?.id) {
+            ligneCommandInfo.push({
+              ...prix,
+              particulierId: prix.particular?.id,
+              quantiteCommandee: element.quantiter,
+              prixUnitaire: Number(prix.prix),
+              prixLigne: prixLigne,
+            });
+          }
+          // Mise à jour du stock
           await prisma.prix.update({
             where: { id: element.prixId },
             data: { quantiter: prix.quantiter - element.quantiter },
@@ -91,36 +293,318 @@ export class CommandService {
         return cmd;
       });
 
+      // Suppression des articles dans le panier
       await this.prisma.panier.deleteMany({
         where: {
           utilisateurId: createCommandDto.usetilisateurId,
         },
       });
 
-      this.prisma.notification.create({
+      // Notification destinée au client
+      await this.prisma.notification.create({
         data: {
           title: 'Création de commande',
           type: 'INFO',
-          message: `Nous avons le plaisir de vous confirmer que votre commande a été acceptée et est en cours de traitement. Vous recevrez prochainement un e-mail de confirmation avec les détails de votre commande et les informations de suivi.
-          Nous vous remercions pour votre confiance et restons à votre disposition pour toute question supplémentaire.`,
+          message: `Nous avons le plaisir de vous confirmer que votre commande a été acceptée et est en cours de traitement.
+Le montant total de votre commande est de ${prixTotal} FCFA.
+Vous recevrez prochainement un e-mail de confirmation avec les détails de votre commande et les informations de suivi.
+Nous vous remercions pour votre confiance.`,
           data: {
             commandNbr: createCommandDto.commandeNbr,
             ligneCommand: ligneCommandInfo,
+            prixTotal: prixTotal,
             etat: result.etat,
             createdAt: result.createdAt,
           },
           status: 'UNREAD',
-          utilisateur: {
-            connect: {
-              id: createCommandDto.usetilisateurId,
+          utilisateurId: createCommandDto.usetilisateurId,
+        },
+      });
+
+      // Regroupement et calcul des prix par boutique
+      const commandesParBoutique = ligneCommandInfo.reduce(
+        (acc, ligne) => {
+          if (ligne.boutiqueId) {
+            const boutiqueId = ligne.boutiqueId;
+            if (!boutiqueId) return acc;
+            if (!acc[boutiqueId]) {
+              acc[boutiqueId] = {
+                lignes: [],
+                prixTotalBoutique: 0,
+              };
+            }
+            acc[boutiqueId].lignes.push(ligne);
+            acc[boutiqueId].prixTotalBoutique += ligne.prixLigne;
+            return acc;
+          } else if (ligne.particulierId) {
+            const particulierId = ligne.particulierId;
+            if (!particulierId) return acc;
+            if (!acc[particulierId]) {
+              acc[particulierId] = {
+                lignes: [],
+                prixTotalParticulier: 0,
+              };
+            }
+            acc[particulierId].lignes.push(ligne);
+            acc[particulierId].prixTotalParticulier += ligne.prixLigne;
+            return acc;
+          }
+        },
+        {} as Record<string, { lignes: any[]; prixTotalBoutique: number }>,
+      );
+
+      // Notifications aux boutiquiers avec les prix détaillés
+      for (const boutiqueId in commandesParBoutique) {
+        const infosBoutique = commandesParBoutique[boutiqueId];
+
+        await this.prisma.notification.create({
+          data: {
+            title: 'Nouvelle commande reçue',
+            type: 'ORDER',
+            message: `Une nouvelle commande d'un montant de ${infosBoutique.prixTotalBoutique} FCFA a été passée pour votre boutique.`,
+            data: {
+              commandId: result.id,
+              commandNbr: createCommandDto.commandeNbr,
+              ligneCommand: infosBoutique.lignes,
+              prixTotalBoutique: infosBoutique.prixTotalBoutique,
+              etat: result.etat,
+              createdAt: result.createdAt,
+              client: { ...usr },
+              adresse: { ...usr.Adresse[0] },
+            },
+            status: 'UNREAD',
+            utilisateurId: createCommandDto.usetilisateurId,
+          },
+        });
+      }
+
+      return {
+        status: 201,
+        data: {
+          ...result,
+          ligneCommandInfo,
+          prixTotal,
+        },
+      };
+    } catch (error) {
+      console.error('Erreur lors de la création de la commande:', error);
+      throw error;
+    }
+  }
+
+  async createParticulier(createCommandDto: CreateCommandDto) {
+    try {
+      const ligneCommandInfo: any[] = [];
+      let prixTotal = 0;
+
+      // Vérification de l'utilisateur
+      const usr = await this.prisma.utilisateur.findFirst({
+        where: {
+          id: createCommandDto.usetilisateurId,
+          Adresse: {
+            some: {
+              id: createCommandDto.adresseId,
+            },
+          },
+        },
+        omit: {
+          password: true,
+          updatedAt: true,
+        },
+        include: {
+          Adresse: {
+            where: {
+              id: createCommandDto.adresseId,
             },
           },
         },
       });
 
+      console.log(
+        await this.prisma.utilisateur.findFirst({
+          where: {
+            id: createCommandDto.usetilisateurId,
+          },
+        }),
+      );
+
+      // const usr = await this.user.findOneById(createCommandDto.usetilisateurId);
+      if (!usr || !usr.id) {
+        throw new Error('Utilisateur non trouvé.');
+      }
+
+      // Vérification des prix associés aux lignes de commande
+      const prixIds = createCommandDto.ligneCommands.map((lc) => lc.prixId);
+      const prixExistants = await this.prisma.prix.findMany({
+        where: { id: { in: prixIds } },
+        select: { id: true },
+      });
+
+      if (prixExistants.length !== prixIds.length) {
+        throw new Error(
+          'Certains prix associés aux lignes de commande sont introuvables.',
+        );
+      }
+
+      // Utilisation d'une transaction pour assurer l'intégrité des données
+      const result = await this.prisma.$transaction(async (prisma) => {
+        // Création de la commande
+        const cmd = await prisma.commande.create({
+          data: {
+            utilisateurs: {
+              connect: {
+                id: createCommandDto.usetilisateurId,
+              },
+            },
+            etat: createCommandDto.etat,
+            commandeNbr: createCommandDto.commandeNbr,
+            LigneCommand: {
+              createMany: {
+                data: createCommandDto.ligneCommands || [],
+              },
+            },
+          },
+        });
+
+        // Pour chaque ligne de commande, vérifier les quantités et mettre à jour le stock
+        for (const element of createCommandDto.ligneCommands) {
+          // Validation de la quantité
+          if (element.quantiter <= 0) {
+            throw new Error(
+              `La quantité doit être positive pour le prix ID ${element.prixId}`,
+            );
+          }
+
+          const prix = await prisma.prix.findUnique({
+            where: { id: element.prixId },
+            select: {
+              quantiter: true,
+              id: true,
+              particular: {
+                select: { id: true },
+              },
+              produits: true,
+              prix: true,
+            },
+          });
+
+          if (!prix || prix.quantiter === undefined) {
+            throw new Error(`Prix non trouvé pour l'ID ${element.prixId}`);
+          }
+
+          if (prix.quantiter < element.quantiter) {
+            throw new Error(
+              `Stock insuffisant pour le prix ID ${element.prixId}. Disponible: ${prix.quantiter}, Demandé: ${element.quantiter}`,
+            );
+          }
+
+          // Calcul du prix pour cette ligne
+          const prixLigne = Number(prix.prix) * element.quantiter;
+          prixTotal += prixLigne;
+
+          // Stockage des informations de la ligne avec son prix
+          ligneCommandInfo.push({
+            ...prix,
+            particulierId: prix.particular?.id,
+            quantiteCommandee: element.quantiter,
+            prixUnitaire: Number(prix.prix),
+            prixLigne: prixLigne,
+          });
+
+          // Mise à jour du stock
+          await prisma.prix.update({
+            where: { id: element.prixId },
+            data: { quantiter: prix.quantiter - element.quantiter },
+          });
+        }
+
+        return cmd;
+      });
+
+      // Suppression des articles dans le panier
+      await this.prisma.panier.deleteMany({
+        where: {
+          utilisateurId: createCommandDto.usetilisateurId,
+        },
+      });
+
+      // Notification destinée au client
+      await this.prisma.notification.create({
+        data: {
+          title: 'Création de commande',
+          type: 'INFO',
+          message: `Nous avons le plaisir de vous confirmer que votre commande a été acceptée et est en cours de traitement.
+Le montant total de votre commande est de ${prixTotal} FCFA.
+Vous recevrez prochainement un e-mail de confirmation avec les détails de votre commande et les informations de suivi.
+Nous vous remercions pour votre confiance.`,
+          data: {
+            commandNbr: createCommandDto.commandeNbr,
+            ligneCommand: ligneCommandInfo,
+            prixTotal: prixTotal,
+            etat: result.etat,
+            createdAt: result.createdAt,
+          },
+          status: 'UNREAD',
+          utilisateurId: createCommandDto.usetilisateurId,
+        },
+      });
+
+      // Regroupement et calcul des prix par boutique
+      const commandesParBoutique = ligneCommandInfo.reduce(
+        (acc, ligne) => {
+          const particulierId = ligne.particulierId;
+          if (!particulierId) return acc;
+          if (!acc[particulierId]) {
+            acc[particulierId] = {
+              lignes: [],
+              prixTotalBoutique: 0,
+            };
+          }
+          acc[particulierId].lignes.push(ligne);
+          acc[particulierId].prixTotalBoutique += ligne.prixLigne;
+          return acc;
+        },
+        {} as Record<string, { lignes: any[]; prixTotalBoutique: number }>,
+      );
+
+      // Notifications aux boutiquiers avec les prix détaillés
+      for (const particulierId in commandesParBoutique) {
+        const infosParticulier = commandesParBoutique[particulierId];
+        const particulier = await this.prisma.particular.findUnique({
+          where: { id: Number(particulierId) },
+          select: { id: true, userId: true },
+        });
+
+        if (!particulier || !particulier.userId) continue;
+
+        await this.prisma.notification.create({
+          data: {
+            title: 'Nouvelle commande reçue',
+            type: 'ORDER',
+            message: `Une nouvelle commande d'un montant de ${infosParticulier.prixTotalParticulier} FCFA a été passée pour votre boutique.`,
+            data: {
+              commandId: result.id,
+              commandNbr: createCommandDto.commandeNbr,
+              ligneCommand: infosParticulier.lignes,
+              prixTotalParticulier: infosParticulier.prixTotalParticulier,
+              etat: result.etat,
+              createdAt: result.createdAt,
+              client: { ...usr },
+              adresse: { ...usr.Adresse[0] },
+            },
+            status: 'UNREAD',
+            utilisateurId: particulier.userId,
+          },
+        });
+      }
+
       return {
         status: 201,
-        data: result,
+        data: {
+          ...result,
+          ligneCommandInfo,
+          prixTotal,
+        },
       };
     } catch (error) {
       console.error('Erreur lors de la création de la commande:', error);
@@ -160,23 +644,50 @@ export class CommandService {
           },
         },
       });
-
-      const isFiltered = cmd.flatMap((res) => {
-        const filter = res.LigneCommand.map((lc) => {
-          const newLc = { ...lc, ...lc.Prix };
-          delete newLc.Prix;
-
-          return newLc;
-        });
-
-        const total = filter.reduce((acc: any, prev) => {
-          return (prev.prix += acc);
-        }, 0);
-        console.log(total);
-        return { ...res, LigneCommand: [...filter], total };
+      const userIsExist = await this.prisma.utilisateur.findFirst({
+        where: {
+          id: userId,
+        },
       });
+      if (userIsExist.id && userIsExist.profile == 'BOUTIQUIER') {
+        const isFiltered = cmd.flatMap((res) => {
+          const filter = res.LigneCommand.map((lc) => {
+            const newLc = { ...lc, ...lc.Prix } as any;
+            newLc.quantiter = lc.quantiter;
+            newLc.quantiterTotal = lc.Prix.quantiter;
+            delete newLc.Prix;
 
-      return isFiltered || [];
+            return newLc;
+          });
+
+          console.log(filter);
+
+          const total = filter.reduce((acc: number, item) => {
+            return acc + Number(item.prix) * item.quantiter;
+          }, 0);
+
+          console.log(total);
+          return { ...res, LigneCommand: [...filter], total };
+        });
+        return isFiltered || [];
+      } else {
+        const isFiltered = cmd.flatMap((res) => {
+          const filter = res.LigneCommand.map((lc) => {
+            const newLc = { ...lc, ...lc.Prix };
+            newLc.quantiter = lc.quantiter;
+            delete newLc.Prix;
+
+            return newLc;
+          });
+
+          const total = filter.reduce((acc: number, item) => {
+            return acc + Number(item.prix) * item.quantiter;
+          }, 0);
+          console.log(total);
+          return { ...res, LigneCommand: [...filter], total };
+        });
+        return isFiltered || [];
+      }
     } catch (error) {
       console.error(error);
       ExeceptionCase(error);
@@ -232,8 +743,81 @@ export class CommandService {
         return { ...ligne, products: products };
       });
 
-      const total = LigneCommand?.reduce((acc, el) => {
-        return acc + (parseFloat(String(el.products.prix)) || 0);
+      const total = LigneCommand.reduce((acc: number, prev) => {
+        return acc + Number(prev.products.prix) * prev.quantiter;
+      }, 0);
+      const utilisateur = resultes.utilisateurs;
+      delete resultes.utilisateurs;
+
+      const command = { ...resultes, utilisateur, LigneCommand, total };
+
+      return {
+        status: 200,
+        data: command || {},
+      };
+    } catch (error) {
+      console.error(error);
+      ExeceptionCase(error);
+    }
+  }
+
+  async findOneByShopId(id: number, shopId: number) {
+    try {
+      const resultes = await this.prisma.commande.findFirst({
+        where: {
+          id: id,
+          LigneCommand: {
+            some: {
+              Prix: {
+                boutiqueId: shopId,
+              },
+            },
+          },
+        },
+        select: {
+          id: true,
+          commandeNbr: true,
+          utilisateurs: {
+            select: {
+              id: true,
+              Adresse: true,
+              email: true,
+              nom: true,
+              prenom: true,
+              telephone: true,
+            },
+          },
+          createdAt: true,
+
+          etat: true,
+          LigneCommand: {
+            include: {
+              Prix: {
+                include: {
+                  produits: {
+                    include: {
+                      categories: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const LigneCommand = resultes.LigneCommand.map((ligne) => {
+        const prix = ligne.Prix.prix;
+        const prixId = ligne.Prix.id;
+        const quantiter = ligne.Prix.quantiter;
+        const products = { ...ligne.Prix.produits, prix, quantiter, prixId };
+
+        delete ligne.Prix;
+        return { ...ligne, products: products };
+      });
+
+      const total = LigneCommand.reduce((acc: number, prev) => {
+        return acc + Number(prev.products.prix) * prev.quantiter;
       }, 0);
       const utilisateur = resultes.utilisateurs;
       delete resultes.utilisateurs;

@@ -8,14 +8,27 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var BoutiqueService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BoutiqueService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const fs = require("fs");
-let BoutiqueService = class BoutiqueService {
-    constructor(prisma) {
+const mail_service_1 = require("../mail/mail.service");
+const client_1 = require("@prisma/client");
+const functions_1 = require("../utils/functions");
+const users_service_1 = require("../users/users.service");
+const data_1 = require("../mail/data");
+const bcrypt_1 = require("bcrypt");
+const prix_service_1 = require("../prix/prix.service");
+const common_2 = require("@nestjs/common");
+let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
+    constructor(prisma, mailService, usersService, prixService) {
         this.prisma = prisma;
+        this.mailService = mailService;
+        this.usersService = usersService;
+        this.prixService = prixService;
+        this.logger = new common_2.Logger(BoutiqueService_1.name);
         this.getSalesStats = (commandes) => {
             const today = new Date();
             const currentMonth = today.getMonth();
@@ -97,35 +110,41 @@ let BoutiqueService = class BoutiqueService {
     }
     async create(createBoutiqueDto) {
         try {
-            const user = await this.prisma.utilisateur.findUnique({
-                where: { id: Number(createBoutiqueDto.userId) },
-            });
-            if (!user) {
-                throw new common_1.NotFoundException(`Utilisateur #${createBoutiqueDto.userId} introuvable`);
-            }
             const existingByName = await this.prisma.boutique.findFirst({
                 where: { nom: createBoutiqueDto.nom },
             });
+            console.log(existingByName);
             if (existingByName) {
             }
-            console.log('===========================================', Number(createBoutiqueDto.countryId));
             const country = await this.prisma.country.findUnique({
                 where: { id: Number(createBoutiqueDto.countryId) },
             });
             if (!country) {
                 throw new common_1.NotFoundException(`Country #${createBoutiqueDto.countryId} introuvable`);
             }
+            const password = (0, functions_1.genererMotDePasse)(8);
             const boutique = await this.prisma.boutique.create({
                 data: {
                     nom: createBoutiqueDto.nom,
                     phone: createBoutiqueDto.phone,
                     location: createBoutiqueDto.location,
+                    email: createBoutiqueDto.email,
                     img: createBoutiqueDto.img,
                     description: createBoutiqueDto.description,
                     categorie: createBoutiqueDto.categorie,
                     utilisateurs: {
-                        connect: {
-                            id: Number(createBoutiqueDto.userId),
+                        connectOrCreate: {
+                            where: {
+                                email: createBoutiqueDto.email,
+                            },
+                            create: {
+                                nom: createBoutiqueDto.nom,
+                                email: createBoutiqueDto.email,
+                                telephone: createBoutiqueDto.phone,
+                                avatar: createBoutiqueDto.img,
+                                password: await (0, bcrypt_1.hash)(password, 10),
+                                profile: client_1.Profile.BOUTIQUIER,
+                            },
                         },
                     },
                     country: {
@@ -135,8 +154,10 @@ let BoutiqueService = class BoutiqueService {
                     },
                 },
             });
+            await this.mailService.sendMail([createBoutiqueDto.email], 'Les identifiant de votre boutique', (0, data_1.templateToSendShopidentyMail)(password, createBoutiqueDto.nom, createBoutiqueDto.email));
             return {
                 statusCode: 201,
+                message: 'Boutique créée avec succès',
                 data: boutique,
             };
         }
@@ -147,7 +168,11 @@ let BoutiqueService = class BoutiqueService {
     }
     async findAllShopAndProducts() {
         try {
-            const boutiques = await this.prisma.boutique.findMany();
+            const boutiques = await this.prisma.boutique.findMany({
+                include: {
+                    country: true,
+                },
+            });
             const products = await this.prisma.produit.findMany({
                 include: {
                     categories: {
@@ -236,10 +261,38 @@ let BoutiqueService = class BoutiqueService {
     }
     async findAll() {
         try {
-            const boutiques = await this.prisma.boutique.findMany();
+            const boutiques = await this.prisma.boutique.findMany({
+                include: {
+                    country: true,
+                    Prix: {
+                        include: {
+                            produits: true,
+                        },
+                    },
+                },
+            });
+            const btp = [];
+            const customeBoutique = boutiques.filter((bt) => {
+                let Prix = [];
+                Prix = bt.Prix.map((prix) => {
+                    const prixId = prix.id;
+                    const produits = { ...prix.produits, quantiter: prix.quantiter };
+                    const tt = {
+                        ...bt,
+                        prix: prix.prix,
+                        ...produits,
+                        prixId,
+                        boutique: { ...bt },
+                    };
+                    return tt;
+                });
+                btp.push(bt);
+                return true;
+            });
+            console.log(btp);
             return {
                 statusCode: 200,
-                data: boutiques,
+                data: customeBoutique.filter((rr) => rr != null),
             };
         }
         catch (error) {
@@ -265,6 +318,7 @@ let BoutiqueService = class BoutiqueService {
     }
     async getStatistic(id) {
         try {
+            console.log('====================');
             const today = new Date();
             const startDate = new Date(today.getFullYear(), today.getMonth() - 4, 1);
             const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -311,7 +365,7 @@ let BoutiqueService = class BoutiqueService {
         }
         if (updateBoutiqueDto.img && existing.img) {
             try {
-                fs.unlinkSync(existing.img);
+                fs.unlinkSync('uploads/' + existing.img);
             }
             catch (err) {
             }
@@ -338,12 +392,67 @@ let BoutiqueService = class BoutiqueService {
                     },
                 },
             });
+            console.log(updateBoutiqueDto.img, '|', existing.img);
+            console.log(updateBoutiqueDto.img, '|', updated.img, '|', existing.img);
             return {
                 statusCode: 200,
                 data: updated,
             };
         }
         catch (error) {
+            console.log(error);
+            throw new common_1.InternalServerErrorException('Erreur lors de la mise à jour de la boutique');
+        }
+    }
+    async updateProfile(id, updateBoutiqueDto) {
+        const existing = await this.prisma.boutique.findUnique({
+            where: { id: Number(id) },
+        });
+        if (!existing) {
+            throw new common_1.NotFoundException(`Boutique #${id} introuvable`);
+        }
+        if (updateBoutiqueDto.img && existing.img) {
+            try {
+                fs.unlinkSync('uploads/' + existing.img);
+            }
+            catch (err) {
+            }
+        }
+        try {
+            const updated = await this.prisma.boutique.update({
+                where: { id: Number(id) },
+                data: {
+                    nom: updateBoutiqueDto.nom,
+                    phone: updateBoutiqueDto.phone,
+                    img: updateBoutiqueDto.img,
+                    description: updateBoutiqueDto.description,
+                    utilisateurs: {
+                        update: {
+                            nom: updateBoutiqueDto.nom,
+                            telephone: updateBoutiqueDto.phone,
+                            avatar: updateBoutiqueDto.img,
+                        },
+                    },
+                },
+            });
+            console.log(updateBoutiqueDto.img, '|', existing.img);
+            console.log(updateBoutiqueDto.img, '|', updated.img, '|', existing.img);
+            let currentUser = await this.usersService.getCurrentUser(updateBoutiqueDto.email);
+            if (!currentUser) {
+                this.logger.warn(`Current user not found for refresh: ${updateBoutiqueDto.email}`);
+                throw new common_1.UnauthorizedException('User not found');
+            }
+            const boutique = await this.prixService.findOneByUserId(updated?.userId);
+            if (boutique) {
+                currentUser = { ...currentUser, boutique };
+            }
+            return {
+                statusCode: 200,
+                data: currentUser,
+            };
+        }
+        catch (error) {
+            console.log(error);
             throw new common_1.InternalServerErrorException('Erreur lors de la mise à jour de la boutique');
         }
     }
@@ -354,17 +463,17 @@ let BoutiqueService = class BoutiqueService {
         if (!boutique) {
             throw new common_1.NotFoundException(`Boutique #${id} introuvable`);
         }
-        if (boutique.img) {
-            try {
-                fs.unlinkSync(boutique.img);
-            }
-            catch (err) {
-            }
-        }
         try {
-            const deleted = await this.prisma.boutique.delete({
+            const deleted = await this.prisma.boutique.deleteMany({
                 where: { id: Number(id) },
             });
+            if (boutique.img) {
+                try {
+                    fs.unlinkSync('uploads/' + boutique.img);
+                }
+                catch (err) {
+                }
+            }
             return {
                 statusCode: 200,
                 data: deleted,
@@ -376,8 +485,11 @@ let BoutiqueService = class BoutiqueService {
     }
 };
 exports.BoutiqueService = BoutiqueService;
-exports.BoutiqueService = BoutiqueService = __decorate([
+exports.BoutiqueService = BoutiqueService = BoutiqueService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        mail_service_1.MailService,
+        users_service_1.UsersService,
+        prix_service_1.PrixService])
 ], BoutiqueService);
 //# sourceMappingURL=boutique.service.js.map
