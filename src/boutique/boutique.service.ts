@@ -15,7 +15,7 @@ import { Profile } from '@prisma/client';
 import { genererMotDePasse } from 'src/utils/functions';
 import { UsersService } from 'src/users/users.service';
 import { templateToSendShopidentyMail } from 'src/mail/data';
-import { hash } from 'bcrypt';
+import { hash } from 'bcryptjs';
 import { Produit } from 'src/produit/entities/produit.entity';
 import { UpdateBoutiqueProfileDto } from './dto/update-boutique-profile.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -135,7 +135,7 @@ export class BoutiqueService {
             select: { nom: true },
           },
           Prix: {
-            select: { prix: true, boutiqueId: true },
+            select: { prix: true, boutiqueId: true, quantiter: true },
           },
         },
       });
@@ -153,6 +153,7 @@ export class BoutiqueService {
           ...p,
           categorie: cat,
           prix: firstPrix?.prix || null,
+          quantiter: firstPrix?.quantiter || null,
           boutiqueId: firstPrix?.boutiqueId || null,
         };
       });
@@ -197,6 +198,7 @@ export class BoutiqueService {
           produitId: prix.produitId,
           boutiqueId: prix.boutiqueId,
           prix: prix.prix,
+          quantiter: prix.quantiter,
         };
 
         delete customPrice.categories;
@@ -252,53 +254,54 @@ export class BoutiqueService {
           },
         },
       });
-      const btp = []
+      const btp = [];
       const customeBoutique = boutiques.filter((bt) => {
         let Prix = [];
         // if (bt.Prix.length != 0) {
-          // if (bt.location == 'NATIONAL') {
-          Prix = bt.Prix.map((prix) => {
-              const prixId = prix.id;
-              const produits = { ...prix.produits, quantiter: prix.quantiter };
-              // delete bt.Prix;
-              const tt = {
-                ...bt,
-                // location: bt.location,
-                prix: prix.prix,
-                ...produits,
-                prixId,
-                boutique: { ...bt },
-              };
-              return tt;
-            });
-            btp.push(bt);
-            return true;
-          // } 
-          // else {
-          //   // Prix = bt.Prix.map((prix) => {
-          //   //   const prixId = prix.id;
-          //   //   const produits = { ...prix.produits, quantiter: prix.quantiter };
+        // if (bt.location == 'NATIONAL') {
+        Prix = bt.Prix.map((prix) => {
+          const prixId = prix.id;
+          const produits = { ...prix.produits, quantiter: prix.quantiter };
+          // delete bt.Prix;
+          const tt = {
+            ...bt,
+            // location: bt.location,
+            prix: prix.prix,
+            quantiter: prix.quantiter,
+            ...produits,
+            prixId,
+            boutique: { ...bt },
+          };
+          return tt;
+        });
+        btp.push(bt);
+        return true;
+        // }
+        // else {
+        //   // Prix = bt.Prix.map((prix) => {
+        //   //   const prixId = prix.id;
+        //   //   const produits = { ...prix.produits, quantiter: prix.quantiter };
 
-          //   //   // delete bt.Prix;
-          //   //   const tt = {
-          //   //     ...bt,
-          //   //     prix: prix.prix,
-          //   //     ...produits,
-          //   //     prixId,
-          //   //     boutique: { ...bt },
-          //   //   };
-          //   //   return tt;
-          //   // });
-          //   // return Prix;
-          //   return bt;
-          // }
+        //   //   // delete bt.Prix;
+        //   //   const tt = {
+        //   //     ...bt,
+        //   //     prix: prix.prix,
+        //   //     ...produits,
+        //   //     prixId,
+        //   //     boutique: { ...bt },
+        //   //   };
+        //   //   return tt;
+        //   // });
+        //   // return Prix;
+        //   return bt;
+        // }
         // }
       });
       console.log(btp);
       return {
         statusCode: 200,
         data: customeBoutique.filter((rr) => rr != null),
-  };
+      };
     } catch (error) {
       throw new InternalServerErrorException(
         'Erreur lors de la récupération de toutes les boutiques',
@@ -393,7 +396,7 @@ export class BoutiqueService {
         // Logger l'erreur si besoin
       }
     }
-    
+
     try {
       const updated = await this.prisma.boutique.update({
         where: { id: Number(id) },
@@ -404,11 +407,7 @@ export class BoutiqueService {
           img: updateBoutiqueDto.img,
           description: updateBoutiqueDto.description,
           categorie: updateBoutiqueDto.categorie,
-          utilisateurs: {
-            connect: {
-              id: Number(updateBoutiqueDto.userId),
-            },
-          },
+          email: updateBoutiqueDto.email,
           country: {
             connect: {
               id: Number(updateBoutiqueDto.countryId),
@@ -416,9 +415,7 @@ export class BoutiqueService {
           },
         },
       });
-      console.log(updateBoutiqueDto.img, '|', existing.img);
-      console.log(updateBoutiqueDto.img, '|', updated.img, '|', existing.img);
-      
+
       return {
         statusCode: 200,
         data: updated,
@@ -451,7 +448,7 @@ export class BoutiqueService {
         // Logger l'erreur si besoin
       }
     }
-    
+
     try {
       const updated = await this.prisma.boutique.update({
         where: { id: Number(id) },
@@ -466,18 +463,20 @@ export class BoutiqueService {
               nom: updateBoutiqueDto.nom,
               telephone: updateBoutiqueDto.phone,
               avatar: updateBoutiqueDto.img,
-
             },
           },
         },
       });
       console.log(updateBoutiqueDto.img, '|', existing.img);
       console.log(updateBoutiqueDto.img, '|', updated.img, '|', existing.img);
-      
 
-      let currentUser = await this.usersService.getCurrentUser(updateBoutiqueDto.email);
+      let currentUser = await this.usersService.getCurrentUser(
+        updateBoutiqueDto.email,
+      );
       if (!currentUser) {
-        this.logger.warn(`Current user not found for refresh: ${updateBoutiqueDto.email}`);
+        this.logger.warn(
+          `Current user not found for refresh: ${updateBoutiqueDto.email}`,
+        );
         throw new UnauthorizedException('User not found');
       }
 
@@ -508,26 +507,25 @@ export class BoutiqueService {
       throw new NotFoundException(`Boutique #${id} introuvable`);
     }
 
-
     try {
       const deleted = await this.prisma.boutique.deleteMany({
         where: { id: Number(id) },
       });
 
       // Supprimer l'image si nécessaire
-    if (boutique.img) {
-      try {
-        fs.unlinkSync('uploads/' + boutique.img);
-      } catch (err) {
-        // Logger l'erreur si besoin
+      if (boutique.img) {
+        try {
+          fs.unlinkSync('uploads/' + boutique.img);
+        } catch (err) {
+          // Logger l'erreur si besoin
+        }
       }
-    }
       return {
         statusCode: 200,
         data: deleted,
       };
     } catch (error) {
-       throw new InternalServerErrorException(
+      throw new InternalServerErrorException(
         'Erreur lors de la suppression de la boutique',
       );
     }

@@ -332,8 +332,20 @@ let UsersService = UsersService_1 = class UsersService {
             }
         }
     }
-    remove(id) {
-        return `This action removes a #${id} produit`;
+    async remove(id) {
+        try {
+            await this.prisma.utilisateur.findUniqueOrThrow({
+                where: { id: id },
+            });
+            const result = await this.prisma.utilisateur.deleteMany({
+                where: { id: id },
+            });
+            return !!result;
+        }
+        catch (e) {
+            console.error(e);
+            return false;
+        }
     }
 };
 exports.UsersService = UsersService;

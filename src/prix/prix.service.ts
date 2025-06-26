@@ -255,10 +255,17 @@ export class PrixService {
     try {
       const isShop = await this.prisma.boutique.findFirst({
         where: {
-          userId: id,
+          utilisateurs: {
+            id: id,
+            profile: 'BOUTIQUIER',
+          },
         },
       });
-      const boutique = isShop.id > 0 && isShop;
+
+      if (!isShop) {
+        return null;
+      }
+      const boutique = isShop && isShop?.id > 0 && isShop;
       const userExist = await this.prisma.prix.findFirst({
         where: {
           boutiqueId: isShop.id,

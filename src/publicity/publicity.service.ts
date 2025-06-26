@@ -3,10 +3,13 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreatePublicityDto } from './dto/create-publicity.dto';
 import { UpdatePublicityDto } from './dto/update-publicity.dto';
 import { PrismaService } from 'src/prisma/prisma.service copy';
+import * as fs from 'fs';
+import { Express } from 'express';
 
 @Injectable()
 export class PublicityService {
@@ -21,7 +24,7 @@ export class PublicityService {
         data: {
           titre: createPublicityDto.titre,
           description: createPublicityDto.description,
-          pourcentage: createPublicityDto.pourcentage,
+          pourcentage: Number(createPublicityDto.pourcentage),
           dateFin: createPublicityDto.dateFin,
           dateDebut: createPublicityDto.dateDebut,
           img: createPublicityDto.img,
@@ -33,6 +36,8 @@ export class PublicityService {
         data: result,
       };
     } catch (error) {
+      console.error(error);
+
       throw new InternalServerErrorException(
         'Erreur lors de la création de la publicité',
       );
@@ -121,6 +126,8 @@ export class PublicityService {
         return updatedProduit;
       });
     } catch (error) {
+      console.error(error);
+
       this.logger.error(`Erreur lors de la validation: ${error.message}`);
       throw new Error('Erreur lors de la validation du produit');
     }
@@ -129,10 +136,15 @@ export class PublicityService {
   findAll() {
     return this.prisma.offreSpeciale.findMany();
   }
-
-  findAllByDate(date: Date) {
+  findAllEnabke() {
     return this.prisma.offreSpeciale.findMany({
-      where: { dateDebut: { lte: date }, dateFin: { gte: date } },
+      where: {},
+    });
+  }
+
+  findAllByDate() {
+    return this.prisma.offreSpeciale.findMany({
+      where: { dateFin: { lte: new Date() } },
     });
   }
   findOne(id: number) {
@@ -147,11 +159,55 @@ export class PublicityService {
     });
   }
 
-  update(id: number, updatePublicityDto: UpdatePublicityDto) {
-    return this.prisma.offreSpeciale.update({
-      where: { id },
-      data: updatePublicityDto,
-    });
+  async update(
+    id: number,
+    updatePublicityDto: UpdatePublicityDto,
+    file?: Express.Multer.File,
+  ) {
+    try {
+      const isExiste = await this.prisma.offreSpeciale.findFirst({
+        where: { id },
+      });
+      if (!isExiste) {
+        throw new NotFoundException(`Offre #${id} introuvable.`);
+      }
+      if (file && isExiste.img) {
+        try {
+          fs.access('uploads/' + isExiste.img, fs.constants.F_OK, (err) => {
+            if (err) {
+              console.log("Le fichier n'existe pas.");
+            } else {
+              fs.unlinkSync('uploads/' + isExiste.img);
+            }
+          });
+        } catch (error) {
+          console.error(`Erreur de suppression de l'ancien fichier :`, error);
+        }
+      }
+
+      // 3. Préparer les données à mettre à jour
+      const dataToUpdate: any = {
+        ...updatePublicityDto,
+      };
+
+      // 4. Si on a un nouveau fichier, mettre à jour le champ img
+      if (file) {
+        dataToUpdate.img = file.path.split('uploads/')[1]; // ou construire une URL publique
+      }
+      delete dataToUpdate.id;
+      return await this.prisma.offreSpeciale.update({
+        where: { id: Number(id) },
+        data: {
+          ...dataToUpdate,
+          pourcentage: Number(dataToUpdate.pourcentage),
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      throw new InternalServerErrorException(
+        "Erreur lors de la mise à jour de l'offe",
+      );
+    }
   }
 
   remove(id: number) {

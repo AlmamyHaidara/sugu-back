@@ -1,8 +1,8 @@
 import {
-  Injectable,
-  NotFoundException,
-  InternalServerErrorException,
   HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProduitDto } from './dto/create-produit.dto';
@@ -16,6 +16,8 @@ import {
 } from '@prisma/client';
 import { Location } from 'src/boutique/dto/create-boutique.dto';
 import * as fs from 'fs';
+import { Express } from 'express';
+
 @Injectable()
 export class ProduitService {
   constructor(private readonly prisma: PrismaService) {}
@@ -288,17 +290,37 @@ export class ProduitService {
           Prix: {
             some: {
               boutiqueId: shopId,
+
+              quantiter: {
+                gt: 0,
+              },
             },
           },
         },
         include: {
           Prix: {
-            select: {
-              id: true,
-              prix: true,
-              quantiter: true,
-              boutiqueId: true,
-              produitId: true,
+            // select: {
+            //   id: true,
+            //   prix: true,
+            //   quantiter: true,
+            //   boutiqueId: true,
+            //   produitId: true,
+            // },
+            omit: {
+              createdAt: true,
+              updatedAt: true,
+              particularId: true,
+            },
+            include: {
+              boutiques: {
+                select: {
+                  id: true,
+                  nom: true,
+                  location: true,
+                  phone: true,
+                  categorie: true,
+                },
+              },
             },
           },
         },
@@ -609,6 +631,9 @@ export class ProduitService {
             boutiques: {
               countryId: countryId,
             },
+            quantiter: {
+              gt: 0,
+            },
           },
         },
       },
@@ -634,6 +659,7 @@ export class ProduitService {
       const filter = res.Prix.map((prix) => {
         return {
           prix: prix.prix,
+          quantiter: prix.quantiter,
           boutique: {
             id: prix.boutiques.id,
             nom: prix.boutiques.nom,
@@ -772,6 +798,7 @@ export class ProduitService {
         const filter = res.Prix.map((prix) => {
           return {
             prix: prix.prix,
+            quantiter: prix.quantiter,
             boutique: {
               id: prix.boutiques.id,
               nom: prix.boutiques.nom,

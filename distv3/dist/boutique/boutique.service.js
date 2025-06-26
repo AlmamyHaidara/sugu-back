@@ -19,7 +19,7 @@ const client_1 = require("@prisma/client");
 const functions_1 = require("../utils/functions");
 const users_service_1 = require("../users/users.service");
 const data_1 = require("../mail/data");
-const bcrypt_1 = require("bcrypt");
+const bcryptjs_1 = require("bcryptjs");
 const prix_service_1 = require("../prix/prix.service");
 const common_2 = require("@nestjs/common");
 let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
@@ -142,7 +142,7 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                                 email: createBoutiqueDto.email,
                                 telephone: createBoutiqueDto.phone,
                                 avatar: createBoutiqueDto.img,
-                                password: await (0, bcrypt_1.hash)(password, 10),
+                                password: await (0, bcryptjs_1.hash)(password, 10),
                                 profile: client_1.Profile.BOUTIQUIER,
                             },
                         },
@@ -179,7 +179,7 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                         select: { nom: true },
                     },
                     Prix: {
-                        select: { prix: true, boutiqueId: true },
+                        select: { prix: true, boutiqueId: true, quantiter: true },
                     },
                 },
             });
@@ -192,6 +192,7 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                     ...p,
                     categorie: cat,
                     prix: firstPrix?.prix || null,
+                    quantiter: firstPrix?.quantiter || null,
                     boutiqueId: firstPrix?.boutiqueId || null,
                 };
             });
@@ -232,6 +233,7 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                     produitId: prix.produitId,
                     boutiqueId: prix.boutiqueId,
                     prix: prix.prix,
+                    quantiter: prix.quantiter,
                 };
                 delete customPrice.categories;
                 delete prix.produits;
@@ -280,6 +282,7 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                     const tt = {
                         ...bt,
                         prix: prix.prix,
+                        quantiter: prix.quantiter,
                         ...produits,
                         prixId,
                         boutique: { ...bt },
@@ -380,11 +383,7 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                     img: updateBoutiqueDto.img,
                     description: updateBoutiqueDto.description,
                     categorie: updateBoutiqueDto.categorie,
-                    utilisateurs: {
-                        connect: {
-                            id: Number(updateBoutiqueDto.userId),
-                        },
-                    },
+                    email: updateBoutiqueDto.email,
                     country: {
                         connect: {
                             id: Number(updateBoutiqueDto.countryId),
@@ -392,8 +391,6 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                     },
                 },
             });
-            console.log(updateBoutiqueDto.img, '|', existing.img);
-            console.log(updateBoutiqueDto.img, '|', updated.img, '|', existing.img);
             return {
                 statusCode: 200,
                 data: updated,

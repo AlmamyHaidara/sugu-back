@@ -36,8 +36,8 @@ let AdresseController = class AdresseController {
     update(id, updateAdresseDto) {
         return this.adresseService.update(+id, updateAdresseDto);
     }
-    remove(id, userId) {
-        return this.adresseService.remove(+id, +userId);
+    remove(id) {
+        return this.adresseService.remove(+id);
     }
 };
 exports.AdresseController = AdresseController;
@@ -79,9 +79,8 @@ __decorate([
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Query)('userId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], AdresseController.prototype, "remove", null);
 exports.AdresseController = AdresseController = __decorate([

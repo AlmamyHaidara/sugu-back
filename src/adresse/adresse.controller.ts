@@ -42,7 +42,7 @@ export class AdresseController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Query('userId') userId: string) {
-    return this.adresseService.remove(+id, +userId);
+  remove(@Param('id') id: string) {
+    return this.adresseService.remove(+id);
   }
 }

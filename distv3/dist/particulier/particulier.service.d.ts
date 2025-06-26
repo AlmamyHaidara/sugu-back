@@ -33,10 +33,10 @@ export declare class ParticulierService {
                 quantiter: number;
             }[];
             nom: string;
-            status: import(".prisma/client").$Enums.ProduitStatus;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
-            type: import(".prisma/client").$Enums.ProduitType;
+            type: import("@prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -45,48 +45,7 @@ export declare class ParticulierService {
     updateProduct(updateData: UpdateParticulierDto, file?: Express.Multer.File): Promise<{
         statusCode: HttpStatus;
         message: string;
-        data: {
-            prixId: number;
-            particular: {
-                id: number;
-                createdAt: Date;
-                updatedAt: Date;
-                userId: number;
-            };
-            prix: Prisma.Decimal;
-            id: number;
-            quantiter: number;
-            particularId: number;
-            published: boolean;
-            categories: {
-                nom: string;
-                id: number;
-                description: string | null;
-            };
-            Prix: {
-                particular: {
-                    id: number;
-                    createdAt: Date;
-                    updatedAt: Date;
-                    userId: number;
-                };
-                prix: Prisma.Decimal;
-                id: number;
-                quantiter: number;
-                particularId: number;
-            }[];
-            nom: string;
-            createdAt: Date;
-            updatedAt: Date;
-            status: import(".prisma/client").$Enums.ProduitStatus;
-            description: string;
-            img: string;
-            tags: string | null;
-            type: import(".prisma/client").$Enums.ProduitType;
-            rejectionComment: string | null;
-            categorieId: number;
-            isPublic: boolean | null;
-        };
+        data: any;
     }>;
     deleteProduct(userId: number, produitId: number): Promise<{
         message: string;
@@ -100,15 +59,22 @@ export declare class ParticulierService {
             prixId: number;
             quantiter: number;
             particularId: number;
+            Prix: {
+                prix: Prisma.Decimal;
+                id: number;
+                quantiter: number;
+                boutiqueId: number;
+                particularId: number;
+            }[];
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
-            status: import(".prisma/client").$Enums.ProduitStatus;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
-            type: import(".prisma/client").$Enums.ProduitType;
+            type: import("@prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -148,7 +114,8 @@ export declare class ParticulierService {
                         updatedAt: Date | null;
                         commandeNbr: string;
                         utilisateurId: number;
-                        etat: import(".prisma/client").$Enums.EtatCommand;
+                        adresseId: number | null;
+                        etat: import("@prisma/client").$Enums.EtatCommand;
                     };
                 } & {
                     id: number;
@@ -172,11 +139,11 @@ export declare class ParticulierService {
             id: number;
             createdAt: Date;
             updatedAt: Date;
-            status: import(".prisma/client").$Enums.ProduitStatus;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
-            type: import(".prisma/client").$Enums.ProduitType;
+            type: import("@prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -224,7 +191,8 @@ export declare class ParticulierService {
                         updatedAt: Date | null;
                         commandeNbr: string;
                         utilisateurId: number;
-                        etat: import(".prisma/client").$Enums.EtatCommand;
+                        adresseId: number | null;
+                        etat: import("@prisma/client").$Enums.EtatCommand;
                     };
                 } & {
                     id: number;
@@ -248,11 +216,11 @@ export declare class ParticulierService {
             id: number;
             createdAt: Date;
             updatedAt: Date;
-            status: import(".prisma/client").$Enums.ProduitStatus;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
-            type: import(".prisma/client").$Enums.ProduitType;
+            type: import("@prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -264,6 +232,7 @@ export declare class ParticulierService {
         data: {
             categorie: string;
             prix: Prisma.Decimal;
+            quantiter: number;
             particulier: {
                 id: number;
                 nom: string;
@@ -284,7 +253,7 @@ export declare class ParticulierService {
                         email: string;
                         telephone: string;
                         password: string;
-                        profile: import(".prisma/client").$Enums.Profile;
+                        profile: import("@prisma/client").$Enums.Profile;
                         avatar: string | null;
                         id: number;
                         createdAt: Date;
@@ -310,11 +279,11 @@ export declare class ParticulierService {
             id: number;
             createdAt: Date;
             updatedAt: Date;
-            status: import(".prisma/client").$Enums.ProduitStatus;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
-            type: import(".prisma/client").$Enums.ProduitType;
+            type: import("@prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;

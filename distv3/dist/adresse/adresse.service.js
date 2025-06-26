@@ -181,15 +181,16 @@ let AdresseService = AdresseService_1 = class AdresseService {
             }, common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    async remove(id, userId) {
+    async remove(id) {
         try {
-            this.logger.log(`Removing address with id ${id} for user with id ${userId}`);
             const isExist = await this.prisma.adresse.findUnique({
-                where: { id: id, userId: userId },
+                where: { id: id },
                 select: {
                     id: true,
+                    userId: true,
                 },
             });
+            this.logger.log(`Removing address with id ${id} for user with id ${isExist?.userId}`);
             if (!isExist.id) {
                 throw new common_1.HttpException({
                     status: common_1.HttpStatus.NOT_FOUND,
@@ -210,6 +211,7 @@ let AdresseService = AdresseService_1 = class AdresseService {
             };
         }
         catch (error) {
+            console.log(error);
             this.logger.error(`Error removing address with id ${id}`, error.stack);
             throw new common_1.HttpException({
                 status: common_1.HttpStatus.INTERNAL_SERVER_ERROR,

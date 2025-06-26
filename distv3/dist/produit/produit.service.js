@@ -242,17 +242,29 @@ let ProduitService = class ProduitService {
                     Prix: {
                         some: {
                             boutiqueId: shopId,
+                            quantiter: {
+                                gt: 0,
+                            },
                         },
                     },
                 },
                 include: {
                     Prix: {
-                        select: {
-                            id: true,
-                            prix: true,
-                            quantiter: true,
-                            boutiqueId: true,
-                            produitId: true,
+                        omit: {
+                            createdAt: true,
+                            updatedAt: true,
+                            particularId: true,
+                        },
+                        include: {
+                            boutiques: {
+                                select: {
+                                    id: true,
+                                    nom: true,
+                                    location: true,
+                                    phone: true,
+                                    categorie: true,
+                                },
+                            },
                         },
                     },
                 },
@@ -516,6 +528,9 @@ let ProduitService = class ProduitService {
                         boutiques: {
                             countryId: countryId,
                         },
+                        quantiter: {
+                            gt: 0,
+                        },
                     },
                 },
             },
@@ -537,6 +552,7 @@ let ProduitService = class ProduitService {
             const filter = res.Prix.map((prix) => {
                 return {
                     prix: prix.prix,
+                    quantiter: prix.quantiter,
                     boutique: {
                         id: prix.boutiques.id,
                         nom: prix.boutiques.nom,
@@ -634,6 +650,7 @@ let ProduitService = class ProduitService {
                 const filter = res.Prix.map((prix) => {
                     return {
                         prix: prix.prix,
+                        quantiter: prix.quantiter,
                         boutique: {
                             id: prix.boutiques.id,
                             nom: prix.boutiques.nom,

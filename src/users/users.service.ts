@@ -12,6 +12,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { compare, hash } from 'src/utils/bcrypt';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
+import { Express } from 'express';
 
 // This should be a real class/interface representing a user entity
 export type User = any;
@@ -456,9 +457,21 @@ export class UsersService {
    * Removes a user entry from the database.
    *
    * @param {number} id - The ID of the user to remove.
-   * @returns {string} - A message indicating the action.
+   * @returns {Promise<boolean>} - A message indicating the action.
    */
-  remove(id: number) {
-    return `This action removes a #${id} produit`;
+  async remove(id: number): Promise<boolean> {
+    try {
+      await this.prisma.utilisateur.findUniqueOrThrow({
+        where: { id: id },
+      });
+
+      const result = await this.prisma.utilisateur.deleteMany({
+        where: { id: id },
+      });
+      return !!result;
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
   }
 }

@@ -17,6 +17,7 @@ export declare class AdresseService {
             description: string;
             userId: number;
             quartier: string;
+            isdefault: boolean;
         };
     }>;
     findAll(): Promise<{
@@ -30,6 +31,7 @@ export declare class AdresseService {
             description: string;
             userId: number;
             quartier: string;
+            isdefault: boolean;
         }[];
     }>;
     findOne(id: number): Promise<{
@@ -43,6 +45,7 @@ export declare class AdresseService {
             description: string;
             userId: number;
             quartier: string;
+            isdefault: boolean;
         }[];
     }>;
     findOneByUserId(id: number): Promise<{
@@ -56,6 +59,7 @@ export declare class AdresseService {
             description: string;
             userId: number;
             quartier: string;
+            isdefault: boolean;
         }[];
     }>;
     update(id: number, updateAdresseDto: UpdateAdresseDto): Promise<{
@@ -69,9 +73,10 @@ export declare class AdresseService {
             description: string;
             userId: number;
             quartier: string;
+            isdefault: boolean;
         };
     }>;
-    remove(id: number, userId: number): Promise<{
+    remove(id: number): Promise<{
         status: number;
         msg: string;
     }>;

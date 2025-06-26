@@ -20,14 +20,17 @@ let CommandController = class CommandController {
     constructor(commandService) {
         this.commandService = commandService;
     }
-    create(createCammandDto) {
-        return this.commandService.create(createCammandDto);
+    async create(createCammandDto) {
+        return await this.commandService.create(createCammandDto);
     }
     createParticulier(createCammandDto) {
         return this.commandService.createParticulier(createCammandDto);
     }
     findAll(userId) {
         return this.commandService.findAll(+userId);
+    }
+    findAllParticulier(userId) {
+        return this.commandService.findAllParticulier(+userId);
     }
     findOne(id, userId) {
         return this.commandService.findOne(+id, +userId);
@@ -48,7 +51,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_command_dto_1.CreateCommandDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], CommandController.prototype, "create", null);
 __decorate([
     (0, common_1.Post)('particulier'),
@@ -64,6 +67,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], CommandController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('particulier'),
+    __param(0, (0, common_1.Query)('userId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], CommandController.prototype, "findAllParticulier", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

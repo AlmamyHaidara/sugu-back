@@ -26,28 +26,28 @@ export declare class UsersService {
     update(id: number, updateProduitDto: UpdateUserDto, file?: Express.Multer.File): Promise<{
         status: number;
         data: {
+            id: number;
             nom: string;
             prenom: string;
-            email: string;
             telephone: string;
-            profile: import(".prisma/client").$Enums.Profile;
+            email: string;
+            profile: import("@prisma/client").$Enums.Profile;
             avatar: string;
-            id: number;
         };
         msg: string;
     }>;
     passwordUpdate(userId: number, newPassword: string, currentPassword: string): Promise<{
         status: number;
         data: {
+            id: number;
             nom: string;
             prenom: string;
-            email: string;
             telephone: string;
-            profile: import(".prisma/client").$Enums.Profile;
+            email: string;
+            profile: import("@prisma/client").$Enums.Profile;
             avatar: string;
-            id: number;
         };
         msg: string;
     }>;
-    remove(id: number): string;
+    remove(id: number): Promise<boolean>;
 }

@@ -89,9 +89,11 @@ model Adresse {
   description  String
   userId       Int
   utilisateurs Utilisateur @relation(fields: [userId], references: [id])
-
+  isdefault  Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  Commande Commande[]
 }
 
 model Produit {
@@ -219,6 +221,8 @@ model Commande {
   utilisateurId Int
   utilisateurs  Utilisateur @relation(fields: [utilisateurId], references: [id])
 
+  adresseId Int?
+  adresses Adresse? @relation(fields: [adresseId], references: [id])
   LigneCommand LigneCommand[]
 
   etat      EtatCommand @default(ATTENTE)

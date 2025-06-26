@@ -28,11 +28,11 @@ export declare class ProduitService {
             nom: string;
             createdAt: Date;
             updatedAt: Date;
-            status: import(".prisma/client").$Enums.ProduitStatus;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
-            type: import(".prisma/client").$Enums.ProduitType;
+            type: import("@prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -59,11 +59,11 @@ export declare class ProduitService {
             nom: string;
             createdAt: Date;
             updatedAt: Date;
-            status: import(".prisma/client").$Enums.ProduitStatus;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
-            type: import(".prisma/client").$Enums.ProduitType;
+            type: import("@prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -91,10 +91,10 @@ export declare class ProduitService {
             nom: string;
             createdAt: Date;
             updatedAt: Date;
-            status: import(".prisma/client").$Enums.ProduitStatus;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
-            type: import(".prisma/client").$Enums.ProduitType;
+            type: import("@prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -108,11 +108,11 @@ export declare class ProduitService {
             id: number;
             createdAt: Date;
             updatedAt: Date;
-            status: import(".prisma/client").$Enums.ProduitStatus;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
-            type: import(".prisma/client").$Enums.ProduitType;
+            type: import("@prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -122,19 +122,26 @@ export declare class ProduitService {
         statusCode: HttpStatus;
         message: string;
         data: {
+            boutiques: {
+                nom: string;
+                id: number;
+                categorie: import("@prisma/client").$Enums.CategorieBoutique;
+                location: import("@prisma/client").$Enums.Location;
+                phone: string;
+            };
             prix: Prisma.Decimal;
             id: number;
             quantiter: number;
             produitId: number;
-            boutiqueId: number;
+            boutiqueId: number | null;
             nom: string;
             createdAt: Date;
             updatedAt: Date;
-            status: import(".prisma/client").$Enums.ProduitStatus;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
-            type: import(".prisma/client").$Enums.ProduitType;
+            type: import("@prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -148,11 +155,11 @@ export declare class ProduitService {
             id: number;
             createdAt: Date;
             updatedAt: Date;
-            status: import(".prisma/client").$Enums.ProduitStatus;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
-            type: import(".prisma/client").$Enums.ProduitType;
+            type: import("@prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -255,11 +262,11 @@ export declare class ProduitService {
             nom: string;
             createdAt: Date;
             updatedAt: Date;
-            status: import(".prisma/client").$Enums.ProduitStatus;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
-            type: import(".prisma/client").$Enums.ProduitType;
+            type: import("@prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -278,9 +285,9 @@ export declare class ProduitService {
             boutique: {
                 id: number;
                 nom: string;
-                location: import(".prisma/client").$Enums.Location;
+                location: import("@prisma/client").$Enums.Location;
                 phone: string;
-                categorie: import(".prisma/client").$Enums.CategorieBoutique;
+                categorie: import("@prisma/client").$Enums.CategorieBoutique;
             };
             categories: {
                 nom: string;
@@ -296,8 +303,8 @@ export declare class ProduitService {
                     updatedAt: Date;
                     description: string;
                     img: string | null;
-                    categorie: import(".prisma/client").$Enums.CategorieBoutique;
-                    location: import(".prisma/client").$Enums.Location;
+                    categorie: import("@prisma/client").$Enums.CategorieBoutique;
+                    location: import("@prisma/client").$Enums.Location;
                     phone: string | null;
                     userId: number;
                     countryId: number | null;
@@ -316,11 +323,11 @@ export declare class ProduitService {
             id: number;
             createdAt: Date;
             updatedAt: Date;
-            status: import(".prisma/client").$Enums.ProduitStatus;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
-            type: import(".prisma/client").$Enums.ProduitType;
+            type: import("@prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -335,9 +342,9 @@ export declare class ProduitService {
             boutique: {
                 id: number;
                 nom: string;
-                location: import(".prisma/client").$Enums.Location;
+                location: import("@prisma/client").$Enums.Location;
                 phone: string;
-                categorie: import(".prisma/client").$Enums.CategorieBoutique;
+                categorie: import("@prisma/client").$Enums.CategorieBoutique;
             };
             categories: {
                 nom: string;
@@ -353,8 +360,8 @@ export declare class ProduitService {
                     updatedAt: Date;
                     description: string;
                     img: string | null;
-                    categorie: import(".prisma/client").$Enums.CategorieBoutique;
-                    location: import(".prisma/client").$Enums.Location;
+                    categorie: import("@prisma/client").$Enums.CategorieBoutique;
+                    location: import("@prisma/client").$Enums.Location;
                     phone: string | null;
                     userId: number;
                     countryId: number | null;
@@ -373,11 +380,11 @@ export declare class ProduitService {
             id: number;
             createdAt: Date;
             updatedAt: Date;
-            status: import(".prisma/client").$Enums.ProduitStatus;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
-            type: import(".prisma/client").$Enums.ProduitType;
+            type: import("@prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;

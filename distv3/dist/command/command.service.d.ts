@@ -15,11 +15,12 @@ export declare class CommandService {
             ligneCommandInfo: any[];
             prixTotal: number;
             id: number;
-            commandeNbr: string;
-            utilisateurId: number;
-            etat: import(".prisma/client").$Enums.EtatCommand;
             createdAt: Date;
             updatedAt: Date | null;
+            commandeNbr: string;
+            utilisateurId: number;
+            adresseId: number | null;
+            etat: import("@prisma/client").$Enums.EtatCommand;
         };
     }>;
     createParticulier(createCommandDto: CreateCommandDto): Promise<{
@@ -28,20 +29,29 @@ export declare class CommandService {
             ligneCommandInfo: any[];
             prixTotal: number;
             id: number;
-            commandeNbr: string;
-            utilisateurId: number;
-            etat: import(".prisma/client").$Enums.EtatCommand;
             createdAt: Date;
             updatedAt: Date | null;
+            commandeNbr: string;
+            utilisateurId: number;
+            adresseId: number | null;
+            etat: import("@prisma/client").$Enums.EtatCommand;
         };
     }>;
     findAll(userId: number): Promise<{
         LigneCommand: any[];
         total: any;
         id: number;
-        commandeNbr: string;
-        etat: import(".prisma/client").$Enums.EtatCommand;
         createdAt: Date;
+        commandeNbr: string;
+        etat: import("@prisma/client").$Enums.EtatCommand;
+    }[]>;
+    findAllParticulier(userId: number): Promise<{
+        LigneCommand: any[];
+        total: any;
+        id: number;
+        createdAt: Date;
+        commandeNbr: string;
+        etat: import("@prisma/client").$Enums.EtatCommand;
     }[]>;
     findOne(id: number, userId: number): Promise<{
         status: number;
@@ -56,19 +66,20 @@ export declare class CommandService {
         data: {
             utilisateur: {
                 id: number;
-                telephone: string;
-                email: string;
                 nom: string;
                 prenom: string;
+                telephone: string;
+                email: string;
                 Adresse: {
                     id: number;
+                    nom: string;
+                    telephone: string;
                     createdAt: Date;
                     updatedAt: Date;
-                    telephone: string;
-                    nom: string;
+                    quartier: string;
                     description: string;
                     userId: number;
-                    quartier: string;
+                    isdefault: boolean;
                 }[];
             };
             LigneCommand: {
@@ -82,14 +93,14 @@ export declare class CommandService {
                         description: string | null;
                     };
                     id: number;
+                    nom: string;
                     createdAt: Date;
                     updatedAt: Date;
-                    nom: string;
-                    img: string;
                     description: string;
+                    img: string;
                     tags: string | null;
-                    type: import(".prisma/client").$Enums.ProduitType;
-                    status: import(".prisma/client").$Enums.ProduitStatus;
+                    type: import("@prisma/client").$Enums.ProduitType;
+                    status: import("@prisma/client").$Enums.ProduitStatus;
                     rejectionComment: string | null;
                     categorieId: number;
                     isPublic: boolean | null;
@@ -103,14 +114,14 @@ export declare class CommandService {
                         };
                     } & {
                         id: number;
+                        nom: string;
                         createdAt: Date;
                         updatedAt: Date;
-                        nom: string;
-                        img: string;
                         description: string;
+                        img: string;
                         tags: string | null;
-                        type: import(".prisma/client").$Enums.ProduitType;
-                        status: import(".prisma/client").$Enums.ProduitStatus;
+                        type: import("@prisma/client").$Enums.ProduitType;
+                        status: import("@prisma/client").$Enums.ProduitStatus;
                         rejectionComment: string | null;
                         categorieId: number;
                         isPublic: boolean | null;
@@ -133,24 +144,25 @@ export declare class CommandService {
                 commandeId: number | null;
             }[];
             id: number;
-            commandeNbr: string;
-            etat: import(".prisma/client").$Enums.EtatCommand;
             createdAt: Date;
+            commandeNbr: string;
+            etat: import("@prisma/client").$Enums.EtatCommand;
             utilisateurs: {
                 id: number;
-                telephone: string;
-                email: string;
                 nom: string;
                 prenom: string;
+                telephone: string;
+                email: string;
                 Adresse: {
                     id: number;
+                    nom: string;
+                    telephone: string;
                     createdAt: Date;
                     updatedAt: Date;
-                    telephone: string;
-                    nom: string;
+                    quartier: string;
                     description: string;
                     userId: number;
-                    quartier: string;
+                    isdefault: boolean;
                 }[];
             };
         }[];

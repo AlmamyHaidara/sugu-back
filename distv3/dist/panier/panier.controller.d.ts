@@ -23,11 +23,11 @@ export declare class PanierController {
             id: number;
             createdAt: Date;
             updatedAt: Date;
-            status: import(".prisma/client").$Enums.ProduitStatus;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
             tags: string | null;
-            type: import(".prisma/client").$Enums.ProduitType;
+            type: import("@prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
             isPublic: boolean | null;
@@ -40,8 +40,8 @@ export declare class PanierController {
             updatedAt: Date;
             description: string;
             img: string | null;
-            categorie: import(".prisma/client").$Enums.CategorieBoutique;
-            location: import(".prisma/client").$Enums.Location;
+            categorie: import("@prisma/client").$Enums.CategorieBoutique;
+            location: import("@prisma/client").$Enums.Location;
             phone: string | null;
             userId: number;
             countryId: number | null;
@@ -83,7 +83,7 @@ export declare class PanierController {
             id: number;
             description: string;
             img: string;
-            categorie: import(".prisma/client").$Enums.CategorieBoutique;
+            categorie: import("@prisma/client").$Enums.CategorieBoutique;
         };
         count: number;
         particuliers: {
@@ -110,5 +110,5 @@ export declare class PanierController {
         particulierId: number | null;
     }>;
     removeFromCart(id: string): Promise<boolean>;
-    emptyCart(boutiqueId: string): Promise<import(".prisma/client").Prisma.BatchPayload>;
+    emptyCart(boutiqueId: string): Promise<import("@prisma/client").Prisma.BatchPayload>;
 }
