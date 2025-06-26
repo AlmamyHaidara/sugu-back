@@ -256,17 +256,18 @@ export class AdresseService {
    * @returns {Promise<{status: number, msg: string}>} - The status and message of the removal operation.
    * @throws {HttpException} - Throws an HTTP exception if the address is not found or if there is an internal server error.
    */
-  async remove(id: number, userId: number) {
+  async remove(id: number) {
     try {
-      this.logger.log(
-        `Removing address with id ${id} for user with id ${userId}`,
-      );
       const isExist = await this.prisma.adresse.findUnique({
-        where: { id: id, userId: userId },
+        where: { id: id },
         select: {
           id: true,
+          userId: true,
         },
       });
+      this.logger.log(
+        `Removing address with id ${id} for user with id ${isExist?.userId}`,
+      );
 
       if (!isExist.id) {
         throw new HttpException(
@@ -290,6 +291,8 @@ export class AdresseService {
         msg: `L'adresse ${id} a ete suprimer avec succes`,
       };
     } catch (error) {
+      console.log(error);
+
       this.logger.error(`Error removing address with id ${id}`, error.stack);
       throw new HttpException(
         {

@@ -1,17 +1,17 @@
 import {
-  Controller,
-  Get,
-  Post,
+  BadRequestException,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  NotFoundException,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
   UploadedFile,
   UseInterceptors,
-  BadRequestException,
-  Query,
-  ParseIntPipe,
-  NotFoundException,
 } from '@nestjs/common';
 import { ProduitService } from './produit.service';
 import { CreateProduitDto } from './dto/create-produit.dto';
@@ -19,9 +19,9 @@ import { UpdateProduitDto } from './dto/update-produit.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { FindAllProduitQueryDto } from './dto/FindAllProduitQuery.dto';
 import { Public } from 'src/auth/constants';
 import { SearchProduitsDto } from './dto/SearchProduits.dto';
+import { Express } from 'express';
 
 @Controller('produit')
 export class ProduitController {
@@ -63,7 +63,7 @@ export class ProduitController {
     }
     const created = await this.produitService.create({
       ...createProduitDto,
-      img: file.path, // ou construire une URL si besoin
+      img: file.path.split('uploads/')[1], // ou construire une URL si besoin
     });
 
     return created;
@@ -73,6 +73,18 @@ export class ProduitController {
   @Get()
   async findAll(@Query() query: SearchProduitsDto) {
     return this.produitService.findAllProduits(query);
+  }
+
+  @Public()
+  @Get('country/:id')
+  async findAllProductByCountryId(@Param('id', ParseIntPipe) id: number) {
+    return this.produitService.findAllProduitsByCountryId(id);
+  }
+
+  @Public()
+  @Get('shop-products-client/:id')
+  findAllByShopClient(@Param('id', ParseIntPipe) id: number) {
+    return this.produitService.findAllByShop(id);
   }
 
   @Get('shop-products/:id')
@@ -117,6 +129,7 @@ export class ProduitController {
     @UploadedFile() file: Express.Multer.File, // <-- Récupérer le nouveau fichier
     @Body() updateProduitDto: UpdateProduitDto,
   ) {
+    console.log(updateProduitDto);
     // Si file existe, c’est qu’on upload une nouvelle image
     const updatedProduit = await this.produitService.update(
       id,
@@ -140,10 +153,11 @@ export class ProduitController {
     @Param('shopId', ParseIntPipe) shopId: number,
     @Param('userId', ParseIntPipe) userId: number,
   ) {
-    const produitSupprimé = await this.produitService.findByUserIdAndShopId(
-      shopId,
-      userId,
-    );
-    return produitSupprimé;
+    return await this.produitService.findByUserIdAndShopId(shopId, userId);
+  }
+
+  @Get('by-shop-id/:shopId/')
+  async getByShopId(@Param('shopId', ParseIntPipe) shopId: number) {
+    return await this.produitService.findByShopId(shopId);
   }
 }

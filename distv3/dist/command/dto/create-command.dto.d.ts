@@ -5,6 +5,7 @@ export declare enum EtatCommand {
 }
 export declare class CreateCommandDto {
     usetilisateurId: number;
+    adresseId: number;
     commandeNbr: string;
     ligneCommands: {
         quantiter: number;

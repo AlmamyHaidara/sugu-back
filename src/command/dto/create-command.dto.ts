@@ -20,6 +20,10 @@ export class CreateCommandDto {
   usetilisateurId: number;
 
   @IsNotEmpty()
+  @IsNumber()
+  adresseId: number;
+
+  @IsNotEmpty()
   @IsString()
   @MinLength(6)
   commandeNbr: string;

@@ -18,11 +18,17 @@ exports.MailModule = MailModule = __decorate([
         imports: [
             mailer_1.MailerModule.forRoot({
                 transport: {
-                    host: 'smtp.mail.yahoo.com',
+                    service: 'yahoo',
+                    host: process.env.YAHOO_HOST,
+                    port: 465,
+                    secure: true,
                     auth: {
                         user: process.env.YAHOO_USER,
                         pass: process.env.YAHOO_PASS,
                     },
+                },
+                defaults: {
+                    from: `"Sugu" <${process.env.YAHOO_USER}>`,
                 },
             }),
         ],

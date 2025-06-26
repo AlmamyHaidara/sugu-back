@@ -24,11 +24,11 @@ let AuthGuard = AuthGuard_1 = class AuthGuard {
         this.logger = new common_1.Logger(AuthGuard_1.name);
     }
     async canActivate(context) {
-        const isPublic = this.reflector.getAllAndOverride(constants_1.IS_PUBLIC_KEY, [
+        const published = this.reflector.getAllAndOverride(constants_1.IS_PUBLIC_KEY, [
             context.getHandler(),
             context.getClass(),
         ]);
-        if (isPublic) {
+        if (published) {
             return true;
         }
         const request = context.switchToHttp().getRequest();

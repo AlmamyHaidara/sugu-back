@@ -31,6 +31,11 @@ const country_service_1 = require("./country/country.service");
 const notifications_module_1 = require("./notifications/notifications.module");
 const users_controller_1 = require("./users/users.controller");
 const mail_module_1 = require("./mail/mail.module");
+const platform_express_1 = require("@nestjs/platform-express");
+const files_controller_1 = require("./files/files.controller");
+const files_service_1 = require("./files/files.service");
+const particulier_module_1 = require("./particulier/particulier.module");
+const publicity_module_1 = require("./publicity/publicity.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -44,8 +49,11 @@ exports.AppModule = AppModule = __decorate([
             users_module_1.UsersModule,
             produit_module_1.ProduitModule,
             boutique_module_1.BoutiqueModule,
+            platform_express_1.MulterModule.register({
+                dest: './uploads',
+            }),
             serve_static_1.ServeStaticModule.forRoot({
-                rootPath: (0, path_1.join)(__dirname, '..', 'uploads'),
+                rootPath: (0, path_1.join)(process.cwd(), 'uploads'),
                 serveRoot: '/uploads',
             }),
             prix_module_1.PrixModule,
@@ -56,8 +64,10 @@ exports.AppModule = AppModule = __decorate([
             search_module_1.SearchModule,
             notifications_module_1.NotificationsModule,
             mail_module_1.MailModule,
+            particulier_module_1.ParticulierModule,
+            publicity_module_1.PublicityModule,
         ],
-        controllers: [app_controller_1.AppController, country_controller_1.CountryController, users_controller_1.UsersController],
+        controllers: [app_controller_1.AppController, country_controller_1.CountryController, users_controller_1.UsersController, files_controller_1.FilesController],
         providers: [
             app_service_1.AppService,
             {
@@ -66,6 +76,7 @@ exports.AppModule = AppModule = __decorate([
             },
             prisma_service_1.PrismaService,
             country_service_1.CountryService,
+            files_service_1.FilesService,
         ],
     })
 ], AppModule);

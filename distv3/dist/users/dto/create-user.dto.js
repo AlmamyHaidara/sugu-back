@@ -9,8 +9,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateUserDto = void 0;
+exports.CreateUserDto = exports.Profile = void 0;
 const class_validator_1 = require("class-validator");
+var Profile;
+(function (Profile) {
+    Profile["ADMIN"] = "ADMIN";
+    Profile["CLIENT"] = "CLIENT";
+    Profile["BOUTIQUIER"] = "BOUTIQUIER";
+})(Profile || (exports.Profile = Profile = {}));
 class CreateUserDto {
 }
 exports.CreateUserDto = CreateUserDto;
@@ -24,6 +30,7 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(2),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "prenom", void 0);
 __decorate([
@@ -53,10 +60,4 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "avatar", void 0);
-var Profile;
-(function (Profile) {
-    Profile["ADMIN"] = "ADMIN";
-    Profile["CLIENT"] = "CLIENT";
-    Profile["BOUTIQUIER"] = "BOUTIQUIER";
-})(Profile || (Profile = {}));
 //# sourceMappingURL=create-user.dto.js.map

@@ -19,7 +19,6 @@ let NotificationsService = class NotificationsService {
     }
     async create(createNotificationDto) {
         try {
-            console.log('ppppppppppppppppp', createNotificationDto);
             const utilisateur = await this.prisma.utilisateur.findUnique({
                 where: { id: createNotificationDto.userId },
             });
@@ -65,10 +64,18 @@ let NotificationsService = class NotificationsService {
     async findOne(id) {
         const notification = await this.prisma.notification.findUnique({
             where: { id },
+            include: {
+                utilisateur: {
+                    include: {
+                        Boutique: true,
+                    }
+                }
+            }
         });
         if (!notification) {
             throw new common_1.NotFoundException(`Notification #${id} introuvable.`);
         }
+        console.log('notification', notification);
         return notification;
     }
     async update(id, updateNotificationDto) {
@@ -141,6 +148,9 @@ let NotificationsService = class NotificationsService {
             const notifications = await this.prisma.notification.findMany({
                 where: {
                     utilisateurId: userId,
+                },
+                orderBy: {
+                    createdAt: 'desc',
                 },
                 take: 20,
             });

@@ -1,0 +1,101 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+ # Règles de Tests
+
+## Organisation des Tests
+- Un fichier de test par fichier source (.spec.ts)
+- Tests dans le même dossier que les fichiers sources
+- Tests unitaires pour les services
+- Tests d'intégration pour les contrôleurs
+- Tests e2e pour les flux complets
+
+## Structure des Tests
+```typescript
+describe('NomDuService', () => {
+  describe('nomDeLaMéthode', () => {
+    it('should [description du comportement attendu]', async () => {
+      // Setup
+      // Execution
+      // Assertion
+    });
+  });
+});
+```
+
+## Bonnes Pratiques
+- Un test par comportement
+- Tests indépendants
+- Nommage clair des tests
+- Utilisation de fixtures pour les données de test
+- Mock des dépendances externes
+
+## Couverture de Tests
+- Minimum 80% de couverture de code
+- Tester les cas d'erreur
+- Tester les cas limites
+- Tester les validations
+
+## Exemple de Test
+```typescript
+describe('AuthService', () => {
+  let service: AuthService;
+  let usersService: UsersService;
+  let jwtService: JwtService;
+
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        {
+          provide: UsersService,
+          useValue: {
+            findOne: jest.fn(),
+            getCurrentUser: jest.fn(),
+          },
+        },
+        {
+          provide: JwtService,
+          useValue: {
+            signAsync: jest.fn(),
+          },
+        },
+      ],
+    }).compile();
+
+    service = module.get<AuthService>(AuthService);
+    usersService = module.get<UsersService>(UsersService);
+    jwtService = module.get<JwtService>(JwtService);
+  });
+
+  describe('signIn', () => {
+    it('should return token for valid credentials', async () => {
+      // Setup
+      const mockUser = { id: 1, email: 'test@example.com', password: 'hashed' };
+      jest.spyOn(usersService, 'findOne').mockResolvedValue(mockUser);
+      jest.spyOn(jwtService, 'signAsync').mockResolvedValue('mock-token');
+
+      // Execution
+      const result = await service.signIn('test@example.com', 'password');
+
+      // Assertion
+      expect(result.access_token).toBe('mock-token');
+      expect(usersService.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
+    });
+  });
+});
+```
+
+## Tests d'Intégration
+- Tester les endpoints API
+- Simuler les requêtes HTTP
+- Vérifier les codes de réponse
+- Vérifier le format des réponses
+
+## Tests E2E
+- Tester les flux complets
+- Utiliser des bases de données de test
+- Nettoyer les données après les tests
+- Simuler l'environnement de production

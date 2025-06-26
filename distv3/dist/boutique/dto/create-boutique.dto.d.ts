@@ -1,6 +1,7 @@
 export declare enum Location {
     NATIONAL = "NATIONAL",
-    INTERNATIONAL = "INTERNATIONAL"
+    INTERNATIONAL = "INTERNATIONAL",
+    PARTICULIER = "PARTICULIER"
 }
 export declare enum CategorieBoutique {
     DETAILLANT = "DETAILLANT",
@@ -8,11 +9,12 @@ export declare enum CategorieBoutique {
 }
 export declare class CreateBoutiqueDto {
     nom: string;
+    email: string;
     categorie: CategorieBoutique;
     description: string;
     location: Location;
     phone: string;
-    img: string;
+    img?: string;
     countryId: number;
     userId: number;
 }

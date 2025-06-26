@@ -1,10 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Put,
   UploadedFile,
   UseInterceptors,
@@ -14,6 +14,7 @@ import { extname } from 'path';
 import { diskStorage } from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
+import { Express } from 'express';
 
 @Controller('users')
 export class UsersController {
@@ -59,6 +60,21 @@ export class UsersController {
     const updatedUser = await this.userService.update(id, updateUserDto, file);
     return {
       ...updatedUser,
+    };
+  }
+
+  @Delete(':id')
+  async delete(@Param('id', ParseIntPipe) id: number) {
+    const result = await this.userService.remove(id);
+    if (!result) {
+      return {
+        message: 'Error deleting the user',
+        status: 500,
+      };
+    }
+    return {
+      message: `Deleting the user #${id}`,
+      status: 200,
     };
   }
 }

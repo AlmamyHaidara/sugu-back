@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sugu-back-nestjs
+  namespace: sugu
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sugu-back-nestjs
+  template:
+    metadata:
+      labels:
+        app: sugu-back-nestjs
+    spec:
+      containers:
+        - name: sugu-back-nestjs-container
+          image: almamyhaidara159/sugu-back-nestjs
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: sugu-back-secrets
+                  key: DATABASE_URL
+          volumeMounts:
+            - name: sugu-uploads
+              mountPath: /app/uploads
+      volumes:
+        - name: sugu-uploads
+          persistentVolumeClaim:
+            claimName: sugu-pvc
