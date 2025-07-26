@@ -4,7 +4,6 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { compare } from 'src/utils/bcrypt';
 import { UpdateUserDto } from 'src/users/dto/update-user.dto';
-import { Utilisateur } from '@prisma/client';
 import { PrixService } from 'src/prix/prix.service';
 import { PasswordUpdate } from './constants';
 

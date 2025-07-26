@@ -356,7 +356,9 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
             };
         }
         catch (error) {
-            throw new common_1.InternalServerErrorException('Erreur lors de la récupération de la boutique');
+            console.log(error);
+            this.logger.error(`Error fetching statistics for boutique #${id}`, error);
+            throw new common_1.InternalServerErrorException('Erreur lors de la récupération des statistiques de la boutique');
         }
     }
     async update(id, updateBoutiqueDto) {

@@ -26,6 +26,7 @@ USER node
 ENV PORT=5000
 ENV NODE_ENV=production
 ENV DATABASE_URL="mysql://aviplus:aviplus@mltdev.ml:3306/sugu_db"
+ENV JWT_SECRET="771f92417745f2db3c9e70ada0a37ea1"
 
 # Étape 7 : Exposer le port
 EXPOSE 5000

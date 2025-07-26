@@ -371,8 +371,11 @@ export class BoutiqueService {
         data: { sales, orders, revenue },
       };
     } catch (error) {
+      console.log(error);
+
+      this.logger.error(`Error fetching statistics for boutique #${id}`, error);
       throw new InternalServerErrorException(
-        'Erreur lors de la récupération de la boutique',
+        'Erreur lors de la récupération des statistiques de la boutique',
       );
     }
   }
