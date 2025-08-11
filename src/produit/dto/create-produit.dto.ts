@@ -36,5 +36,5 @@ export class CreateProduitDto {
 
   @IsNotEmpty()
   @IsString()
-  boutique: string;
+  boutique?: string;
 }

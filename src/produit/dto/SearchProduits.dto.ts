@@ -1,4 +1,3 @@
-// search-produits.dto.ts
 import { CategorieBoutique } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
@@ -8,6 +7,7 @@ import {
   IsEnum,
   IsNotEmpty,
   MinLength,
+  Min,
 } from 'class-validator';
 
 export class SearchProduitsDto {
@@ -20,22 +20,20 @@ export class SearchProduitsDto {
   @IsInt()
   categorieId?: number;
 
-  // Filtrer par catégorie de botuique
   @IsOptional()
   @IsEnum(CategorieBoutique)
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(2)
   categorieBoutique?: CategorieBoutique;
 
   @IsOptional()
   @Type(() => Number)
   @IsInt()
+  @Min(0)
   prixMin?: number;
 
   @IsOptional()
   @Type(() => Number)
   @IsInt()
+  @Min(0)
   prixMax?: number;
 
   @IsOptional()
@@ -44,55 +42,18 @@ export class SearchProduitsDto {
   countryId?: number;
 
   @IsOptional()
-  location?: string; // ou une enum ?
+  @IsString()
+  location?: string; // Consider using an enum if applicable
 
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  page?: number;
+  @Min(1)
+  page?: number = 1; // Default value
 
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  limit?: number;
+  @Min(1)
+  limit?: number = 60; // Default value
 }
-
-/**
- * // search-produits.dto.ts
-import { Type } from 'class-transformer';
-import { IsOptional, IsString, IsInt } from 'class-validator';
-
-export class SearchProduitsDto {
-  @IsOptional()
-  @IsString()
-  nom?: string;
-
-  @IsOptional()
-  @IsString()
-  categorieId?: string;
-
-  @IsOptional()
-  @IsString()
-  prixMin?: string;
-
-  @IsOptional()
-  @IsString()
-  prixMax?: string;
-
-  @IsOptional()
-  @IsString()
-  countryId?: string;
-
-  @IsOptional()
-  location?: string; // ou une enum ?
-
-  @IsOptional()
-  @IsString()
-  page?: string;
-
-  @IsOptional()
-  @IsString()
-  limit?: string;
-}
-
- */

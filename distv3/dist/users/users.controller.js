@@ -36,6 +36,19 @@ let UsersController = class UsersController {
             ...updatedUser,
         };
     }
+    async delete(id) {
+        const result = await this.userService.remove(id);
+        if (!result) {
+            return {
+                message: 'Error deleting the user',
+                status: 500,
+            };
+        }
+        return {
+            message: `Deleting the user #${id}`,
+            status: 200,
+        };
+    }
 };
 exports.UsersController = UsersController;
 __decorate([
@@ -70,6 +83,13 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object, update_user_dto_1.UpdateUserDto]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "delete", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService])

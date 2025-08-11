@@ -1,54 +1,43 @@
-version: '3.9'
-
+version: '3'
 services:
   db:
-    image: postgres:13
-    container_name: postgres
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=adminpsql
-      - POSTGRES_DB=sugu_db
+    image: mysql
     ports:
-      - '5432:5432'
+      - "3301:3306"
+    expose:
+      - 3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=sugudbpassword
+      - MYSQL_DATABASE=sugu_db
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - ./sugu-db-data:/var/lib/mysql
+    restart: always
     networks:
-      - mynetwork
-
+      - sugu-network
+    
   app:
+    depends_on:
+      - db
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: sugu-back-dev
+    container_name: sugu-back
     environment:
       - PORT=5000
-      - DATABASE_URL=postgresql://postgres:adminpsql@db:5432/sugu_db?schema=public
+      - DATABASE_URL=mysql://root:sugudbpassword@db:3306/sugu_db
     ports:
       - '5000:5000'
-    depends_on:
-      - db
     volumes:
-      - ./src:/app/src
       - ./uploads:/app/uploads
-      - ./prisma:/app/prisma
-
     networks:
-      - mynetwork
+      - sugu-network
+    restart: unless-stopped
+  
 
 volumes:
-  db-data:
+  sugu-db-data:
+
 
 networks:
-  mynetwork:
+  sugu-network:
     driver: bridge
-# pgadmin:
-#   image: dpage/pgadmin4
-#   restart: always
-#   container_name: nest-pgadmin4
-#   environment:
-#     - PGADMIN_DEFAULT_EMAIL=admin@admin.com
-#     - PGADMIN_DEFAULT_PASSWORD=pgadmin4
-#   ports:
-#     - '5050:80'
-#   depends_on:
-#     - db

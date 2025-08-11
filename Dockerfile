@@ -5,28 +5,34 @@ LABEL authors="almamyhaidara"
 # Étape 2 : Définir le répertoire de travail
 WORKDIR /app
 
-# Étape 3 : Copier uniquement le build de l’application (dist/) et les fichiers essentiels
-COPY package.json package-lock.json ./
-COPY build ./dist
-COPY ./uploads ./uploads
-COPY ./prisma ./prisma
+# Étape 3 : Copier les fichiers nécessaires
+COPY package.json  ./
+COPY **/dist ./dist
+COPY prisma ./prisma
+COPY entrypoint.sh ./
 
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+# Étape 4 : Installer les dépendances et configurer les permissions
+RUN npm install -f --omit=dev && \
+    chmod +x /app/entrypoint.sh && \
+    mkdir -p /app/uploads && \
+    chown -R node:node /app
 
-# Étape 4 : Installer uniquement les dépendances de production
-RUN npm install -f --omit=dev
+COPY uploads/** /app/uploads
 
-# Étape 5 : Définir les variables d’environnement
+# Étape 5 : Basculer vers un utilisateur non-root
+USER node
+
+# Étape 6 : Variables d'environnement
 ENV PORT=5000
-# ENV DATABASE_URL=postgresql://neondb_owner:npg_raD1zwtqEb3Z@ep-old-leaf-a8o55vxz-pooler.eastus2.azure.neon.tech/neondb?sslmode=require
-#ENV DATABASE_URL="postgresql://postgres:adminpsql@127.0.0.1:5433/sugu_db?schema=public"
+ENV NODE_ENV=production
+ENV DATABASE_URL="mysql://aviplus:aviplus@mltdev.ml:3306/sugu_db"
+ENV JWT_SECRET="771f92417745f2db3c9e70ada0a37ea1"
 
-# RUN npx prisma db push
-
-# Étape 6 : Exposer le port
+# Étape 7 : Exposer le port
 EXPOSE 5000
 
-# Étape 7 : Lancer l’application NestJS
-# CMD ["node", "dist/main.js"]
+# Étape 8 : Volume pour les uploads
+VOLUME /app/uploads
+
+# Étape 9 : Point d'entrée
 ENTRYPOINT ["/app/entrypoint.sh"]

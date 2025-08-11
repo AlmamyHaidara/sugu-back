@@ -4,17 +4,19 @@ export declare class PanierService {
     constructor(prisma: PrismaService);
     addToCart(data: {
         utilisateurId: number;
-        produitId: number;
-        boutiqueId: number;
+        produitId?: number;
+        boutiqueId?: number;
+        particulierId?: number;
         count: number;
     }): Promise<{
         id: number;
         createdAt: Date;
         updatedAt: Date;
         produitId: number;
-        boutiqueId: number;
+        boutiqueId: number | null;
         utilisateurId: number;
         count: number;
+        particulierId: number | null;
     }>;
     getCart(boutiqueId: number): Promise<({
         produits: {
@@ -22,32 +24,44 @@ export declare class PanierService {
             id: number;
             createdAt: Date;
             updatedAt: Date;
+            status: import("@prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string;
-            tags: string[];
+            tags: string | null;
+            type: import("@prisma/client").$Enums.ProduitType;
+            rejectionComment: string | null;
             categorieId: number;
+            isPublic: boolean | null;
         };
         boutiques: {
             nom: string;
+            email: string | null;
             id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
             img: string | null;
-            categorie: import(".prisma/client").$Enums.CategorieBoutique;
-            location: import(".prisma/client").$Enums.Location;
+            categorie: import("@prisma/client").$Enums.CategorieBoutique;
+            location: import("@prisma/client").$Enums.Location;
             phone: string | null;
             userId: number;
             countryId: number | null;
+        };
+        particuliers: {
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: number;
         };
     } & {
         id: number;
         createdAt: Date;
         updatedAt: Date;
         produitId: number;
-        boutiqueId: number;
+        boutiqueId: number | null;
         utilisateurId: number;
         count: number;
+        particulierId: number | null;
     })[]>;
     getCartByUser(utilisateurId: number): Promise<{
         produits: {
@@ -70,27 +84,30 @@ export declare class PanierService {
             id: number;
             description: string;
             img: string;
-            categorie: import(".prisma/client").$Enums.CategorieBoutique;
+            categorie: import("@prisma/client").$Enums.CategorieBoutique;
         };
         count: number;
+        particuliers: {
+            utilisateur: {
+                nom: string;
+                prenom: string;
+                email: string;
+                id: number;
+            };
+            id: number;
+            userId: number;
+        };
     }[]>;
     updateCartItem(id: number, count: number): Promise<{
         id: number;
         createdAt: Date;
         updatedAt: Date;
         produitId: number;
-        boutiqueId: number;
+        boutiqueId: number | null;
         utilisateurId: number;
         count: number;
+        particulierId: number | null;
     }>;
-    removeFromCart(id: number): Promise<{
-        id: number;
-        createdAt: Date;
-        updatedAt: Date;
-        produitId: number;
-        boutiqueId: number;
-        utilisateurId: number;
-        count: number;
-    }>;
-    emptyCart(boutiqueId: number): Promise<import(".prisma/client").Prisma.BatchPayload>;
+    removeFromCart(id: number): Promise<boolean>;
+    emptyCart(id: number): Promise<import("@prisma/client").Prisma.BatchPayload>;
 }
