@@ -11,8 +11,6 @@ import {
 } from '@nestjs/common';
 import { CommandService } from './command.service';
 import { CreateCommandDto, EtatCommand } from './dto/create-command.dto';
-import { UpdateCommandDto } from './dto/update-command.dto';
-import { query } from 'express';
 
 @Controller('commande')
 export class CommandController {
