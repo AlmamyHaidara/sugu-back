@@ -50,7 +50,7 @@ export class PublicityController {
         },
       }),
       fileFilter: (req, file, callback) => {
-        if (!file.mimetype.match(/\/(jpg|jpeg|png)$/i)) {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|mp4|mov|avi|webm)$/i)) {
           return callback(
             new Error('Seuls les fichiers JPG, JPEG et PNG sont autorisés !'),
             false,
@@ -64,10 +64,10 @@ export class PublicityController {
     @Body() createPublicityDto: CreatePublicityDto,
     @UploadedFile() file: Express.Multer.File, // <-- Récupérer le nouveau fichier
   ) {
-    if (file.path.split('uploads/')[1]) {
+    if (file.path.split('uploads/')[1] || file.path.split('uploads\\')[1]) {
       return this.publicityService.create({
         ...createPublicityDto,
-        img: file.path.split('uploads/')[1],
+        img: file.path.split('uploads/')[1] || file.path.split('uploads\\')[1],
       });
     } else {
       return this.publicityService.create(createPublicityDto);
@@ -106,7 +106,7 @@ export class PublicityController {
         },
       }),
       fileFilter: (req, file, callback) => {
-        if (!file.mimetype.match(/\/(jpg|jpeg|png)$/i)) {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|mp4|mov|avi|webm)$/i)) {
           return callback(
             new Error('Seuls les fichiers JPG, JPEG et PNG sont autorisés !'),
             false,

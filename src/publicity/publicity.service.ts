@@ -192,7 +192,8 @@ export class PublicityService {
 
       // 4. Si on a un nouveau fichier, mettre à jour le champ img
       if (file) {
-        dataToUpdate.img = file.path.split('uploads/')[1]; // ou construire une URL publique
+        dataToUpdate.img =
+          file.path.split('uploads/')[1] || file.path.split('uploads\\')[1]; // ou construire une URL publique
       }
       delete dataToUpdate.id;
       return await this.prisma.offreSpeciale.update({
