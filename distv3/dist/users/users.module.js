@@ -13,6 +13,7 @@ const prisma_service_1 = require("../prisma/prisma.service");
 const jwt_1 = require("@nestjs/jwt");
 const constants_1 = require("../auth/constants");
 const users_controller_1 = require("./users.controller");
+const mail_service_1 = require("../mail/mail.service");
 let UsersModule = class UsersModule {
 };
 exports.UsersModule = UsersModule;
@@ -26,8 +27,8 @@ exports.UsersModule = UsersModule = __decorate([
                 signOptions: { expiresIn: '24h' },
             }),
         ],
-        providers: [users_service_1.UsersService, prisma_service_1.PrismaService],
-        exports: [users_service_1.UsersService],
+        providers: [users_service_1.UsersService, prisma_service_1.PrismaService, mail_service_1.MailService],
+        exports: [users_service_1.UsersService, mail_service_1.MailService],
         controllers: [users_controller_1.UsersController, users_controller_1.UsersController],
     })
 ], UsersModule);

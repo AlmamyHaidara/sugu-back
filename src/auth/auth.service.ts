@@ -31,6 +31,10 @@ export class AuthService {
     );
   }
 
+  passwordForget(email: string) {
+    this.logger.log(`Password reset requested for email: ${email}`);
+    return this.usersService.passwordForget(email);
+  }
   async signIn(
     email: string,
     pass: string,

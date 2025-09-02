@@ -36,6 +36,9 @@ let UsersController = class UsersController {
             ...updatedUser,
         };
     }
+    async changePassword(request) {
+        return this.userService.changePassword(request);
+    }
     async delete(id) {
         const result = await this.userService.remove(id);
         if (!result) {
@@ -83,6 +86,13 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object, update_user_dto_1.UpdateUserDto]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "update", null);
+__decorate([
+    (0, common_1.Put)('change-password'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "changePassword", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),

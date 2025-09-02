@@ -24,6 +24,12 @@ export class AuthController {
   signIn(@Body() signInDto: Record<string, any>) {
     return this.authService.signIn(signInDto.email, signInDto.password);
   }
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Post('password-forget')
+  passwordForget(@Body() email: Record<string, string>) {
+    return this.authService.passwordForget(email.email);
+  }
 
   @Public()
   @HttpCode(HttpStatus.OK)

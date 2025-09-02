@@ -14,6 +14,7 @@ const prisma_service_1 = require("../prisma/prisma.service");
 const users_service_1 = require("../users/users.service");
 const prix_service_1 = require("../prix/prix.service");
 const notifications_service_1 = require("../notifications/notifications.service");
+const mail_module_1 = require("../mail/mail.module");
 let CommandModule = class CommandModule {
 };
 exports.CommandModule = CommandModule;
@@ -27,6 +28,7 @@ exports.CommandModule = CommandModule = __decorate([
             prix_service_1.PrixService,
             notifications_service_1.NotificationsService,
         ],
+        imports: [mail_module_1.MailModule],
     })
 ], CommandModule);
 //# sourceMappingURL=command.module.js.map

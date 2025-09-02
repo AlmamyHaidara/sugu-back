@@ -1,3 +1,4 @@
+import { HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PasswordUpdate } from './constants';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -9,6 +10,11 @@ export declare class AuthController {
         data: import("../users/dto/update-user.dto").UpdateUserDto;
         date: string;
     }>;
+    passwordForget(email: Record<string, string>): Promise<{
+        status: HttpStatus;
+        data: string;
+        message: string;
+    }>;
     signUp(createUserDto: CreateUserDto): Promise<{
         status: number;
         id: number;
@@ -17,13 +23,13 @@ export declare class AuthController {
     updatePassword(createUserDto: PasswordUpdate): Promise<{
         status: number;
         data: {
+            id: number;
             nom: string;
             prenom: string;
-            email: string;
             telephone: string;
+            email: string;
             profile: import(".prisma/client").$Enums.Profile;
             avatar: string;
-            id: number;
         };
         msg: string;
     }>;

@@ -28,7 +28,7 @@ exports.MailModule = MailModule = __decorate([
                     },
                 },
                 defaults: {
-                    from: `"Sugu" <${process.env.YAHOO_USER}>`,
+                    from: `"Sanyfere" <${process.env.YAHOO_USER}>`,
                 },
             }),
         ],

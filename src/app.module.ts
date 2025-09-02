@@ -28,6 +28,7 @@ import { FilesController } from './files/files.controller';
 import { FilesService } from './files/files.service';
 import { ParticulierModule } from './particulier/particulier.module';
 import { PublicityModule } from './publicity/publicity.module';
+import { MailService } from './mail/mail.service';
 
 @Module({
   imports: [
@@ -57,7 +58,12 @@ import { PublicityModule } from './publicity/publicity.module';
     ParticulierModule,
     PublicityModule,
   ],
-  controllers: [AppController, CountryController, UsersController, FilesController],
+  controllers: [
+    AppController,
+    CountryController,
+    UsersController,
+    FilesController,
+  ],
   providers: [
     AppService,
     {
@@ -67,6 +73,7 @@ import { PublicityModule } from './publicity/publicity.module';
     PrismaService,
     CountryService,
     FilesService,
+    MailService,
   ],
 })
 export class AppModule {}

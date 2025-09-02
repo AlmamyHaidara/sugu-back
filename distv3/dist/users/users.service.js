@@ -14,9 +14,13 @@ exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const bcrypt_1 = require("../utils/bcrypt");
+const functions_1 = require("../utils/functions");
+const mail_service_1 = require("../mail/mail.service");
+const data_1 = require("../mail/data");
 let UsersService = UsersService_1 = class UsersService {
-    constructor(prisma) {
+    constructor(prisma, mailService) {
         this.prisma = prisma;
+        this.mailService = mailService;
         this.logger = new common_1.Logger(UsersService_1.name);
     }
     async create(createUserDto) {
@@ -347,10 +351,105 @@ let UsersService = UsersService_1 = class UsersService {
             return false;
         }
     }
+    async passwordForget(email) {
+        this.logger.log(`La renitialisation du mots de passe requiere l'email: ${email}`);
+        const code = (0, functions_1.genererCode)();
+        this.prisma.utilisateur
+            .findUnique({
+            where: { email: email },
+        })
+            .then(async (user) => {
+            if (!user) {
+                this.logger.warn(`Pas d'utilisateur trouvez avec cet addresse email: ${email}`);
+                return {
+                    status: common_1.HttpStatus.NOT_FOUND,
+                    data: null,
+                    message: `Si un compte avec cet adresse e-mail ${email} existes, un lien de renitialisation de mots de passe serat envoie.`,
+                };
+            }
+            this.logger.log(`Utilisateur non trouvez avec cet adresse email: ${email}, prossedons a l'envoie du mail de renitialisation.`);
+            await this.mailService.sendMail([email], 'Le code pour renitialiser votre mots de passe', (0, data_1.templateToSendCodePassword)(code, user.prenom + ' ' + user.nom));
+        })
+            .catch((err) => {
+            this.logger.error(`Error finding user with email: ${email}`, err);
+            return {
+                status: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
+                data: null,
+                message: `Si un compte avec cet adresse e-mail ${email} existes, un lien de renitialisation de mots de passe serat envoie.`,
+            };
+        });
+        return {
+            status: common_1.HttpStatus.OK,
+            data: code,
+            message: `Utilisateur trouvez avec cet adresse email: ${email}, prossedons a l'envoie du mail de renitialisation.`,
+        };
+    }
+    async changePassword(request) {
+        this.logger.log('Mise a jours du mots de passe');
+        try {
+            const isExiste = await this.prisma.utilisateur.findFirst({
+                where: {
+                    email: request.email,
+                },
+            });
+            if (!isExiste) {
+                throw new common_1.HttpException({
+                    status: common_1.HttpStatus.CONFLICT,
+                    message: "Utilisateur n'existe pas.",
+                    error: 'Conflict',
+                }, common_1.HttpStatus.CONFLICT);
+            }
+            const user = await this.prisma.$transaction(async (prisma) => {
+                return await prisma.utilisateur.update({
+                    where: {
+                        id: isExiste?.id,
+                    },
+                    data: {
+                        password: await (0, bcrypt_1.hash)(request.password),
+                    },
+                    select: {
+                        id: true,
+                        nom: true,
+                        prenom: true,
+                        email: true,
+                        telephone: true,
+                        profile: true,
+                        avatar: true,
+                    },
+                });
+            });
+            return {
+                status: 200,
+                data: { ...user },
+                msg: `Le mots de passe de  ${user.nom} ${user.prenom} a a ete mis àjours avec success`,
+            };
+        }
+        catch (error) {
+            console.error(error.status);
+            switch (error.status) {
+                case 404:
+                    throw new common_1.HttpException({
+                        status: common_1.HttpStatus.NOT_FOUND,
+                        message: 'Utilisateur introuvable.',
+                        error: 'Not found',
+                    }, common_1.HttpStatus.NOT_FOUND);
+                    break;
+                case 500:
+                    throw Error("Une Erreur c'est produit lord de la mise a jours de utilisateur");
+                    break;
+                case 400:
+                    throw new common_1.BadRequestException('Le mots de passe courant est invalide');
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = UsersService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        mail_service_1.MailService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

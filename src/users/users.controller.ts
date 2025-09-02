@@ -63,6 +63,11 @@ export class UsersController {
     };
   }
 
+  @Put('change-password')
+  async changePassword(@Body() request: { email: string; password: string }) {
+    return this.userService.changePassword(request);
+  }
+
   @Delete(':id')
   async delete(@Param('id', ParseIntPipe) id: number) {
     const result = await this.userService.remove(id);

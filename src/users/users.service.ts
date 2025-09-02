@@ -13,6 +13,9 @@ import { compare, hash } from 'src/utils/bcrypt';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
 import { Express } from 'express';
+import { genererCode } from 'src/utils/functions';
+import { MailService } from 'src/mail/mail.service';
+import { templateToSendCodePassword } from 'src/mail/data';
 
 // This should be a real class/interface representing a user entity
 export type User = any;
@@ -21,7 +24,10 @@ export type User = any;
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mailService: MailService,
+  ) {}
 
   /**
    * Creates a new user entry in the database.
@@ -472,6 +478,152 @@ export class UsersService {
     } catch (e) {
       console.error(e);
       return false;
+    }
+  }
+
+  async passwordForget(email: string) {
+    this.logger.log(
+      `La renitialisation du mots de passe requiere l'email: ${email}`,
+    );
+    const code = genererCode();
+
+    this.prisma.utilisateur
+      .findUnique({
+        where: { email: email },
+      })
+      .then(async (user) => {
+        if (!user) {
+          this.logger.warn(
+            `Pas d'utilisateur trouvez avec cet addresse email: ${email}`,
+          );
+
+          return {
+            status: HttpStatus.NOT_FOUND,
+            data: null,
+            message: `Si un compte avec cet adresse e-mail ${email} existes, un lien de renitialisation de mots de passe serat envoie.`,
+          };
+        }
+
+        this.logger.log(
+          `Utilisateur non trouvez avec cet adresse email: ${email}, prossedons a l'envoie du mail de renitialisation.`,
+        );
+        // Generate a password reset token and its expiration time
+        await this.mailService.sendMail(
+          [email],
+          'Le code pour renitialiser votre mots de passe',
+          templateToSendCodePassword(code, user.prenom + ' ' + user.nom),
+        );
+        // const tokenExpiration = new Date(Date.now() + 3600000); // Token valid for 1 hour
+        // // Save the token and expiration to the user's record in the database
+        // this.prisma.utilisateur
+        //   .update({
+        //     where: { email: email },
+        //     data: {
+        //       resetToken: resetToken,
+        //       tokenExpiration: tokenExpiration,
+        //     },
+        //   })
+        //   .then(() => {
+        //     this.logger.log(`Password reset token saved for email: ${email}`);
+        //     // Send the password reset email
+        //     // this.mailService.sendPasswordResetEmail(email, resetToken);
+        //     this.logger.log(`Password reset email sent to: ${email}`);
+        //   })
+        // .catch((err) => {
+        //   this.logger.error(
+        //     `Error saving reset token for email: ${email}`,
+        //     err,
+        //   );
+        // });
+      })
+      .catch((err) => {
+        this.logger.error(`Error finding user with email: ${email}`, err);
+        return {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          data: null,
+          message: `Si un compte avec cet adresse e-mail ${email} existes, un lien de renitialisation de mots de passe serat envoie.`,
+        };
+      });
+    // Ici, vous pouvez implémenter la logique pour envoyer un email de réinitialisation de mot de passe
+    return {
+      status: HttpStatus.OK,
+      data: code,
+      message: `Utilisateur trouvez avec cet adresse email: ${email}, prossedons a l'envoie du mail de renitialisation.`,
+    };
+  }
+
+  async changePassword(request: { email: string; password: string }) {
+    this.logger.log('Mise a jours du mots de passe');
+    try {
+      const isExiste = await this.prisma.utilisateur.findFirst({
+        where: {
+          email: request.email,
+        },
+      });
+
+      if (!isExiste) {
+        throw new HttpException(
+          {
+            status: HttpStatus.CONFLICT,
+            message: "Utilisateur n'existe pas.",
+            error: 'Conflict',
+          },
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      // delete updateProduitDto?.password;
+      const user = await this.prisma.$transaction(async (prisma) => {
+        return await prisma.utilisateur.update({
+          where: {
+            id: isExiste?.id,
+          },
+          data: {
+            password: await hash(request.password),
+          },
+          select: {
+            id: true,
+            nom: true,
+            prenom: true,
+            email: true,
+            telephone: true,
+            profile: true,
+            avatar: true,
+          },
+        });
+      });
+      return {
+        status: 200,
+        data: { ...user },
+        msg: `Le mots de passe de  ${user.nom} ${user.prenom} a a ete mis àjours avec success`,
+      };
+    } catch (error) {
+      console.error(error.status);
+      switch (error.status) {
+        case 404:
+          throw new HttpException(
+            {
+              status: HttpStatus.NOT_FOUND,
+              message: 'Utilisateur introuvable.',
+              error: 'Not found',
+            },
+            HttpStatus.NOT_FOUND,
+          );
+          break;
+        case 500:
+          throw Error(
+            "Une Erreur c'est produit lord de la mise a jours de utilisateur",
+          );
+          break;
+
+        case 400:
+          throw new BadRequestException(
+            'Le mots de passe courant est invalide',
+          );
+          break;
+        default:
+          break;
+      }
     }
   }
 }

@@ -31,6 +31,10 @@ let AuthService = AuthService_1 = class AuthService {
         this.logger.log('Signing up a new user');
         return this.usersService.passwordUpdate(createUserDto.userId, createUserDto.newPassword, createUserDto.currentPassword);
     }
+    passwordForget(email) {
+        this.logger.log(`Password reset requested for email: ${email}`);
+        return this.usersService.passwordForget(email);
+    }
     async signIn(email, pass) {
         try {
             this.logger.log(`Signing in user with email: ${email}`);
