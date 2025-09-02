@@ -8,7 +8,7 @@ export const templateToSendShopidentyMail = (
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vos identifiants Sugu</title>
+  <title>Vos identifiants Sanyfere</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -34,7 +34,7 @@ export const templateToSendShopidentyMail = (
     .logo {
       font-size: 28px;
       font-weight: bold;
-      color:#f7a01f;
+      color:#1E40AF;
     }
     .content {
       padding: 30px 20px;
@@ -44,7 +44,7 @@ export const templateToSendShopidentyMail = (
       padding: 15px;
       border-radius: 5px;
       margin: 20px 0;
-      border-left: 4px solid #f7a01f;
+      border-left: 4px solid #1E40AF;
     }
     .credentials p {
       margin: 10px 0;
@@ -55,7 +55,7 @@ export const templateToSendShopidentyMail = (
     }
     .button {
       display: inline-block;
-      background-color: #f7a01f;
+      background-color: #1E40AF;
       color: #ffffff;
       text-decoration: none;
       padding: 12px 25px;
@@ -84,12 +84,12 @@ export const templateToSendShopidentyMail = (
 <body>
   <div class="container">
     <div class="header">
-      <div class="logo">SUGU</div>
+      <div class="logo">Sanyfere</div>
       <p>La plateforme dédiée aux boutiquiers</p>
     </div>
     
     <div class="content">
-      <h2>Bienvenue sur Sugu !</h2>
+      <h2>Bienvenue sur Sanyfere !</h2>
       
       <p>Cher(e) boutiquier(ère),</p>
       
@@ -105,16 +105,16 @@ export const templateToSendShopidentyMail = (
       <p>Vous pouvez modifier votre nom d'utilisateur et votre mot de passe à tout moment dans les paramètres de votre compte.</p>
       
       <center>
-        <a href="https://app.sugu.com/login" class="button">Se connecter à Sugu</a>
+        <a href="https://app.sanyfere.com/login" class="button">Se connecter à Sanyfere</a>
       </center>
       
       <p>Si vous avez des questions ou besoin d'assistance, n'hésitez pas à contacter notre équipe de support.</p>
       
-      <p>Cordialement,<br>L'équipe Sugu</p>
+      <p>Cordialement,<br>L'équipe Sanyfere</p>
     </div>
     
     <div class="footer">
-      <p>© 2024 Sugu. Tous droits réservés.</p>
+      <p>© 2024 Sanyfere. Tous droits réservés.</p>
       <p>Cet email a été envoyé automatiquement, merci de ne pas y répondre.</p>
     </div>
   </div>

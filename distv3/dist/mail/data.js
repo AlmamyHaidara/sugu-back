@@ -1,5 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
 exports.templateToSendShopidentyMail = void 0;
 const templateToSendShopidentyMail = (password, shopName, email) => `
 <!DOCTYPE html>
@@ -33,7 +33,7 @@ const templateToSendShopidentyMail = (password, shopName, email) => `
     .logo {
       font-size: 28px;
       font-weight: bold;
-      color:#f7a01f;
+      color:#1E40AF;
     }
     .content {
       padding: 30px 20px;
@@ -43,7 +43,7 @@ const templateToSendShopidentyMail = (password, shopName, email) => `
       padding: 15px;
       border-radius: 5px;
       margin: 20px 0;
-      border-left: 4px solid #f7a01f;
+      border-left: 4px solid #1E40AF;
     }
     .credentials p {
       margin: 10px 0;
@@ -54,7 +54,7 @@ const templateToSendShopidentyMail = (password, shopName, email) => `
     }
     .button {
       display: inline-block;
-      background-color: #f7a01f;
+      background-color: #1E40AF;
       color: #ffffff;
       text-decoration: none;
       padding: 12px 25px;
