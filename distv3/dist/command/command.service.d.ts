@@ -18,9 +18,9 @@ export declare class CommandService {
             createdAt: Date;
             updatedAt: Date | null;
             commandeNbr: string;
-            etat: import(".prisma/client").$Enums.EtatCommand;
             utilisateurId: number;
             adresseId: number | null;
+            etat: import(".prisma/client").$Enums.EtatCommand;
         };
     }>;
     createParticulier(createCommandDto: CreateCommandDto): Promise<{
@@ -32,9 +32,9 @@ export declare class CommandService {
             createdAt: Date;
             updatedAt: Date | null;
             commandeNbr: string;
-            etat: import(".prisma/client").$Enums.EtatCommand;
             utilisateurId: number;
             adresseId: number | null;
+            etat: import(".prisma/client").$Enums.EtatCommand;
         };
     }>;
     findAll(userId: number): Promise<{
@@ -65,20 +65,20 @@ export declare class CommandService {
         status: number;
         data: {
             utilisateur: {
-                id: number;
                 nom: string;
                 prenom: string;
-                telephone: string;
                 email: string;
+                telephone: string;
+                id: number;
                 Adresse: {
-                    id: number;
                     nom: string;
                     telephone: string;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    quartier: string;
                     description: string;
                     userId: number;
+                    quartier: string;
                     isdefault: boolean;
                 }[];
             };
@@ -88,19 +88,19 @@ export declare class CommandService {
                     quantiter: number;
                     prixId: number;
                     categories: {
-                        id: number;
                         nom: string;
+                        id: number;
                         description: string | null;
                     };
-                    id: number;
                     nom: string;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
+                    status: import(".prisma/client").$Enums.ProduitStatus;
                     description: string;
                     img: string;
                     tags: string | null;
                     type: import(".prisma/client").$Enums.ProduitType;
-                    status: import(".prisma/client").$Enums.ProduitStatus;
                     rejectionComment: string | null;
                     categorieId: number;
                     isPublic: boolean | null;
@@ -108,20 +108,20 @@ export declare class CommandService {
                 Prix: {
                     produits: {
                         categories: {
-                            id: number;
                             nom: string;
+                            id: number;
                             description: string | null;
                         };
                     } & {
-                        id: number;
                         nom: string;
+                        id: number;
                         createdAt: Date;
                         updatedAt: Date;
+                        status: import(".prisma/client").$Enums.ProduitStatus;
                         description: string;
                         img: string;
                         tags: string | null;
                         type: import(".prisma/client").$Enums.ProduitType;
-                        status: import(".prisma/client").$Enums.ProduitStatus;
                         rejectionComment: string | null;
                         categorieId: number;
                         isPublic: boolean | null;
@@ -145,26 +145,26 @@ export declare class CommandService {
             }[];
             id: number;
             createdAt: Date;
-            commandeNbr: string;
-            etat: import(".prisma/client").$Enums.EtatCommand;
             utilisateurs: {
-                id: number;
                 nom: string;
                 prenom: string;
-                telephone: string;
                 email: string;
+                telephone: string;
+                id: number;
                 Adresse: {
-                    id: number;
                     nom: string;
                     telephone: string;
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    quartier: string;
                     description: string;
                     userId: number;
+                    quartier: string;
                     isdefault: boolean;
                 }[];
             };
+            commandeNbr: string;
+            etat: import(".prisma/client").$Enums.EtatCommand;
         }[];
     }>;
     updateCommandeEtat(commandeId: number, nouvelEtat: EtatCommand): Promise<{

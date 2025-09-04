@@ -28,6 +28,9 @@ let AuthController = class AuthController {
     passwordForget(email) {
         return this.authService.passwordForget(email.email);
     }
+    async changePassword(request) {
+        return this.authService.changePassword(request);
+    }
     signUp(createUserDto) {
         console.log(createUserDto);
         return this.authService.signUp(createUserDto);
@@ -58,6 +61,14 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "passwordForget", null);
+__decorate([
+    (0, constants_1.Public)(),
+    (0, common_1.Put)('change-password'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "changePassword", null);
 __decorate([
     (0, constants_1.Public)(),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),

@@ -19,6 +19,7 @@ const path_1 = require("path");
 const multer_1 = require("multer");
 const platform_express_1 = require("@nestjs/platform-express");
 const users_service_1 = require("./users.service");
+const constants_1 = require("../auth/constants");
 let UsersController = class UsersController {
     constructor(userService) {
         this.userService = userService;
@@ -87,6 +88,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "update", null);
 __decorate([
+    (0, constants_1.Public)(),
     (0, common_1.Put)('change-password'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),

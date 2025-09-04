@@ -15,6 +15,7 @@ import { diskStorage } from 'multer';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { Express } from 'express';
+import { Public } from 'src/auth/constants';
 
 @Controller('users')
 export class UsersController {
@@ -63,6 +64,7 @@ export class UsersController {
     };
   }
 
+  @Public()
   @Put('change-password')
   async changePassword(@Body() request: { email: string; password: string }) {
     return this.userService.changePassword(request);

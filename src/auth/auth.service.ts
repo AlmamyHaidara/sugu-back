@@ -81,6 +81,9 @@ export class AuthService {
     }
   }
 
+  async changePassword(request: { email: string; password: string }) {
+    return this.usersService.changePassword(request);
+  }
   async refreshToken(
     email: string,
   ): Promise<{ access_token: string; data: UpdateUserDto; date: string }> {

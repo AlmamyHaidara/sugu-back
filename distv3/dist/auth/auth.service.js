@@ -73,6 +73,9 @@ let AuthService = AuthService_1 = class AuthService {
             console.error(error);
         }
     }
+    async changePassword(request) {
+        return this.usersService.changePassword(request);
+    }
     async refreshToken(email) {
         try {
             this.logger.log(`Refreshing token for user ID: ${email}`);
