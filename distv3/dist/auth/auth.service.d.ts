@@ -28,10 +28,31 @@ export declare class AuthService {
         };
         msg: string;
     }>;
+    passwordForget(email: string): Promise<{
+        status: import("@nestjs/common").HttpStatus;
+        data: string;
+        message: string;
+    }>;
     signIn(email: string, pass: string): Promise<{
         access_token: string;
         data: UpdateUserDto;
         date: string;
+    }>;
+    changePassword(request: {
+        email: string;
+        password: string;
+    }): Promise<{
+        status: number;
+        data: {
+            nom: string;
+            prenom: string;
+            email: string;
+            telephone: string;
+            profile: import(".prisma/client").$Enums.Profile;
+            avatar: string;
+            id: number;
+        };
+        msg: string;
     }>;
     refreshToken(email: string): Promise<{
         access_token: string;

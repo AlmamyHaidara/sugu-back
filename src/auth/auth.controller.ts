@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Put,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -23,6 +24,17 @@ export class AuthController {
   @Post('connexion')
   signIn(@Body() signInDto: Record<string, any>) {
     return this.authService.signIn(signInDto.email, signInDto.password);
+  }
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Post('password-forget')
+  passwordForget(@Body() email: Record<string, string>) {
+    return this.authService.passwordForget(email.email);
+  }
+  @Public()
+  @Put('change-password')
+  async changePassword(@Body() request: { email: string; password: string }) {
+    return this.authService.changePassword(request);
   }
 
   @Public()

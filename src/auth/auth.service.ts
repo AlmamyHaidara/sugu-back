@@ -31,6 +31,10 @@ export class AuthService {
     );
   }
 
+  passwordForget(email: string) {
+    this.logger.log(`Password reset requested for email: ${email}`);
+    return this.usersService.passwordForget(email);
+  }
   async signIn(
     email: string,
     pass: string,
@@ -77,6 +81,9 @@ export class AuthService {
     }
   }
 
+  async changePassword(request: { email: string; password: string }) {
+    return this.usersService.changePassword(request);
+  }
   async refreshToken(
     email: string,
   ): Promise<{ access_token: string; data: UpdateUserDto; date: string }> {

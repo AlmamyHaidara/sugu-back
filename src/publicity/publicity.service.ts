@@ -134,7 +134,8 @@ export class PublicityService {
   }
 
   findAll() {
-    return this.prisma.offreSpeciale.findMany();
+    const data = this.prisma.offreSpeciale.findMany();
+    return data;
   }
   findAllEnabke() {
     return this.prisma.offreSpeciale.findMany({

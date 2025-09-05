@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersService } from 'src/users/users.service';
 import { PrixService } from 'src/prix/prix.service';
 import { NotificationsService } from 'src/notifications/notifications.service';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   controllers: [CommandController],
@@ -15,5 +16,6 @@ import { NotificationsService } from 'src/notifications/notifications.service';
     PrixService,
     NotificationsService,
   ],
+  imports: [MailModule],
 })
 export class CommandModule {}

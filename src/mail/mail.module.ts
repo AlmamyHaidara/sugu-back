@@ -17,7 +17,7 @@ import { MailService } from './mail.service';
         },
       },
       defaults: {
-        from: `"Sugu" <${process.env.YAHOO_USER}>`,
+        from: `"Sanyfere" <${process.env.YAHOO_USER}>`,
       },
     }),
   ],

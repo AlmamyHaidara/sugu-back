@@ -36,6 +36,7 @@ const files_controller_1 = require("./files/files.controller");
 const files_service_1 = require("./files/files.service");
 const particulier_module_1 = require("./particulier/particulier.module");
 const publicity_module_1 = require("./publicity/publicity.module");
+const mail_service_1 = require("./mail/mail.service");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -67,7 +68,12 @@ exports.AppModule = AppModule = __decorate([
             particulier_module_1.ParticulierModule,
             publicity_module_1.PublicityModule,
         ],
-        controllers: [app_controller_1.AppController, country_controller_1.CountryController, users_controller_1.UsersController, files_controller_1.FilesController],
+        controllers: [
+            app_controller_1.AppController,
+            country_controller_1.CountryController,
+            users_controller_1.UsersController,
+            files_controller_1.FilesController,
+        ],
         providers: [
             app_service_1.AppService,
             {
@@ -77,6 +83,7 @@ exports.AppModule = AppModule = __decorate([
             prisma_service_1.PrismaService,
             country_service_1.CountryService,
             files_service_1.FilesService,
+            mail_service_1.MailService,
         ],
     })
 ], AppModule);
