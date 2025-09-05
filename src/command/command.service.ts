@@ -574,18 +574,11 @@ export class CommandService {
       for (const id in commandesParBoutique) {
         const infos = commandesParBoutique[id];
 
-        const totalAmount =
-          infos.lignes?.reduce(
-            (sum: number, item: { prix: number; quantiter: number }) =>
-              sum + item.prix * item.quantiter,
-            0,
-          ) || 0;
-
         await this.prisma.notification.create({
           data: {
-            title: 'Nouvelle commande reçue',
+            title: 'Nouvelle commande',
             type: 'ORDER',
-            message: `Commande reçue pour un montant total de ${totalAmount} FCFA.`,
+            message: `Une nouvelle commande a été enregistrée. Prix unitaire : ${infos.total} FCFA.`,
             data: {
               commandId: result.id,
               commandNbr: createCommandDto.commandeNbr,
