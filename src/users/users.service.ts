@@ -487,69 +487,47 @@ export class UsersService {
     );
     const code = genererCode();
 
-    this.prisma.utilisateur
-      .findUnique({
+    try {
+      const user = await this.prisma.utilisateur.findUnique({
         where: { email: email },
-      })
-      .then(async (user) => {
-        if (!user) {
-          this.logger.warn(
-            `Pas d'utilisateur trouvez avec cet addresse email: ${email}`,
-          );
+      });
 
-          return {
-            status: HttpStatus.NOT_FOUND,
-            data: null,
-            message: `Si un compte avec cet adresse e-mail ${email} existes, un lien de renitialisation de mots de passe serat envoie.`,
-          };
-        }
+      if (!user) {
+        this.logger.warn(
+          `Pas d'utilisateur trouvez avec cet addresse email: ${email}`,
+        );
 
-        this.logger.log(
-          `Utilisateur non trouvez avec cet adresse email: ${email}, prossedons a l'envoie du mail de renitialisation.`,
-        );
-        // Generate a password reset token and its expiration time
-        await this.mailService.sendMail(
-          [email],
-          'Le code pour renitialiser votre mots de passe',
-          templateToSendCodePassword(code, user.prenom + ' ' + user.nom),
-        );
-        // const tokenExpiration = new Date(Date.now() + 3600000); // Token valid for 1 hour
-        // // Save the token and expiration to the user's record in the database
-        // this.prisma.utilisateur
-        //   .update({
-        //     where: { email: email },
-        //     data: {
-        //       resetToken: resetToken,
-        //       tokenExpiration: tokenExpiration,
-        //     },
-        //   })
-        //   .then(() => {
-        //     this.logger.log(`Password reset token saved for email: ${email}`);
-        //     // Send the password reset email
-        //     // this.mailService.sendPasswordResetEmail(email, resetToken);
-        //     this.logger.log(`Password reset email sent to: ${email}`);
-        //   })
-        // .catch((err) => {
-        //   this.logger.error(
-        //     `Error saving reset token for email: ${email}`,
-        //     err,
-        //   );
-        // });
-      })
-      .catch((err) => {
-        this.logger.error(`Error finding user with email: ${email}`, err);
         return {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          status: HttpStatus.NOT_FOUND,
           data: null,
           message: `Si un compte avec cet adresse e-mail ${email} existes, un lien de renitialisation de mots de passe serat envoie.`,
         };
-      });
-    // Ici, vous pouvez implémenter la logique pour envoyer un email de réinitialisation de mot de passe
-    return {
-      status: HttpStatus.OK,
-      data: code,
-      message: `Utilisateur trouvez avec cet adresse email: ${email}, prossedons a l'envoie du mail de renitialisation.`,
-    };
+      }
+
+      this.logger.log(
+        `Utilisateur non trouvez avec cet adresse email: ${email}, prossedons a l'envoie du mail de renitialisation.`,
+      );
+      // Generate a password reset token and its expiration time
+      await this.mailService.sendMail(
+        [email],
+        'Le code pour renitialiser votre mots de passe',
+        templateToSendCodePassword(code, user.prenom + ' ' + user.nom),
+      );
+
+      // Ici, vous pouvez implémenter la logique pour envoyer un email de réinitialisation de mot de passe
+      return {
+        status: HttpStatus.OK,
+        data: code,
+        message: `Utilisateur trouvez avec cet adresse email: ${email}, prossedons a l'envoie du mail de renitialisation.`,
+      };
+    } catch (error) {
+      this.logger.error(`Error finding user with email: ${email}`, error);
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: null,
+        message: `Si un compte avec cet adresse e-mail ${email} existes, un lien de renitialisation de mots de passe serat envoie.`,
+      };
+    }
   }
 
   async changePassword(request: { email: string; password: string }) {

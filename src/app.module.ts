@@ -29,6 +29,8 @@ import { FilesService } from './files/files.service';
 import { ParticulierModule } from './particulier/particulier.module';
 import { PublicityModule } from './publicity/publicity.module';
 import { MailService } from './mail/mail.service';
+import { FavorieModule } from './favorie/favorie.module';
+import { FavorieModule } from './favorie/favorie.module';
 
 @Module({
   imports: [
@@ -57,6 +59,7 @@ import { MailService } from './mail/mail.service';
     MailModule,
     ParticulierModule,
     PublicityModule,
+    FavorieModule,
   ],
   controllers: [
     AppController,

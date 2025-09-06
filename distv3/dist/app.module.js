@@ -37,6 +37,7 @@ const files_service_1 = require("./files/files.service");
 const particulier_module_1 = require("./particulier/particulier.module");
 const publicity_module_1 = require("./publicity/publicity.module");
 const mail_service_1 = require("./mail/mail.service");
+const favorie_module_1 = require("./favorie/favorie.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -67,6 +68,7 @@ exports.AppModule = AppModule = __decorate([
             mail_module_1.MailModule,
             particulier_module_1.ParticulierModule,
             publicity_module_1.PublicityModule,
+            favorie_module_1.FavorieModule,
         ],
         controllers: [
             app_controller_1.AppController,

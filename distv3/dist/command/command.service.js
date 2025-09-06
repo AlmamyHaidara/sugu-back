@@ -167,9 +167,9 @@ let CommandService = class CommandService {
                 const infos = commandesParBoutique[id];
                 await this.prisma.notification.create({
                     data: {
-                        title: 'Nouvelle commande reçue',
+                        title: 'Nouvelle commande',
                         type: 'ORDER',
-                        message: `Commande reçue pour un montant de ${infos.total} FCFA.`,
+                        message: `Une nouvelle commande a été enregistrée. Prix unitaire : ${infos.total} FCFA.`,
                         data: {
                             commandId: result.id,
                             commandNbr: createCommandDto.commandeNbr,

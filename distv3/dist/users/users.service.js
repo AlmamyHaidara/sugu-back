@@ -354,11 +354,10 @@ let UsersService = UsersService_1 = class UsersService {
     async passwordForget(email) {
         this.logger.log(`La renitialisation du mots de passe requiere l'email: ${email}`);
         const code = (0, functions_1.genererCode)();
-        this.prisma.utilisateur
-            .findUnique({
-            where: { email: email },
-        })
-            .then(async (user) => {
+        try {
+            const user = await this.prisma.utilisateur.findUnique({
+                where: { email: email },
+            });
             if (!user) {
                 this.logger.warn(`Pas d'utilisateur trouvez avec cet addresse email: ${email}`);
                 return {
@@ -369,20 +368,20 @@ let UsersService = UsersService_1 = class UsersService {
             }
             this.logger.log(`Utilisateur non trouvez avec cet adresse email: ${email}, prossedons a l'envoie du mail de renitialisation.`);
             await this.mailService.sendMail([email], 'Le code pour renitialiser votre mots de passe', (0, data_1.templateToSendCodePassword)(code, user.prenom + ' ' + user.nom));
-        })
-            .catch((err) => {
-            this.logger.error(`Error finding user with email: ${email}`, err);
+            return {
+                status: common_1.HttpStatus.OK,
+                data: code,
+                message: `Utilisateur trouvez avec cet adresse email: ${email}, prossedons a l'envoie du mail de renitialisation.`,
+            };
+        }
+        catch (error) {
+            this.logger.error(`Error finding user with email: ${email}`, error);
             return {
                 status: common_1.HttpStatus.INTERNAL_SERVER_ERROR,
                 data: null,
                 message: `Si un compte avec cet adresse e-mail ${email} existes, un lien de renitialisation de mots de passe serat envoie.`,
             };
-        });
-        return {
-            status: common_1.HttpStatus.OK,
-            data: code,
-            message: `Utilisateur trouvez avec cet adresse email: ${email}, prossedons a l'envoie du mail de renitialisation.`,
-        };
+        }
     }
     async changePassword(request) {
         this.logger.log('Mise a jours du mots de passe');

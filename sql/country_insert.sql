@@ -248,4 +248,5 @@ VALUES
 ('Western Sahara','EH'),
 ('Yemen','YE'),
 ('Zambia','ZM'),
-('Zimbabwe','ZW');
+('Zimbabwe','ZW'),
+('États-Unis','USA');

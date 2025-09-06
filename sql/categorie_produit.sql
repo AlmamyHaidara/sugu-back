@@ -70,4 +70,9 @@ VALUES
     ("Décoration", "Articles de décoration intérieure."),
     ("Luminaires", "Éclairage et accessoires d'éclairage."),
     ("Textiles", "Linge de maison et tissus."),
-    ("Voyage", "Accessoires et équipements de voyage.");
+    ("Immobilier", "Trouvez et réalisez vos projets immobiliers en toute confiance."),
+    ("Formation", "Développez vos compétences grâce à des formations adaptées."),
+    ("Location", "Louez facilement logements, véhicules ou équipements selon vos besoins."),
+    ("Voyage", "Accessoires et équipements de voyage."),
+    ("Services", "Profitez de services pratiques comme livraison, chauffeur ou cours à domicile.");
+
