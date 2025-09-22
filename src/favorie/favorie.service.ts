@@ -7,10 +7,47 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class FavorieService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(createFavorieDto: CreateFavorieDto) {
+  async create(createFavorieDto: CreateFavorieDto) {
     try {
-      // this.prisma.f
-      return 'This action adds a new favorie';
+      const isExist = await this.prisma.favorie.findFirst({
+        where: {
+          AND: [
+            { produitId: createFavorieDto.produitId },
+            { userId: createFavorieDto.userId },
+          ],
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!isExist) {
+        await this.prisma.produit.findUniqueOrThrow({
+          where: {
+            id: createFavorieDto.produitId,
+          },
+          select: {
+            id: true,
+          },
+        });
+        await this.prisma.utilisateur.findUniqueOrThrow({
+          where: {
+            id: createFavorieDto.userId,
+          },
+          select: {
+            id: true,
+          },
+        });
+
+        const favorie = this.prisma.favorie.create({
+          data: {
+            produitId: createFavorieDto.produitId,
+            userId: createFavorieDto.userId,
+          },
+        });
+
+        return favorie;
+      }
     } catch (error) {
       console.log(error);
 
@@ -21,12 +58,45 @@ export class FavorieService {
     }
   }
 
-  findAll() {
-    return `This action returns all favorie`;
+  findAll(userId: number) {
+    try {
+      return this.prisma.favorie.findMany({
+        where: {
+          userId: userId,
+        },
+        include: {
+          product: {
+            include: {
+              Prix: true,
+              categories: true,
+            },
+          },
+        },
+      });
+    } catch (err) {
+      console.log(err);
+
+      // Handle specific Prisma errors, e.g., unique constraint violation, etc.
+      throw new BadRequestException(
+        'Une erreur est survenue lors de la création de la notification.',
+      );
+    }
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} favorie`;
+    return this.prisma.favorie.findFirstOrThrow({
+      where: {
+        id,
+      },
+      include: {
+        product: {
+          include: {
+            Prix: true,
+            categories: true,
+          },
+        },
+      },
+    });
   }
 
   update(id: number, updateFavorieDto: UpdateFavorieDto) {
@@ -34,6 +104,29 @@ export class FavorieService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} favorie`;
+    try {
+      const isExist = this.prisma.favorie.findUniqueOrThrow({
+        where: {
+          id,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      this.prisma.favorie.delete({
+        where: {
+          id,
+        },
+      });
+      return `This action removes a #${id} favorie`;
+    } catch (error) {
+      console.log(error);
+
+      // Handle specific Prisma errors, e.g., unique constraint violation, etc.
+      throw new BadRequestException(
+        'Une erreur est survenue lors de la création de la notification.',
+      );
+    }
   }
 }

@@ -22,6 +22,7 @@ const multer_1 = require("multer");
 const path_1 = require("path");
 const constants_1 = require("../auth/constants");
 const SearchProduits_dto_1 = require("./dto/SearchProduits.dto");
+const functions_1 = require("../utils/functions");
 let ProduitController = class ProduitController {
     constructor(produitService) {
         this.produitService = produitService;
@@ -36,19 +37,35 @@ let ProduitController = class ProduitController {
         });
         return created;
     }
-    async findAll(query) {
+    async findAll(req, query) {
+        const userId = (0, functions_1.decodejwt)(req);
+        if (userId != 0) {
+            return this.produitService.findAllProduits(query, userId);
+        }
         return this.produitService.findAllProduits(query);
     }
-    async findAllProductByCountryId(id) {
+    async findAllProductByCountryId(req, id) {
+        const userId = (0, functions_1.decodejwt)(req);
+        if (userId != 0) {
+            return this.produitService.findAllProduitsByCountryId(id, userId);
+        }
         return this.produitService.findAllProduitsByCountryId(id);
     }
-    findAllByShopClient(id) {
+    findAllByShopClient(req, id) {
+        const userId = (0, functions_1.decodejwt)(req);
+        if (userId != 0) {
+            return this.produitService.findAllByShop(id, userId);
+        }
         return this.produitService.findAllByShop(id);
     }
-    findAllByShop(id) {
+    findAllByShop(req, id) {
+        const userId = (0, functions_1.decodejwt)(req);
+        if (userId != 0) {
+            return this.produitService.findAllByShop(id, userId);
+        }
         return this.produitService.findAllByShop(id);
     }
-    async findOne(id) {
+    async findOne(req, id) {
         const produit = await this.produitService.findOne(id);
         if (!produit) {
             throw new common_1.NotFoundException(`Produit #${id} introuvable`);
@@ -70,7 +87,7 @@ let ProduitController = class ProduitController {
     async getByShopIdAndUserId(shopId, userId) {
         return await this.produitService.findByUserIdAndShopId(shopId, userId);
     }
-    async getByShopId(shopId) {
+    async getByShopId(req, shopId) {
         return await this.produitService.findByShopId(shopId);
     }
 };
@@ -106,39 +123,44 @@ __decorate([
 __decorate([
     (0, constants_1.Public)(),
     (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [SearchProduits_dto_1.SearchProduitsDto]),
+    __metadata("design:paramtypes", [Request, SearchProduits_dto_1.SearchProduitsDto]),
     __metadata("design:returntype", Promise)
 ], ProduitController.prototype, "findAll", null);
 __decorate([
     (0, constants_1.Public)(),
     (0, common_1.Get)('country/:id'),
-    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Request, Number]),
     __metadata("design:returntype", Promise)
 ], ProduitController.prototype, "findAllProductByCountryId", null);
 __decorate([
     (0, constants_1.Public)(),
     (0, common_1.Get)('shop-products-client/:id'),
-    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Request, Number]),
     __metadata("design:returntype", void 0)
 ], ProduitController.prototype, "findAllByShopClient", null);
 __decorate([
     (0, common_1.Get)('shop-products/:id'),
-    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Request, Number]),
     __metadata("design:returntype", void 0)
 ], ProduitController.prototype, "findAllByShop", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Request, Number]),
     __metadata("design:returntype", Promise)
 ], ProduitController.prototype, "findOne", null);
 __decorate([
@@ -183,9 +205,10 @@ __decorate([
 ], ProduitController.prototype, "getByShopIdAndUserId", null);
 __decorate([
     (0, common_1.Get)('by-shop-id/:shopId/'),
-    __param(0, (0, common_1.Param)('shopId', common_1.ParseIntPipe)),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('shopId', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Request, Number]),
     __metadata("design:returntype", Promise)
 ], ProduitController.prototype, "getByShopId", null);
 exports.ProduitController = ProduitController = __decorate([

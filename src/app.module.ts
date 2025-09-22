@@ -30,7 +30,6 @@ import { ParticulierModule } from './particulier/particulier.module';
 import { PublicityModule } from './publicity/publicity.module';
 import { MailService } from './mail/mail.service';
 import { FavorieModule } from './favorie/favorie.module';
-import { FavorieModule } from './favorie/favorie.module';
 
 @Module({
   imports: [

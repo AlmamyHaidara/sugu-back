@@ -275,7 +275,7 @@ export class ProduitService {
   }
 
   // ========== FIND ALL BY SHOP ==========
-  async findAllByShop(shopId: number) {
+  async findAllByShop(shopId: number, userId?: number) {
     try {
       // (Facultatif) Vérifier l'existence de la boutique
       const shopExists = await this.prisma.boutique.findUnique({
@@ -298,6 +298,11 @@ export class ProduitService {
           },
         },
         include: {
+          Favorie: {
+            where: {
+              userId: userId,
+            },
+          },
           Prix: {
             // select: {
             //   id: true,
@@ -369,7 +374,7 @@ export class ProduitService {
     }
   }
 
-  async findByShopId(shopId: number) {
+  async findByShopId(shopId: number, userId?: number) {
     try {
       const prixs = await this.prisma.prix.findMany({
         where: {
@@ -385,6 +390,11 @@ export class ProduitService {
               nom: true,
               tags: true,
               categories: true,
+              Favorie: {
+                where: {
+                  userId: userId,
+                },
+              },
             },
           },
         },
@@ -434,6 +444,11 @@ export class ProduitService {
               nom: true,
               tags: true,
               categories: true,
+              Favorie: {
+                where: {
+                  userId: userId,
+                },
+              },
             },
           },
         },
@@ -540,6 +555,7 @@ export class ProduitService {
         },
         include: {
           categories: true,
+          Favorie: true,
           Prix: {
             select: {
               id: true,
@@ -617,7 +633,7 @@ export class ProduitService {
     }
   }
 
-  async findAllProduitsByCountryId(countryId: number) {
+  async findAllProduitsByCountryId(countryId: number, userId?: number) {
     const existingContry = await this.prisma.country.findUnique({
       where: { id: Number(countryId) },
     });
@@ -639,6 +655,11 @@ export class ProduitService {
       },
       include: {
         categories: true,
+        Favorie: {
+          where: {
+            userId: userId,
+          },
+        },
         Prix: {
           include: {
             boutiques: true,
@@ -691,7 +712,7 @@ export class ProduitService {
   }
 
   // ========== RECHERCHE / PAGINATION ==========
-  async findAllProduits(query: SearchProduitsDto) {
+  async findAllProduits(query: SearchProduitsDto, userId?: number) {
     const {
       nom,
       categorieBoutique,
@@ -769,6 +790,11 @@ export class ProduitService {
             Prix: {
               include: {
                 boutiques: true,
+              },
+            },
+            Favorie: {
+              where: {
+                userId: userId,
               },
             },
           },

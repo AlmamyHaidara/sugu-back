@@ -17,15 +17,20 @@ const common_1 = require("@nestjs/common");
 const favorie_service_1 = require("./favorie.service");
 const create_favorie_dto_1 = require("./dto/create-favorie.dto");
 const update_favorie_dto_1 = require("./dto/update-favorie.dto");
+const jwt = require("jsonwebtoken");
 let FavorieController = class FavorieController {
     constructor(favorieService) {
         this.favorieService = favorieService;
     }
-    create(createFavorieDto) {
+    create(req, createFavorieDto) {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('Body reçu:', decoded);
         return this.favorieService.create(createFavorieDto);
     }
-    findAll() {
-        return this.favorieService.findAll();
+    findAll(userId) {
+        return this.favorieService.findAll(Number(userId));
     }
     findOne(id) {
         return this.favorieService.findOne(+id);
@@ -40,15 +45,17 @@ let FavorieController = class FavorieController {
 exports.FavorieController = FavorieController;
 __decorate([
     (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_favorie_dto_1.CreateFavorieDto]),
+    __metadata("design:paramtypes", [Request, create_favorie_dto_1.CreateFavorieDto]),
     __metadata("design:returntype", void 0)
 ], FavorieController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    __param(0, (0, common_1.Query)('userId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], FavorieController.prototype, "findAll", null);
 __decorate([

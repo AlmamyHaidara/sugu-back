@@ -20,9 +20,9 @@ export declare class AuthService {
         data: {
             id: number;
             nom: string;
-            prenom: string;
-            telephone: string;
             email: string;
+            telephone: string;
+            prenom: string;
             profile: import(".prisma/client").$Enums.Profile;
             avatar: string;
         };
@@ -46,9 +46,9 @@ export declare class AuthService {
         data: {
             id: number;
             nom: string;
-            prenom: string;
-            telephone: string;
             email: string;
+            telephone: string;
+            prenom: string;
             profile: import(".prisma/client").$Enums.Profile;
             avatar: string;
         };

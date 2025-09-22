@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -20,6 +21,7 @@ import { Public } from 'src/auth/constants';
 import { Roles } from 'src/auth/roles.guard';
 import { UpdateBoutiqueProfileDto } from './dto/update-boutique-profile.dto';
 import { Express } from 'express';
+import { decodejwt } from 'src/utils/functions';
 
 const boutiqueStorage = {
   storage: diskStorage({
@@ -69,9 +71,12 @@ export class BoutiqueController {
   @Public()
   @Roles('boutiquier')
   @Get()
-  async findAll() {
+  async findAll(@Req() req: Request) {
     console.log('pppp');
-
+    const userId = decodejwt(req);
+    if (userId != 0) {
+      return this.boutiqueService.findAll();
+    }
     return this.boutiqueService.findAll();
   }
 
@@ -89,14 +94,25 @@ export class BoutiqueController {
   // ========== READ: ALL SHOPS + PRODUCTS ==========
   // @Public()
   @Get('all-with-products')
-  findAllWithProducts() {
+  findAllWithProducts(@Req() req: Request) {
+    const userId = decodejwt(req);
+    if (userId != 0) {
+      return this.boutiqueService.findAllShopAndProducts(userId);
+    }
     return this.boutiqueService.findAllShopAndProducts();
   }
 
   // ========== READ: ONE SHOP + ALL ITS PRODUCTS ==========
   @Public()
   @Get('all-produits/:id')
-  findBoutiqueProduit(@Param('id', ParseIntPipe) id: number) {
+  findBoutiqueProduit(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    const userId = decodejwt(req);
+    if (userId != 0) {
+      return this.boutiqueService.findAllShopWithProducts(id, userId);
+    }
     return this.boutiqueService.findAllShopWithProducts(id);
   }
 

@@ -9,12 +9,12 @@ export declare class PrixController {
         data: {
             prix: import("@prisma/client/runtime/library").Decimal;
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
             quantiter: number;
             produitId: number;
             boutiqueId: number | null;
             particularId: number | null;
+            createdAt: Date;
+            updatedAt: Date;
         };
     }>;
     findAll(): Promise<{
@@ -22,12 +22,12 @@ export declare class PrixController {
         data: {
             prix: import("@prisma/client/runtime/library").Decimal;
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
             quantiter: number;
             produitId: number;
             boutiqueId: number | null;
             particularId: number | null;
+            createdAt: Date;
+            updatedAt: Date;
         }[];
     }>;
     findOne(id: string, produitId: string, boutiqueId: string): Promise<{
@@ -39,12 +39,12 @@ export declare class PrixController {
         data: {
             prix: import("@prisma/client/runtime/library").Decimal;
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
             quantiter: number;
             produitId: number;
             boutiqueId: number | null;
             particularId: number | null;
+            createdAt: Date;
+            updatedAt: Date;
         };
     }>;
     remove(id: string): Promise<{

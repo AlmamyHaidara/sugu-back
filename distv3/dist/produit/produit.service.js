@@ -229,7 +229,7 @@ let ProduitService = class ProduitService {
             throw new common_1.InternalServerErrorException('Erreur lors de la récupération des produits');
         }
     }
-    async findAllByShop(shopId) {
+    async findAllByShop(shopId, userId) {
         try {
             const shopExists = await this.prisma.boutique.findUnique({
                 where: { id: shopId },
@@ -249,6 +249,11 @@ let ProduitService = class ProduitService {
                     },
                 },
                 include: {
+                    Favorie: {
+                        where: {
+                            userId: userId,
+                        },
+                    },
                     Prix: {
                         omit: {
                             createdAt: true,
@@ -304,7 +309,7 @@ let ProduitService = class ProduitService {
             throw new common_1.InternalServerErrorException('Erreur lors de la récupération du produit');
         }
     }
-    async findByShopId(shopId) {
+    async findByShopId(shopId, userId) {
         try {
             const prixs = await this.prisma.prix.findMany({
                 where: {
@@ -320,6 +325,11 @@ let ProduitService = class ProduitService {
                             nom: true,
                             tags: true,
                             categories: true,
+                            Favorie: {
+                                where: {
+                                    userId: userId,
+                                },
+                            },
                         },
                     },
                 },
@@ -365,6 +375,11 @@ let ProduitService = class ProduitService {
                             nom: true,
                             tags: true,
                             categories: true,
+                            Favorie: {
+                                where: {
+                                    userId: userId,
+                                },
+                            },
                         },
                     },
                 },
@@ -450,6 +465,7 @@ let ProduitService = class ProduitService {
                 },
                 include: {
                     categories: true,
+                    Favorie: true,
                     Prix: {
                         select: {
                             id: true,
@@ -514,7 +530,7 @@ let ProduitService = class ProduitService {
             throw new common_1.InternalServerErrorException('Erreur lors de la suppression du produit');
         }
     }
-    async findAllProduitsByCountryId(countryId) {
+    async findAllProduitsByCountryId(countryId, userId) {
         const existingContry = await this.prisma.country.findUnique({
             where: { id: Number(countryId) },
         });
@@ -536,6 +552,11 @@ let ProduitService = class ProduitService {
             },
             include: {
                 categories: true,
+                Favorie: {
+                    where: {
+                        userId: userId,
+                    },
+                },
                 Prix: {
                     include: {
                         boutiques: true,
@@ -580,7 +601,7 @@ let ProduitService = class ProduitService {
             data: dataFiltered,
         };
     }
-    async findAllProduits(query) {
+    async findAllProduits(query, userId) {
         const { nom, categorieBoutique, categorieId, prixMin, prixMax, countryId, location, page, limit, } = query;
         const whereClause = {};
         const whereBoutiqueClause = {};
@@ -630,6 +651,11 @@ let ProduitService = class ProduitService {
                         Prix: {
                             include: {
                                 boutiques: true,
+                            },
+                        },
+                        Favorie: {
+                            where: {
+                                userId: userId,
                             },
                         },
                     },

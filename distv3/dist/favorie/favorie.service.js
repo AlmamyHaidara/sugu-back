@@ -16,26 +16,110 @@ let FavorieService = class FavorieService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    create(createFavorieDto) {
+    async create(createFavorieDto) {
         try {
-            return 'This action adds a new favorie';
+            const isExist = await this.prisma.favorie.findFirst({
+                where: {
+                    AND: [
+                        { produitId: createFavorieDto.produitId },
+                        { userId: createFavorieDto.userId },
+                    ],
+                },
+                select: {
+                    id: true,
+                },
+            });
+            if (!isExist) {
+                await this.prisma.produit.findUniqueOrThrow({
+                    where: {
+                        id: createFavorieDto.produitId,
+                    },
+                    select: {
+                        id: true,
+                    },
+                });
+                await this.prisma.utilisateur.findUniqueOrThrow({
+                    where: {
+                        id: createFavorieDto.userId,
+                    },
+                    select: {
+                        id: true,
+                    },
+                });
+                const favorie = this.prisma.favorie.create({
+                    data: {
+                        produitId: createFavorieDto.produitId,
+                        userId: createFavorieDto.userId,
+                    },
+                });
+                return favorie;
+            }
         }
         catch (error) {
             console.log(error);
             throw new common_1.BadRequestException('Une erreur est survenue lors de la création de la notification.');
         }
     }
-    findAll() {
-        return `This action returns all favorie`;
+    findAll(userId) {
+        try {
+            return this.prisma.favorie.findMany({
+                where: {
+                    userId: userId,
+                },
+                include: {
+                    product: {
+                        include: {
+                            Prix: true,
+                            categories: true,
+                        },
+                    },
+                },
+            });
+        }
+        catch (err) {
+            console.log(err);
+            throw new common_1.BadRequestException('Une erreur est survenue lors de la création de la notification.');
+        }
     }
     findOne(id) {
-        return `This action returns a #${id} favorie`;
+        return this.prisma.favorie.findFirstOrThrow({
+            where: {
+                id,
+            },
+            include: {
+                product: {
+                    include: {
+                        Prix: true,
+                        categories: true,
+                    },
+                },
+            },
+        });
     }
     update(id, updateFavorieDto) {
         return `This action updates a #${id} favorie`;
     }
     remove(id) {
-        return `This action removes a #${id} favorie`;
+        try {
+            const isExist = this.prisma.favorie.findUniqueOrThrow({
+                where: {
+                    id,
+                },
+                select: {
+                    id: true,
+                },
+            });
+            this.prisma.favorie.delete({
+                where: {
+                    id,
+                },
+            });
+            return `This action removes a #${id} favorie`;
+        }
+        catch (error) {
+            console.log(error);
+            throw new common_1.BadRequestException('Une erreur est survenue lors de la création de la notification.');
+        }
     }
 };
 exports.FavorieService = FavorieService;

@@ -257,7 +257,7 @@ export class PrixService {
         where: {
           utilisateurs: {
             id: id,
-            profile: 'BOUTIQUIER',
+            OR: [{ profile: 'BOUTIQUIER' }],
           },
         },
       });

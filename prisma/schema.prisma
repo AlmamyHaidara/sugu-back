@@ -129,10 +129,10 @@ model Produit {
 
 model Favorie{
     id           Int         @id @default(autoincrement())
-    userId       Int
-    produitId       Int
-    utilisateurs Utilisateur @relation(fields: [userId], references: [id])
-    product Produit @relation(fields: [produitId], references: [id])
+    userId       Int?
+    produitId       Int?
+    utilisateurs Utilisateur? @relation(fields: [userId], references: [id])
+    product Produit? @relation(fields: [produitId], references: [id])
     createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

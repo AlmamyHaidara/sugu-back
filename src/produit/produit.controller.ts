@@ -4,12 +4,14 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   NotFoundException,
   Param,
   ParseIntPipe,
   Patch,
   Post,
   Query,
+  Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -22,6 +24,9 @@ import { extname } from 'path';
 import { Public } from 'src/auth/constants';
 import { SearchProduitsDto } from './dto/SearchProduits.dto';
 import { Express } from 'express';
+import * as jwt from 'jsonwebtoken';
+import { decodejwt } from 'src/utils/functions';
+import { $Enums } from '@prisma/client';
 
 @Controller('produit')
 export class ProduitController {
@@ -71,29 +76,51 @@ export class ProduitController {
 
   @Public()
   @Get()
-  async findAll(@Query() query: SearchProduitsDto) {
+  async findAll(@Req() req: Request, @Query() query: SearchProduitsDto) {
+    const userId = decodejwt(req);
+    if (userId != 0) {
+      return this.produitService.findAllProduits(query, userId);
+    }
     return this.produitService.findAllProduits(query);
   }
 
   @Public()
   @Get('country/:id')
-  async findAllProductByCountryId(@Param('id', ParseIntPipe) id: number) {
+  async findAllProductByCountryId(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    const userId = decodejwt(req);
+    if (userId != 0) {
+      return this.produitService.findAllProduitsByCountryId(id, userId);
+    }
     return this.produitService.findAllProduitsByCountryId(id);
   }
 
   @Public()
   @Get('shop-products-client/:id')
-  findAllByShopClient(@Param('id', ParseIntPipe) id: number) {
+  findAllByShopClient(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    const userId = decodejwt(req);
+    if (userId != 0) {
+      return this.produitService.findAllByShop(id, userId);
+    }
     return this.produitService.findAllByShop(id);
   }
 
   @Get('shop-products/:id')
-  findAllByShop(@Param('id', ParseIntPipe) id: number) {
+  findAllByShop(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    const userId = decodejwt(req);
+    if (userId != 0) {
+      return this.produitService.findAllByShop(id, userId);
+    }
     return this.produitService.findAllByShop(id);
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
+  async findOne(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
     const produit = await this.produitService.findOne(id);
     if (!produit) {
       throw new NotFoundException(`Produit #${id} introuvable`);
@@ -157,7 +184,10 @@ export class ProduitController {
   }
 
   @Get('by-shop-id/:shopId/')
-  async getByShopId(@Param('shopId', ParseIntPipe) shopId: number) {
+  async getByShopId(
+    @Req() req: Request,
+    @Param('shopId', ParseIntPipe) shopId: number,
+  ) {
     return await this.produitService.findByShopId(shopId);
   }
 }

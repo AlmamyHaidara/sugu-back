@@ -67,18 +67,18 @@ export declare class CommandService {
             utilisateur: {
                 id: number;
                 nom: string;
-                prenom: string;
-                telephone: string;
                 email: string;
+                telephone: string;
+                prenom: string;
                 Adresse: {
                     id: number;
-                    nom: string;
-                    telephone: string;
                     createdAt: Date;
                     updatedAt: Date;
-                    quartier: string;
+                    nom: string;
                     description: string;
                     userId: number;
+                    telephone: string;
+                    quartier: string;
                     isdefault: boolean;
                 }[];
             };
@@ -93,11 +93,11 @@ export declare class CommandService {
                         description: string | null;
                     };
                     id: number;
-                    nom: string;
                     createdAt: Date;
                     updatedAt: Date;
-                    description: string;
+                    nom: string;
                     img: string;
+                    description: string;
                     tags: string | null;
                     type: import(".prisma/client").$Enums.ProduitType;
                     status: import(".prisma/client").$Enums.ProduitStatus;
@@ -114,11 +114,11 @@ export declare class CommandService {
                         };
                     } & {
                         id: number;
-                        nom: string;
                         createdAt: Date;
                         updatedAt: Date;
-                        description: string;
+                        nom: string;
                         img: string;
+                        description: string;
                         tags: string | null;
                         type: import(".prisma/client").$Enums.ProduitType;
                         status: import(".prisma/client").$Enums.ProduitStatus;
@@ -129,42 +129,42 @@ export declare class CommandService {
                 } & {
                     prix: import("@prisma/client/runtime/library").Decimal;
                     id: number;
-                    createdAt: Date;
-                    updatedAt: Date;
                     quantiter: number;
                     produitId: number;
                     boutiqueId: number | null;
                     particularId: number | null;
+                    createdAt: Date;
+                    updatedAt: Date;
                 };
                 id: number;
+                quantiter: number;
                 createdAt: Date;
                 updatedAt: Date;
-                quantiter: number;
                 prixId: number | null;
                 commandeId: number | null;
             }[];
             id: number;
             createdAt: Date;
-            commandeNbr: string;
-            etat: import(".prisma/client").$Enums.EtatCommand;
             utilisateurs: {
                 id: number;
                 nom: string;
-                prenom: string;
-                telephone: string;
                 email: string;
+                telephone: string;
+                prenom: string;
                 Adresse: {
                     id: number;
-                    nom: string;
-                    telephone: string;
                     createdAt: Date;
                     updatedAt: Date;
-                    quartier: string;
+                    nom: string;
                     description: string;
                     userId: number;
+                    telephone: string;
+                    quartier: string;
                     isdefault: boolean;
                 }[];
             };
+            commandeNbr: string;
+            etat: import(".prisma/client").$Enums.EtatCommand;
         }[];
     }>;
     updateCommandeEtat(commandeId: number, nouvelEtat: EtatCommand): Promise<{
