@@ -37,7 +37,7 @@ let ProduitService = class ProduitService {
                 data: {
                     nom: createProduitDto.nom,
                     description: createProduitDto.description,
-                    img: createProduitDto.img,
+                    img: '',
                     tags: createProduitDto.tags,
                     isPublic: true,
                     status: client_1.ProduitStatus.APPROVED,
@@ -56,6 +56,7 @@ let ProduitService = class ProduitService {
                 },
                 include: {
                     categories: true,
+                    Image: true,
                     Prix: {
                         select: {
                             id: true,
@@ -65,9 +66,35 @@ let ProduitService = class ProduitService {
                     },
                 },
             });
-            const prixId = produit.Prix[0].id;
-            delete produit.Prix[0].id;
-            const productFiltered = { ...produit, ...produit.Prix[0], prixId };
+            const images = createProduitDto.imgs.map((img) => {
+                return { img, produitId: produit.id };
+            });
+            const imageSaved = await this.prisma.image.createMany({
+                data: images,
+            });
+            const prd = await this.prisma.produit.findFirst({
+                where: {
+                    id: produit.id,
+                },
+                include: {
+                    categories: true,
+                    Image: true,
+                    Prix: {
+                        select: {
+                            id: true,
+                            prix: true,
+                            quantiter: true,
+                        },
+                    },
+                },
+            });
+            const prixId = prd.Prix[0].id;
+            delete prd.Prix[0].id;
+            const productFiltered = {
+                ...prd,
+                ...prd.Prix[0],
+                prixId,
+            };
             delete productFiltered.Prix;
             return {
                 statusCode: common_1.HttpStatus.CREATED,
@@ -99,7 +126,6 @@ let ProduitService = class ProduitService {
                 data: {
                     nom: createProduitDto.nom,
                     description: createProduitDto.description,
-                    img: createProduitDto.img,
                     tags: createProduitDto.tags,
                     status: client_1.ProduitStatus.PENDING,
                     categories: {
@@ -117,6 +143,7 @@ let ProduitService = class ProduitService {
                 },
                 include: {
                     categories: true,
+                    Image: true,
                     Prix: {
                         select: {
                             id: true,
@@ -126,9 +153,20 @@ let ProduitService = class ProduitService {
                     },
                 },
             });
+            const images = createProduitDto.imgs.map((img) => {
+                return { img, produitId: produit.id };
+            });
+            const imageSaved = await this.prisma.image.createMany({
+                data: images,
+            });
             const prixId = produit.Prix[0].id;
             delete produit.Prix[0].id;
-            const productFiltered = { ...produit, ...produit.Prix[0], prixId };
+            const productFiltered = {
+                ...produit,
+                ...produit.Prix[0],
+                prixId,
+                img: imageSaved,
+            };
             delete productFiltered.Prix;
             return {
                 statusCode: common_1.HttpStatus.CREATED,
@@ -162,7 +200,6 @@ let ProduitService = class ProduitService {
                 data: {
                     nom: createProduitDto.nom,
                     description: createProduitDto.description,
-                    img: createProduitDto.img,
                     tags: createProduitDto.tags,
                     status: client_1.ProduitStatus.APPROVED,
                     isPublic: true,
@@ -181,6 +218,7 @@ let ProduitService = class ProduitService {
                 },
                 include: {
                     categories: true,
+                    Image: true,
                     Prix: {
                         select: {
                             id: true,
@@ -190,6 +228,12 @@ let ProduitService = class ProduitService {
                     },
                 },
             });
+            const images = createProduitDto.imgs.map((img) => {
+                return { img, produitId: produit.id };
+            });
+            const imageSaved = await this.prisma.image.createMany({
+                data: images,
+            });
             const prixId = produit.Prix[0].id;
             delete produit.Prix[0].id;
             const productFiltered = {
@@ -197,6 +241,7 @@ let ProduitService = class ProduitService {
                 ...produit.Prix[0],
                 prixId,
                 tags: JSON.parse(produit.tags),
+                img: imageSaved,
             };
             delete productFiltered.Prix;
             return {

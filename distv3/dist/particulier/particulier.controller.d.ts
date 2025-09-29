@@ -32,7 +32,7 @@ export declare class ParticulierController {
             nom: string;
             status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
-            img: string;
+            img: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
@@ -61,7 +61,7 @@ export declare class ParticulierController {
             updatedAt: Date;
             status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
@@ -124,7 +124,7 @@ export declare class ParticulierController {
             updatedAt: Date;
             status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
@@ -196,7 +196,7 @@ export declare class ParticulierController {
             updatedAt: Date;
             status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
@@ -265,7 +265,7 @@ export declare class ParticulierController {
             updatedAt: Date;
             status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;

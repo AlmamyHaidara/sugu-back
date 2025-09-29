@@ -7,34 +7,41 @@ import { $Enums } from '@prisma/client';
 export declare class ProduitController {
     private readonly produitService;
     constructor(produitService: ProduitService);
-    create(file: Express.Multer.File, createProduitDto: CreateProduitDto): Promise<{
+    create(files: Array<Express.Multer.File>, createProduitDto: CreateProduitDto): Promise<{
         statusCode: HttpStatus;
         message: string;
         data: {
             prixId: number;
-            prix: import("@prisma/client/runtime/library").Decimal;
             id: number;
+            prix: import("@prisma/client/runtime/library").Decimal;
             quantiter: number;
             categories: {
-                nom: string;
                 id: number;
+                nom: string;
                 description: string | null;
             };
             Prix: {
-                prix: import("@prisma/client/runtime/library").Decimal;
                 id: number;
+                prix: import("@prisma/client/runtime/library").Decimal;
                 quantiter: number;
             }[];
+            Image: {
+                id: number;
+                img: string;
+                createdAt: Date;
+                updatedAt: Date;
+                produitId: number;
+            }[];
             nom: string;
-            createdAt: Date;
-            updatedAt: Date;
-            status: $Enums.ProduitStatus;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: $Enums.ProduitType;
+            status: $Enums.ProduitStatus;
             rejectionComment: string | null;
             categorieId: number;
+            createdAt: Date;
+            updatedAt: Date;
             isPublic: boolean | null;
         };
     }>;
@@ -51,27 +58,20 @@ export declare class ProduitController {
                 phone: string;
                 categorie: $Enums.CategorieBoutique;
             };
-            Favorie: {
-                id: number;
-                createdAt: Date;
-                updatedAt: Date;
-                produitId: number | null;
-                userId: number | null;
-            }[];
             categories: {
-                nom: string;
                 id: number;
+                nom: string;
                 description: string | null;
             };
             Prix: ({
                 boutiques: {
-                    nom: string;
-                    email: string | null;
                     id: number;
-                    createdAt: Date;
-                    updatedAt: Date;
+                    nom: string;
                     description: string;
                     img: string | null;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    email: string | null;
                     categorie: $Enums.CategorieBoutique;
                     location: $Enums.Location;
                     phone: string | null;
@@ -79,26 +79,33 @@ export declare class ProduitController {
                     countryId: number | null;
                 };
             } & {
-                prix: import("@prisma/client/runtime/library").Decimal;
                 id: number;
                 createdAt: Date;
                 updatedAt: Date;
+                prix: import("@prisma/client/runtime/library").Decimal;
                 quantiter: number;
-                produitId: number;
                 boutiqueId: number | null;
                 particularId: number | null;
+                produitId: number;
             })[];
-            nom: string;
+            Favorie: {
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                produitId: number | null;
+                userId: number | null;
+            }[];
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
-            status: $Enums.ProduitStatus;
+            nom: string;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: $Enums.ProduitType;
+            status: $Enums.ProduitStatus;
             rejectionComment: string | null;
             categorieId: number;
+            createdAt: Date;
+            updatedAt: Date;
             isPublic: boolean | null;
         }[];
         totalCount: number;
@@ -118,27 +125,20 @@ export declare class ProduitController {
                 phone: string;
                 categorie: $Enums.CategorieBoutique;
             };
-            Favorie: {
-                id: number;
-                createdAt: Date;
-                updatedAt: Date;
-                produitId: number | null;
-                userId: number | null;
-            }[];
             categories: {
-                nom: string;
                 id: number;
+                nom: string;
                 description: string | null;
             };
             Prix: ({
                 boutiques: {
-                    nom: string;
-                    email: string | null;
                     id: number;
-                    createdAt: Date;
-                    updatedAt: Date;
+                    nom: string;
                     description: string;
                     img: string | null;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    email: string | null;
                     categorie: $Enums.CategorieBoutique;
                     location: $Enums.Location;
                     phone: string | null;
@@ -146,26 +146,33 @@ export declare class ProduitController {
                     countryId: number | null;
                 };
             } & {
-                prix: import("@prisma/client/runtime/library").Decimal;
                 id: number;
                 createdAt: Date;
                 updatedAt: Date;
+                prix: import("@prisma/client/runtime/library").Decimal;
                 quantiter: number;
-                produitId: number;
                 boutiqueId: number | null;
                 particularId: number | null;
+                produitId: number;
             })[];
-            nom: string;
+            Favorie: {
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                produitId: number | null;
+                userId: number | null;
+            }[];
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
-            status: $Enums.ProduitStatus;
+            nom: string;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: $Enums.ProduitType;
+            status: $Enums.ProduitStatus;
             rejectionComment: string | null;
             categorieId: number;
+            createdAt: Date;
+            updatedAt: Date;
             isPublic: boolean | null;
         }[];
     }>;
@@ -174,17 +181,17 @@ export declare class ProduitController {
         message: string;
         data: {
             boutiques: {
-                nom: string;
                 id: number;
+                nom: string;
                 categorie: $Enums.CategorieBoutique;
                 location: $Enums.Location;
                 phone: string;
             };
-            prix: import("@prisma/client/runtime/library").Decimal;
             id: number;
+            prix: import("@prisma/client/runtime/library").Decimal;
             quantiter: number;
-            produitId: number;
             boutiqueId: number | null;
+            produitId: number;
             Favorie: {
                 id: number;
                 createdAt: Date;
@@ -193,15 +200,15 @@ export declare class ProduitController {
                 userId: number | null;
             }[];
             nom: string;
-            createdAt: Date;
-            updatedAt: Date;
-            status: $Enums.ProduitStatus;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: $Enums.ProduitType;
+            status: $Enums.ProduitStatus;
             rejectionComment: string | null;
             categorieId: number;
+            createdAt: Date;
+            updatedAt: Date;
             isPublic: boolean | null;
         }[];
     }>;
@@ -210,17 +217,17 @@ export declare class ProduitController {
         message: string;
         data: {
             boutiques: {
-                nom: string;
                 id: number;
+                nom: string;
                 categorie: $Enums.CategorieBoutique;
                 location: $Enums.Location;
                 phone: string;
             };
-            prix: import("@prisma/client/runtime/library").Decimal;
             id: number;
+            prix: import("@prisma/client/runtime/library").Decimal;
             quantiter: number;
-            produitId: number;
             boutiqueId: number | null;
+            produitId: number;
             Favorie: {
                 id: number;
                 createdAt: Date;
@@ -229,15 +236,15 @@ export declare class ProduitController {
                 userId: number | null;
             }[];
             nom: string;
-            createdAt: Date;
-            updatedAt: Date;
-            status: $Enums.ProduitStatus;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: $Enums.ProduitType;
+            status: $Enums.ProduitStatus;
             rejectionComment: string | null;
             categorieId: number;
+            createdAt: Date;
+            updatedAt: Date;
             isPublic: boolean | null;
         }[];
     }>;
@@ -245,17 +252,17 @@ export declare class ProduitController {
         statusCode: HttpStatus;
         message: string;
         data: {
-            nom: string;
             id: number;
-            createdAt: Date;
-            updatedAt: Date;
-            status: $Enums.ProduitStatus;
+            nom: string;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: $Enums.ProduitType;
+            status: $Enums.ProduitStatus;
             rejectionComment: string | null;
             categorieId: number;
+            createdAt: Date;
+            updatedAt: Date;
             isPublic: boolean | null;
         };
     }>;
@@ -264,9 +271,19 @@ export declare class ProduitController {
         message: string;
         data: {
             prixId: number;
-            prix: import("@prisma/client/runtime/library").Decimal;
             id: number;
+            prix: import("@prisma/client/runtime/library").Decimal;
             quantiter: number;
+            categories: {
+                id: number;
+                nom: string;
+                description: string | null;
+            };
+            Prix: {
+                id: number;
+                prix: import("@prisma/client/runtime/library").Decimal;
+                quantiter: number;
+            }[];
             Favorie: {
                 id: number;
                 createdAt: Date;
@@ -274,26 +291,16 @@ export declare class ProduitController {
                 produitId: number | null;
                 userId: number | null;
             }[];
-            categories: {
-                nom: string;
-                id: number;
-                description: string | null;
-            };
-            Prix: {
-                prix: import("@prisma/client/runtime/library").Decimal;
-                id: number;
-                quantiter: number;
-            }[];
             nom: string;
-            createdAt: Date;
-            updatedAt: Date;
-            status: $Enums.ProduitStatus;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: $Enums.ProduitType;
+            status: $Enums.ProduitStatus;
             rejectionComment: string | null;
             categorieId: number;
+            createdAt: Date;
+            updatedAt: Date;
             isPublic: boolean | null;
         };
     }>;
@@ -308,8 +315,17 @@ export declare class ProduitController {
         statusCode: HttpStatus;
         message: string;
         data: {
-            nom: string;
             id: number;
+            nom: string;
+            description: string;
+            img: string;
+            tags: string;
+            categorieId: number;
+            categories: {
+                id: number;
+                nom: string;
+                description: string | null;
+            };
             Favorie: {
                 id: number;
                 createdAt: Date;
@@ -317,19 +333,19 @@ export declare class ProduitController {
                 produitId: number | null;
                 userId: number | null;
             }[];
-            description: string;
-            img: string;
-            tags: string;
-            categorieId: number;
-            categories: {
-                nom: string;
-                id: number;
-                description: string | null;
-            };
             prixId: number;
             produits: {
-                nom: string;
                 id: number;
+                nom: string;
+                description: string;
+                img: string;
+                tags: string;
+                categorieId: number;
+                categories: {
+                    id: number;
+                    nom: string;
+                    description: string | null;
+                };
                 Favorie: {
                     id: number;
                     createdAt: Date;
@@ -337,23 +353,14 @@ export declare class ProduitController {
                     produitId: number | null;
                     userId: number | null;
                 }[];
-                description: string;
-                img: string;
-                tags: string;
-                categorieId: number;
-                categories: {
-                    nom: string;
-                    id: number;
-                    description: string | null;
-                };
             };
-            prix: import("@prisma/client/runtime/library").Decimal;
             createdAt: Date;
             updatedAt: Date;
+            prix: import("@prisma/client/runtime/library").Decimal;
             quantiter: number;
-            produitId: number;
             boutiqueId: number | null;
             particularId: number | null;
+            produitId: number;
         }[];
     }>;
     getByShopId(req: Request, shopId: number): Promise<{
@@ -361,8 +368,16 @@ export declare class ProduitController {
         message: string;
         data: {
             tags: any;
-            nom: string;
             id: number;
+            nom: string;
+            description: string;
+            img: string;
+            categorieId: number;
+            categories: {
+                id: number;
+                nom: string;
+                description: string | null;
+            };
             Favorie: {
                 id: number;
                 createdAt: Date;
@@ -370,18 +385,19 @@ export declare class ProduitController {
                 produitId: number | null;
                 userId: number | null;
             }[];
-            description: string;
-            img: string;
-            categorieId: number;
-            categories: {
-                nom: string;
-                id: number;
-                description: string | null;
-            };
             prixId: number;
             produits: {
-                nom: string;
                 id: number;
+                nom: string;
+                description: string;
+                img: string;
+                tags: string;
+                categorieId: number;
+                categories: {
+                    id: number;
+                    nom: string;
+                    description: string | null;
+                };
                 Favorie: {
                     id: number;
                     createdAt: Date;
@@ -389,23 +405,14 @@ export declare class ProduitController {
                     produitId: number | null;
                     userId: number | null;
                 }[];
-                description: string;
-                img: string;
-                tags: string;
-                categorieId: number;
-                categories: {
-                    nom: string;
-                    id: number;
-                    description: string | null;
-                };
             };
-            prix: import("@prisma/client/runtime/library").Decimal;
             createdAt: Date;
             updatedAt: Date;
+            prix: import("@prisma/client/runtime/library").Decimal;
             quantiter: number;
-            produitId: number;
             boutiqueId: number | null;
             particularId: number | null;
+            produitId: number;
         }[];
     }>;
 }

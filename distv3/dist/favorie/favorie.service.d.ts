@@ -35,7 +35,7 @@ export declare class FavorieService {
             updatedAt: Date;
             status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
@@ -73,7 +73,7 @@ export declare class FavorieService {
             updatedAt: Date;
             status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;

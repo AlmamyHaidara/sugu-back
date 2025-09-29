@@ -18,9 +18,9 @@ export declare class CommandService {
             createdAt: Date;
             updatedAt: Date | null;
             commandeNbr: string;
-            etat: import(".prisma/client").$Enums.EtatCommand;
             utilisateurId: number;
             adresseId: number | null;
+            etat: import(".prisma/client").$Enums.EtatCommand;
         };
     }>;
     createParticulier(createCommandDto: CreateCommandDto): Promise<{
@@ -32,9 +32,9 @@ export declare class CommandService {
             createdAt: Date;
             updatedAt: Date | null;
             commandeNbr: string;
-            etat: import(".prisma/client").$Enums.EtatCommand;
             utilisateurId: number;
             adresseId: number | null;
+            etat: import(".prisma/client").$Enums.EtatCommand;
         };
     }>;
     findAll(userId: number): Promise<{
@@ -65,19 +65,19 @@ export declare class CommandService {
         status: number;
         data: {
             utilisateur: {
-                id: number;
                 nom: string;
+                prenom: string;
                 email: string;
                 telephone: string;
-                prenom: string;
+                id: number;
                 Adresse: {
+                    nom: string;
+                    telephone: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    nom: string;
                     description: string;
                     userId: number;
-                    telephone: string;
                     quartier: string;
                     isdefault: boolean;
                 }[];
@@ -88,19 +88,19 @@ export declare class CommandService {
                     quantiter: number;
                     prixId: number;
                     categories: {
-                        id: number;
                         nom: string;
+                        id: number;
                         description: string | null;
                     };
+                    nom: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    nom: string;
-                    img: string;
+                    status: import(".prisma/client").$Enums.ProduitStatus;
                     description: string;
+                    img: string | null;
                     tags: string | null;
                     type: import(".prisma/client").$Enums.ProduitType;
-                    status: import(".prisma/client").$Enums.ProduitStatus;
                     rejectionComment: string | null;
                     categorieId: number;
                     isPublic: boolean | null;
@@ -108,20 +108,20 @@ export declare class CommandService {
                 Prix: {
                     produits: {
                         categories: {
-                            id: number;
                             nom: string;
+                            id: number;
                             description: string | null;
                         };
                     } & {
+                        nom: string;
                         id: number;
                         createdAt: Date;
                         updatedAt: Date;
-                        nom: string;
-                        img: string;
+                        status: import(".prisma/client").$Enums.ProduitStatus;
                         description: string;
+                        img: string | null;
                         tags: string | null;
                         type: import(".prisma/client").$Enums.ProduitType;
-                        status: import(".prisma/client").$Enums.ProduitStatus;
                         rejectionComment: string | null;
                         categorieId: number;
                         isPublic: boolean | null;
@@ -129,36 +129,36 @@ export declare class CommandService {
                 } & {
                     prix: import("@prisma/client/runtime/library").Decimal;
                     id: number;
+                    createdAt: Date;
+                    updatedAt: Date;
                     quantiter: number;
                     produitId: number;
                     boutiqueId: number | null;
                     particularId: number | null;
-                    createdAt: Date;
-                    updatedAt: Date;
                 };
                 id: number;
-                quantiter: number;
                 createdAt: Date;
                 updatedAt: Date;
+                quantiter: number;
                 prixId: number | null;
                 commandeId: number | null;
             }[];
             id: number;
             createdAt: Date;
             utilisateurs: {
-                id: number;
                 nom: string;
+                prenom: string;
                 email: string;
                 telephone: string;
-                prenom: string;
+                id: number;
                 Adresse: {
+                    nom: string;
+                    telephone: string;
                     id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    nom: string;
                     description: string;
                     userId: number;
-                    telephone: string;
                     quartier: string;
                     isdefault: boolean;
                 }[];

@@ -57,7 +57,7 @@ export class BoutiqueService {
           `Country #${createBoutiqueDto.countryId} introuvable`,
         );
       }
-
+      // GB06fP2T
       const password = genererMotDePasse(8);
       const isExiste = await this.prisma.utilisateur.findFirst({
         where: {

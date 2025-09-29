@@ -35,7 +35,7 @@ export declare class ParticulierService {
             nom: string;
             status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
-            img: string;
+            img: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
             categorieId: number;
@@ -72,7 +72,7 @@ export declare class ParticulierService {
             updatedAt: Date;
             status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
@@ -141,7 +141,7 @@ export declare class ParticulierService {
             updatedAt: Date;
             status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
@@ -218,7 +218,7 @@ export declare class ParticulierService {
             updatedAt: Date;
             status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
@@ -281,7 +281,7 @@ export declare class ParticulierService {
             updatedAt: Date;
             status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;

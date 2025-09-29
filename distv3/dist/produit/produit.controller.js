@@ -23,17 +23,19 @@ const path_1 = require("path");
 const constants_1 = require("../auth/constants");
 const SearchProduits_dto_1 = require("./dto/SearchProduits.dto");
 const functions_1 = require("../utils/functions");
+const fs_1 = require("fs");
 let ProduitController = class ProduitController {
     constructor(produitService) {
         this.produitService = produitService;
     }
-    async create(file, createProduitDto) {
-        if (!file) {
+    async create(files, createProduitDto) {
+        if (!files) {
             throw new common_1.BadRequestException('Image file is required');
         }
+        const imgs = files.map((file) => file.path.split('uploads/')[1] || file.path.split('uploads\\')[1]);
         const created = await this.produitService.create({
             ...createProduitDto,
-            img: file.path.split('uploads/')[1],
+            imgs,
         });
         return created;
     }
@@ -94,10 +96,13 @@ let ProduitController = class ProduitController {
 exports.ProduitController = ProduitController;
 __decorate([
     (0, common_1.Post)(),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('img', {
+    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('imgs', 10, {
         storage: (0, multer_1.diskStorage)({
             destination: (req, file, callback) => {
                 const uploadPath = process.env.PRODUIT_UPLOAD_DIR || './uploads/produits';
+                if (!(0, fs_1.existsSync)(uploadPath)) {
+                    (0, fs_1.mkdirSync)(uploadPath, { recursive: true });
+                }
                 callback(null, uploadPath);
             },
             filename: (req, file, callback) => {
@@ -109,15 +114,20 @@ __decorate([
         }),
         fileFilter: (req, file, callback) => {
             if (!file.mimetype.match(/\/(jpg|jpeg|png)$/i)) {
-                return callback(new Error('Seuls les fichiers JPG, JPEG et PNG sont autorisés !'), false);
+                return callback(new common_1.BadRequestException('Seuls les fichiers JPG, JPEG et PNG sont autorisés !'), false);
             }
             callback(null, true);
         },
+        limits: {
+            files: 10,
+            fileSize: 5 * 1024 * 1024,
+        },
     })),
-    __param(0, (0, common_1.UploadedFile)()),
+    __param(0, (0, common_1.UploadedFiles)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, create_produit_dto_1.CreateProduitDto]),
+    __metadata("design:paramtypes", [Array,
+        create_produit_dto_1.CreateProduitDto]),
     __metadata("design:returntype", Promise)
 ], ProduitController.prototype, "create", null);
 __decorate([

@@ -13,12 +13,13 @@ import {
   Query,
   Req,
   UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { ProduitService } from './produit.service';
 import { CreateProduitDto } from './dto/create-produit.dto';
 import { UpdateProduitDto } from './dto/update-produit.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Public } from 'src/auth/constants';
@@ -27,6 +28,7 @@ import { Express } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { decodejwt } from 'src/utils/functions';
 import { $Enums } from '@prisma/client';
+import { existsSync, mkdirSync } from 'fs';
 
 @Controller('produit')
 export class ProduitController {
@@ -34,11 +36,14 @@ export class ProduitController {
 
   @Post()
   @UseInterceptors(
-    FileInterceptor('img', {
+    FilesInterceptor('imgs', 10, {
       storage: diskStorage({
         destination: (req, file, callback) => {
           const uploadPath =
             process.env.PRODUIT_UPLOAD_DIR || './uploads/produits';
+          if (!existsSync(uploadPath)) {
+            mkdirSync(uploadPath, { recursive: true });
+          }
           callback(null, uploadPath);
         },
         filename: (req, file, callback) => {
@@ -51,24 +56,34 @@ export class ProduitController {
       fileFilter: (req, file, callback) => {
         if (!file.mimetype.match(/\/(jpg|jpeg|png)$/i)) {
           return callback(
-            new Error('Seuls les fichiers JPG, JPEG et PNG sont autorisés !'),
+            new BadRequestException(
+              'Seuls les fichiers JPG, JPEG et PNG sont autorisés !',
+            ),
             false,
           );
         }
         callback(null, true);
       },
+      limits: {
+        files: 10, // max number of files
+        fileSize: 5 * 1024 * 1024, // 5 MB per file
+      },
     }),
   )
   async create(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() createProduitDto: CreateProduitDto,
   ) {
-    if (!file) {
+    if (!files) {
       throw new BadRequestException('Image file is required');
     }
+    const imgs = files.map(
+      (file) =>
+        file.path.split('uploads/')[1] || file.path.split('uploads\\')[1],
+    );
     const created = await this.produitService.create({
       ...createProduitDto,
-      img: file.path.split('uploads/')[1], // ou construire une URL si besoin
+      imgs, // ou construire une URL si besoin
     });
 
     return created;

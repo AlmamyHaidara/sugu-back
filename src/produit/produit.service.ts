@@ -10,6 +10,7 @@ import { UpdateProduitDto } from './dto/update-produit.dto';
 import { SearchProduitsDto } from './dto/SearchProduits.dto';
 import {
   CategorieBoutique,
+  Image,
   Prisma,
   ProduitStatus,
   ProduitType,
@@ -49,7 +50,7 @@ export class ProduitService {
         data: {
           nom: createProduitDto.nom,
           description: createProduitDto.description,
-          img: createProduitDto.img,
+          img: '',
           tags: createProduitDto.tags,
           isPublic: true,
           status: ProduitStatus.APPROVED,
@@ -70,6 +71,7 @@ export class ProduitService {
         },
         include: {
           categories: true,
+          Image: true,
           Prix: {
             select: {
               id: true,
@@ -80,9 +82,36 @@ export class ProduitService {
         },
       });
 
-      const prixId = produit.Prix[0].id;
-      delete produit.Prix[0].id;
-      const productFiltered = { ...produit, ...produit.Prix[0], prixId };
+      const images = createProduitDto.imgs.map((img) => {
+        return { img, produitId: produit.id };
+      });
+      const imageSaved = await this.prisma.image.createMany({
+        data: images,
+      });
+      const prd = await this.prisma.produit.findFirst({
+        where: {
+          id: produit.id,
+        },
+        include: {
+          categories: true,
+          Image: true,
+          Prix: {
+            select: {
+              id: true,
+              prix: true,
+              quantiter: true,
+            },
+          },
+        },
+      });
+      const prixId = prd.Prix[0].id;
+      delete prd.Prix[0].id;
+      const productFiltered = {
+        ...prd,
+        ...prd.Prix[0],
+        prixId,
+        // img: imageSaved,
+      };
       delete productFiltered.Prix;
       return {
         statusCode: HttpStatus.CREATED,
@@ -124,7 +153,7 @@ export class ProduitService {
         data: {
           nom: createProduitDto.nom,
           description: createProduitDto.description,
-          img: createProduitDto.img,
+          // img: createProduitDto.img,
           tags: createProduitDto.tags,
           status: ProduitStatus.PENDING,
 
@@ -144,6 +173,7 @@ export class ProduitService {
         },
         include: {
           categories: true,
+          Image: true,
           Prix: {
             select: {
               id: true,
@@ -154,9 +184,21 @@ export class ProduitService {
         },
       });
 
+      const images = createProduitDto.imgs.map((img) => {
+        return { img, produitId: produit.id };
+      });
+      const imageSaved = await this.prisma.image.createMany({
+        data: images,
+      });
+
       const prixId = produit.Prix[0].id;
       delete produit.Prix[0].id;
-      const productFiltered = { ...produit, ...produit.Prix[0], prixId };
+      const productFiltered = {
+        ...produit,
+        ...produit.Prix[0],
+        prixId,
+        img: imageSaved,
+      };
       delete productFiltered.Prix;
       return {
         statusCode: HttpStatus.CREATED,
@@ -199,7 +241,7 @@ export class ProduitService {
         data: {
           nom: createProduitDto.nom,
           description: createProduitDto.description,
-          img: createProduitDto.img,
+          // img: createProduitDto.img,
           tags: createProduitDto.tags,
           status: ProduitStatus.APPROVED,
           isPublic: true,
@@ -220,6 +262,7 @@ export class ProduitService {
         },
         include: {
           categories: true,
+          Image: true,
           Prix: {
             select: {
               id: true,
@@ -230,6 +273,13 @@ export class ProduitService {
         },
       });
 
+      const images = createProduitDto.imgs.map((img) => {
+        return { img, produitId: produit.id };
+      });
+      const imageSaved = await this.prisma.image.createMany({
+        data: images,
+      });
+
       const prixId = produit.Prix[0].id;
       delete produit.Prix[0].id;
       const productFiltered = {
@@ -237,6 +287,7 @@ export class ProduitService {
         ...produit.Prix[0],
         prixId,
         tags: JSON.parse(produit.tags),
+        img: imageSaved,
       };
       delete productFiltered.Prix;
       return {
