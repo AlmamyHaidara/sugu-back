@@ -42,6 +42,13 @@ export declare class BoutiqueController {
                         produitId: number | null;
                         userId: number | null;
                     }[];
+                    Image: {
+                        id: number;
+                        createdAt: Date;
+                        updatedAt: Date;
+                        produitId: number;
+                        img: string;
+                    }[];
                 } & {
                     nom: string;
                     id: number;
@@ -195,6 +202,13 @@ export declare class BoutiqueController {
                 id: number;
                 description: string | null;
             };
+            Image: {
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                produitId: number;
+                img: string;
+            }[];
             nom: string;
             id: number;
             createdAt: Date;

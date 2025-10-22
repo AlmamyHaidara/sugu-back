@@ -205,6 +205,7 @@ export class BoutiqueService {
               produits: {
                 include: {
                   categories: true,
+                  Image: true,
                   Favorie: {
                     where: {
                       userId: userId,
@@ -279,6 +280,7 @@ export class BoutiqueService {
             include: {
               produits: {
                 include: {
+                  Image: true,
                   Favorie: {
                     where: {
                       userId: userId,

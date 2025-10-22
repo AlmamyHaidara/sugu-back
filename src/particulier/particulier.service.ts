@@ -394,6 +394,7 @@ export class ParticulierService {
           },
         },
         include: {
+          Image: true,
           Prix: {
             select: {
               id: true,
@@ -445,6 +446,7 @@ export class ParticulierService {
           isPublic: true,
         },
         include: {
+          Image: true,
           Prix: {
             include: {
               particular: true,
@@ -501,6 +503,7 @@ export class ParticulierService {
           id: produitId,
         },
         include: {
+          Image: true,
           Prix: {
             include: {
               particular: true,
@@ -585,6 +588,7 @@ export class ParticulierService {
       const produit = await this.prisma.produit.findUnique({
         where: { id: produitId },
         include: {
+          Image: true,
           Prix: {
             include: {
               particular: true,
@@ -640,6 +644,7 @@ export class ParticulierService {
           },
         },
         include: {
+          Image: true,
           Prix: {
             include: {
               particular: true,
@@ -747,6 +752,7 @@ export class ParticulierService {
           take: pageSize,
           include: {
             categories: true,
+            Image: true,
             Prix: {
               include: {
                 particular: {

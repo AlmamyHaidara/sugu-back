@@ -56,7 +56,11 @@ let CommandService = class CommandService {
                 where: { id: { in: prixIds } },
                 include: {
                     boutiques: true,
-                    produits: true,
+                    produits: {
+                        include: {
+                            Image: true,
+                        },
+                    },
                     particular: true,
                 },
             });
@@ -274,7 +278,11 @@ let CommandService = class CommandService {
                             particular: {
                                 select: { id: true },
                             },
-                            produits: true,
+                            produits: {
+                                include: {
+                                    Image: true,
+                                },
+                            },
                             prix: true,
                         },
                     });
@@ -405,7 +413,11 @@ Nous vous remercions pour votre confiance.`,
                                             phone: true,
                                         },
                                     },
-                                    produits: true,
+                                    produits: {
+                                        include: {
+                                            Image: true,
+                                        },
+                                    },
                                 },
                             },
                         },
@@ -488,7 +500,11 @@ Nous vous remercions pour votre confiance.`,
                                             },
                                         },
                                     },
-                                    produits: true,
+                                    produits: {
+                                        include: {
+                                            Image: true,
+                                        },
+                                    },
                                 },
                             },
                         },
@@ -505,7 +521,7 @@ Nous vous remercions pour votre confiance.`,
                     const filter = res.LigneCommand.map((lc) => {
                         const newLc = { ...lc, ...lc.Prix };
                         newLc.quantiter = lc.quantiter;
-                        newLc.quantiterTotal = lc.Prix.quantiter;
+                        newLc.quantiterTotal = lc.Prix?.quantiter;
                         delete newLc.Prix;
                         return newLc;
                     });
@@ -568,6 +584,7 @@ Nous vous remercions pour votre confiance.`,
                                 include: {
                                     produits: {
                                         include: {
+                                            Image: true,
                                             categories: true,
                                         },
                                     },
@@ -635,6 +652,7 @@ Nous vous remercions pour votre confiance.`,
                                 include: {
                                     produits: {
                                         include: {
+                                            Image: true,
                                             categories: true,
                                         },
                                     },
@@ -701,6 +719,7 @@ Nous vous remercions pour votre confiance.`,
                                 include: {
                                     produits: {
                                         include: {
+                                            Image: true,
                                             categories: true,
                                         },
                                     },

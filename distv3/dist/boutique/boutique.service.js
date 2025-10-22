@@ -240,6 +240,7 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                             produits: {
                                 include: {
                                     categories: true,
+                                    Image: true,
                                     Favorie: {
                                         where: {
                                             userId: userId,
@@ -298,6 +299,7 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                         include: {
                             produits: {
                                 include: {
+                                    Image: true,
                                     Favorie: {
                                         where: {
                                             userId: userId,

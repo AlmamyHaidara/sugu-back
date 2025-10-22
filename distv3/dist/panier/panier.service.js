@@ -218,7 +218,11 @@ let PanierService = class PanierService {
         return this.prisma.panier.findMany({
             where: { boutiqueId },
             include: {
-                produits: true,
+                produits: {
+                    include: {
+                        Image: true,
+                    },
+                },
                 boutiques: true,
                 particuliers: true,
             },
@@ -261,6 +265,7 @@ let PanierService = class PanierService {
                         categories: true,
                         description: true,
                         img: true,
+                        Image: true,
                         Prix: {
                             select: {
                                 prix: true,

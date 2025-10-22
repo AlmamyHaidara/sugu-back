@@ -108,6 +108,13 @@ export declare class BoutiqueService {
                 id: number;
                 description: string | null;
             };
+            Image: {
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                produitId: number;
+                img: string;
+            }[];
             nom: string;
             id: number;
             createdAt: Date;
@@ -157,6 +164,13 @@ export declare class BoutiqueService {
                         updatedAt: Date;
                         produitId: number | null;
                         userId: number | null;
+                    }[];
+                    Image: {
+                        id: number;
+                        createdAt: Date;
+                        updatedAt: Date;
+                        produitId: number;
+                        img: string;
                     }[];
                 } & {
                     nom: string;

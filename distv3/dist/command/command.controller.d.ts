@@ -86,6 +86,13 @@ export declare class CommandController {
                         id: number;
                         description: string | null;
                     };
+                    Image: {
+                        id: number;
+                        createdAt: Date;
+                        updatedAt: Date;
+                        produitId: number;
+                        img: string;
+                    }[];
                     nom: string;
                     id: number;
                     createdAt: Date;
@@ -106,6 +113,13 @@ export declare class CommandController {
                             id: number;
                             description: string | null;
                         };
+                        Image: {
+                            id: number;
+                            createdAt: Date;
+                            updatedAt: Date;
+                            produitId: number;
+                            img: string;
+                        }[];
                     } & {
                         nom: string;
                         id: number;

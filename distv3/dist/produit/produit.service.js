@@ -366,7 +366,6 @@ let ProduitService = class ProduitService {
                             id: true,
                             categorieId: true,
                             description: true,
-                            img: true,
                             nom: true,
                             tags: true,
                             categories: true,
@@ -375,6 +374,7 @@ let ProduitService = class ProduitService {
                                     userId: userId,
                                 },
                             },
+                            Image: true,
                         },
                     },
                 },
@@ -388,7 +388,7 @@ let ProduitService = class ProduitService {
                 delete prix.boutiqueId;
                 delete prix.produitId;
                 delete prix.produits;
-                return { ...prix, prixId, ...products };
+                return { ...prix, prixId, ...{ ...products, imgs: products.Image } };
             });
             return {
                 statusCode: common_1.HttpStatus.OK,
@@ -417,6 +417,7 @@ let ProduitService = class ProduitService {
                             categorieId: true,
                             description: true,
                             img: true,
+                            Image: true,
                             nom: true,
                             tags: true,
                             categories: true,
@@ -425,6 +426,9 @@ let ProduitService = class ProduitService {
                                     userId: userId,
                                 },
                             },
+                        },
+                        include: {
+                            Image: true,
                         },
                     },
                 },
@@ -435,7 +439,7 @@ let ProduitService = class ProduitService {
                 delete prix.boutiqueId;
                 delete prix.produitId;
                 delete prix.produits;
-                return { ...prix, prixId, ...products };
+                return { ...prix, prixId, ...{ ...products, imgs: products.Image } };
             });
             return {
                 statusCode: common_1.HttpStatus.OK,
@@ -452,6 +456,7 @@ let ProduitService = class ProduitService {
         try {
             const existingProduit = await this.prisma.produit.findUnique({
                 where: { id: Number(id) },
+                include: { Image: true },
             });
             const existingPrix = await this.prisma.prix.findFirst({
                 where: {
@@ -486,6 +491,30 @@ let ProduitService = class ProduitService {
             if (file) {
                 dataToUpdate.img = file.path.split('uploads/')[1];
             }
+            const ids = existingProduit.Image.map((image) => {
+                return image.id;
+            });
+            if (updateProduitDto.categorie) {
+                dataToUpdate.categorieId = Number(updateProduitDto.categorie);
+            }
+            const newImageIds = updateProduitDto.imgs || [];
+            const imagesToDelete = existingProduit.Image.filter((img) => !newImageIds.includes(img.img));
+            if (imagesToDelete.length > 0) {
+                await this.prisma.image.deleteMany({
+                    where: { id: { in: imagesToDelete.map((i) => i.id) } },
+                });
+                imagesToDelete.forEach((img) => {
+                    try {
+                        const filePath = 'uploads/' + img.img;
+                        if (fs.existsSync(filePath)) {
+                            fs.unlinkSync(filePath);
+                        }
+                    }
+                    catch (error) {
+                        console.error(`Erreur suppression fichier ${img.img}:`, error);
+                    }
+                });
+            }
             const updatedProduit = await this.prisma.produit.update({
                 where: { id: Number(id) },
                 data: {
@@ -506,6 +535,13 @@ let ProduitService = class ProduitService {
                                 quantiter: Number(updateProduitDto.quantiter),
                             },
                         },
+                    },
+                    Image: {
+                        upsert: ids.map((imgId) => ({
+                            where: { id: imgId },
+                            update: { img: dataToUpdate.img },
+                            create: { img: dataToUpdate.img, produitId: Number(id) },
+                        })),
                     },
                 },
                 include: {
@@ -597,6 +633,7 @@ let ProduitService = class ProduitService {
             },
             include: {
                 categories: true,
+                Image: true,
                 Favorie: {
                     where: {
                         userId: userId,
@@ -693,6 +730,7 @@ let ProduitService = class ProduitService {
                     take: pageSize,
                     include: {
                         categories: true,
+                        Image: true,
                         Prix: {
                             include: {
                                 boutiques: true,
@@ -737,6 +775,7 @@ let ProduitService = class ProduitService {
                     delete res.categories;
                     return {
                         ...res,
+                        imgs: res.Image,
                         categorie,
                         prix: el.prix,
                         boutique: el.boutique,

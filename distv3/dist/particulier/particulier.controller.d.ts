@@ -55,6 +55,13 @@ export declare class ParticulierController {
                 boutiqueId: number;
                 particularId: number;
             }[];
+            Image: {
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                produitId: number;
+                img: string;
+            }[];
             nom: string;
             id: number;
             createdAt: Date;
@@ -118,6 +125,13 @@ export declare class ParticulierController {
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
+            Image: {
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                produitId: number;
+                img: string;
+            }[];
             nom: string;
             id: number;
             createdAt: Date;
@@ -190,6 +204,13 @@ export declare class ParticulierController {
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
+            Image: {
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                produitId: number;
+                img: string;
+            }[];
             nom: string;
             id: number;
             createdAt: Date;
@@ -259,6 +280,13 @@ export declare class ParticulierController {
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
+            Image: {
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                produitId: number;
+                img: string;
+            }[];
             nom: string;
             id: number;
             createdAt: Date;

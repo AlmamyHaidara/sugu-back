@@ -437,7 +437,6 @@ export class ProduitService {
               id: true,
               categorieId: true,
               description: true,
-              img: true,
               nom: true,
               tags: true,
               categories: true,
@@ -446,6 +445,7 @@ export class ProduitService {
                   userId: userId,
                 },
               },
+              Image: true,
             },
           },
         },
@@ -460,7 +460,7 @@ export class ProduitService {
         delete prix.boutiqueId;
         delete prix.produitId;
         delete prix.produits;
-        return { ...prix, prixId, ...products };
+        return { ...prix, prixId, ...{ ...products, imgs: products.Image } };
       });
 
       return {
@@ -492,6 +492,7 @@ export class ProduitService {
               categorieId: true,
               description: true,
               img: true,
+              Image: true,
               nom: true,
               tags: true,
               categories: true,
@@ -500,6 +501,9 @@ export class ProduitService {
                   userId: userId,
                 },
               },
+            },
+            include: {
+              Image: true,
             },
           },
         },
@@ -511,7 +515,7 @@ export class ProduitService {
         delete prix.boutiqueId;
         delete prix.produitId;
         delete prix.produits;
-        return { ...prix, prixId, ...products };
+        return { ...prix, prixId, ...{ ...products, imgs: products.Image } };
       });
 
       return {
@@ -536,6 +540,7 @@ export class ProduitService {
     try {
       const existingProduit = await this.prisma.produit.findUnique({
         where: { id: Number(id) },
+        include: { Image: true },
       });
 
       const existingPrix = await this.prisma.prix.findFirst({
@@ -580,6 +585,41 @@ export class ProduitService {
       if (file) {
         dataToUpdate.img = file.path.split('uploads/')[1]; // ou construire une URL publique
       }
+
+      const ids: number[] = existingProduit.Image.map((image) => {
+        return image.id;
+      });
+      // 5. Convertir les champs si nécessaire
+      if (updateProduitDto.categorie) {
+        dataToUpdate.categorieId = Number(updateProduitDto.categorie);
+      }
+
+      const newImageIds = updateProduitDto.imgs || [];
+
+      // ✅ Images à supprimer (BDD et fichiers)
+      const imagesToDelete = existingProduit.Image.filter(
+        (img) => !newImageIds.includes(img.img),
+      );
+
+      if (imagesToDelete.length > 0) {
+        // Supprimer en BDD
+        await this.prisma.image.deleteMany({
+          where: { id: { in: imagesToDelete.map((i) => i.id) } },
+        });
+
+        // Supprimer fichiers du disque
+        imagesToDelete.forEach((img) => {
+          try {
+            const filePath = 'uploads/' + img.img;
+            if (fs.existsSync(filePath)) {
+              fs.unlinkSync(filePath);
+            }
+          } catch (error) {
+            console.error(`Erreur suppression fichier ${img.img}:`, error);
+          }
+        });
+      }
+
       // Mise à jour du produit
       const updatedProduit = await this.prisma.produit.update({
         where: { id: Number(id) },
@@ -602,6 +642,13 @@ export class ProduitService {
                 quantiter: Number(updateProduitDto.quantiter),
               },
             },
+          },
+          Image: {
+            upsert: ids.map((imgId) => ({
+              where: { id: imgId },
+              update: { img: dataToUpdate.img },
+              create: { img: dataToUpdate.img, produitId: Number(id) },
+            })),
           },
         },
         include: {
@@ -706,6 +753,7 @@ export class ProduitService {
       },
       include: {
         categories: true,
+        Image: true,
         Favorie: {
           where: {
             userId: userId,
@@ -838,6 +886,7 @@ export class ProduitService {
           take: pageSize,
           include: {
             categories: true,
+            Image: true,
             Prix: {
               include: {
                 boutiques: true,
@@ -892,6 +941,7 @@ export class ProduitService {
           delete res.categories;
           return {
             ...res,
+            imgs: res.Image,
             categorie,
             prix: el.prix,
             boutique: el.boutique,

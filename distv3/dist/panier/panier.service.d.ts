@@ -20,6 +20,14 @@ export declare class PanierService {
     }>;
     getCart(boutiqueId: number): Promise<({
         produits: {
+            Image: {
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                produitId: number;
+                img: string;
+            }[];
+        } & {
             nom: string;
             id: number;
             createdAt: Date;
@@ -76,6 +84,13 @@ export declare class PanierService {
                 id: number;
                 description: string | null;
             };
+            Image?: {
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                produitId: number;
+                img: string;
+            }[];
         };
         id: number;
         boutiqueId: number;
