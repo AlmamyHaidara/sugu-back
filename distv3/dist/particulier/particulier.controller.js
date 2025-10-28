@@ -22,17 +22,20 @@ const multer_1 = require("multer");
 const path_1 = require("path");
 const SearchProduits_dto_1 = require("../produit/dto/SearchProduits.dto");
 const constants_1 = require("../auth/constants");
+const fs_1 = require("fs");
 let ParticulierController = class ParticulierController {
     constructor(particulierService) {
         this.particulierService = particulierService;
     }
-    async create(createParticulierDto, file) {
-        if (!file) {
+    async create(files, createParticulierDto) {
+        console.log(files);
+        if (!files || files.length === 0) {
             throw new common_1.BadRequestException('Image file is required');
         }
+        const imgs = files.map((file) => file.path.split('uploads/')[1] || file.path.split('uploads\\')[1]);
         return await this.particulierService.create({
             ...createParticulierDto,
-            prodImg: file.path.split('uploads/')[1],
+            prodImg: imgs,
         });
     }
     async findAll(userId) {
@@ -50,8 +53,12 @@ let ParticulierController = class ParticulierController {
     async validateProduct(produitId, status, comment) {
         return await this.particulierService.validateProduct(+produitId, status, comment);
     }
-    async update(file, updateParticulierDto) {
-        return await this.particulierService.updateProduct({ ...updateParticulierDto }, file);
+    async update(files, updateParticulierDto) {
+        if (!files || files.length === 0) {
+            throw new common_1.BadRequestException('Image file is required');
+        }
+        const imgs = files.map((file) => file.path.split('uploads/')[1] || file.path.split('uploads\\')[1]);
+        return await this.particulierService.updateProduct({ ...updateParticulierDto }, files);
     }
     async revalidateProduct(produitId) {
         return await this.particulierService.revalidateProduct(+produitId);
@@ -63,10 +70,13 @@ let ParticulierController = class ParticulierController {
 exports.ParticulierController = ParticulierController;
 __decorate([
     (0, common_1.Post)(),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('prodImg', {
+    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('prodImg', 10, {
         storage: (0, multer_1.diskStorage)({
             destination: (req, file, callback) => {
                 const uploadPath = process.env.PRODUIT_UPLOAD_DIR || './uploads/particulier';
+                if (!(0, fs_1.existsSync)(uploadPath)) {
+                    (0, fs_1.mkdirSync)(uploadPath, { recursive: true });
+                }
                 callback(null, uploadPath);
             },
             filename: (req, file, callback) => {
@@ -78,15 +88,20 @@ __decorate([
         }),
         fileFilter: (req, file, callback) => {
             if (!file.mimetype.match(/\/(jpg|jpeg|png)$/i)) {
-                return callback(new Error('Seuls les fichiers JPG, JPEG et PNG sont autorisés !'), false);
+                return callback(new common_1.BadRequestException('Seuls les fichiers JPG, JPEG et PNG sont autorisés !'), false);
             }
             callback(null, true);
         },
+        limits: {
+            files: 10,
+            fileSize: 5 * 1024 * 1024,
+        },
     })),
-    __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.UploadedFile)()),
+    __param(0, (0, common_1.UploadedFiles)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_particulier_dto_1.CreateParticulierDto, Object]),
+    __metadata("design:paramtypes", [Array,
+        create_particulier_dto_1.CreateParticulierDto]),
     __metadata("design:returntype", Promise)
 ], ParticulierController.prototype, "create", null);
 __decorate([
@@ -129,10 +144,13 @@ __decorate([
 ], ParticulierController.prototype, "validateProduct", null);
 __decorate([
     (0, common_1.Patch)(),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('prodImg', {
+    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('prodImg', 10, {
         storage: (0, multer_1.diskStorage)({
             destination: (req, file, callback) => {
                 const uploadPath = process.env.PRODUIT_UPLOAD_DIR || './uploads/particulier';
+                if (!(0, fs_1.existsSync)(uploadPath)) {
+                    (0, fs_1.mkdirSync)(uploadPath, { recursive: true });
+                }
                 callback(null, uploadPath);
             },
             filename: (req, file, callback) => {
@@ -144,15 +162,20 @@ __decorate([
         }),
         fileFilter: (req, file, callback) => {
             if (!file.mimetype.match(/\/(jpg|jpeg|png)$/i)) {
-                return callback(new Error('Seuls les fichiers JPG, JPEG et PNG sont autorisés !'), false);
+                return callback(new common_1.BadRequestException('Seuls les fichiers JPG, JPEG et PNG sont autorisés !'), false);
             }
             callback(null, true);
         },
+        limits: {
+            files: 10,
+            fileSize: 5 * 1024 * 1024,
+        },
     })),
-    __param(0, (0, common_1.UploadedFile)()),
+    __param(0, (0, common_1.UploadedFiles)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, update_particulier_dto_1.UpdateParticulierDto]),
+    __metadata("design:paramtypes", [Array,
+        update_particulier_dto_1.UpdateParticulierDto]),
     __metadata("design:returntype", Promise)
 ], ParticulierController.prototype, "update", null);
 __decorate([

@@ -20,7 +20,7 @@ export class CreateParticulierDto {
   @IsString()
   prodDescription: string;
 
-  prodImg: string;
+  prodImg: string[];
 
   @Transform(({ value }) => Boolean(value), { toClassOnly: true })
   @IsBoolean()

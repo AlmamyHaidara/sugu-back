@@ -43,7 +43,7 @@ let ParticulierService = class ParticulierService {
                     data: {
                         nom: createParticulierDto.prodName,
                         description: createParticulierDto.prodDescription,
-                        img: createParticulierDto.prodImg,
+                        img: '',
                         categorieId: +createParticulierDto.categorieId,
                         isPublic: Boolean(createParticulierDto.published),
                         status: client_1.ProduitStatus.PENDING,
@@ -51,6 +51,7 @@ let ParticulierService = class ParticulierService {
                     },
                     include: {
                         categories: true,
+                        Image: true,
                         Prix: {
                             select: {
                                 id: true,
@@ -61,6 +62,13 @@ let ParticulierService = class ParticulierService {
                     },
                 });
                 this.logger.log(`Nouveau produit créé: ${produit.id}`);
+                const images = createParticulierDto.prodImg.map((img) => {
+                    return { img, produitId: produit.id };
+                });
+                console.log(images);
+                const imageSaved = await tx.image.createMany({
+                    data: images,
+                });
                 const prix = await tx.prix.create({
                     data: {
                         prix: +createParticulierDto.prix,
@@ -144,9 +152,6 @@ let ParticulierService = class ParticulierService {
             const dataToUpdate = {
                 ...updateData,
             };
-            if (file) {
-                dataToUpdate.img = file.path.split('uploads/')[1];
-            }
             const result = await this.prisma.$transaction(async (tx) => {
                 const produit = await tx.produit.findFirst({
                     where: {
@@ -191,6 +196,18 @@ let ParticulierService = class ParticulierService {
                             },
                         },
                     },
+                });
+                await tx.image.deleteMany({
+                    where: { produitId: Number(dataToUpdate.produitId) },
+                });
+                const images = file.map((img) => {
+                    return {
+                        img: img.path.split('uploads/')[1] || img.path.split('uploads\\')[1],
+                        produitId: produit.id,
+                    };
+                });
+                const imageSaved = await tx.image.createMany({
+                    data: images,
                 });
                 let updatedPrix = updatedProduit.Prix[0];
                 if (dataToUpdate.prix || dataToUpdate.quantiter) {
@@ -384,14 +401,18 @@ let ParticulierService = class ParticulierService {
                 },
             });
             const result = produits.map((el) => {
+                console.log(el);
+                if (el.Prix.length === 0) {
+                    return null;
+                }
                 const custum = {
                     ...el,
                     published: el.isPublic,
-                    prix: el.Prix[0].prix,
-                    prixId: el.Prix[0].id,
-                    quantiter: el.Prix[0].quantiter,
-                    particularId: el.Prix[0].particularId,
-                    particulier: el.Prix[0].particular,
+                    prix: el?.Prix[0]?.prix,
+                    prixId: el?.Prix[0].id,
+                    quantiter: el?.Prix[0].quantiter,
+                    particularId: el?.Prix[0].particularId,
+                    particulier: el?.Prix[0].particular,
                 };
                 delete custum.Prix;
                 return custum;
