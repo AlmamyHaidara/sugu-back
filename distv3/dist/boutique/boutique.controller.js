@@ -23,6 +23,7 @@ const path_1 = require("path");
 const constants_1 = require("../auth/constants");
 const roles_guard_1 = require("../auth/roles.guard");
 const update_boutique_profile_dto_1 = require("./dto/update-boutique-profile.dto");
+const functions_1 = require("../utils/functions");
 const boutiqueStorage = {
     storage: (0, multer_1.diskStorage)({
         destination: './uploads/boutiques',
@@ -53,8 +54,12 @@ let BoutiqueController = class BoutiqueController {
         const boutique = await this.boutiqueService.create(createBoutiqueDto);
         return boutique;
     }
-    async findAll() {
+    async findAll(req) {
         console.log('pppp');
+        const userId = (0, functions_1.decodejwt)(req);
+        if (userId != 0) {
+            return this.boutiqueService.findAll();
+        }
         return this.boutiqueService.findAll();
     }
     async findOne(id) {
@@ -63,10 +68,18 @@ let BoutiqueController = class BoutiqueController {
     async getStatistic(id) {
         return this.boutiqueService.getStatistic(id);
     }
-    findAllWithProducts() {
+    findAllWithProducts(req) {
+        const userId = (0, functions_1.decodejwt)(req);
+        if (userId != 0) {
+            return this.boutiqueService.findAllShopAndProducts(userId);
+        }
         return this.boutiqueService.findAllShopAndProducts();
     }
-    findBoutiqueProduit(id) {
+    findBoutiqueProduit(req, id) {
+        const userId = (0, functions_1.decodejwt)(req);
+        if (userId != 0) {
+            return this.boutiqueService.findAllShopWithProducts(id, userId);
+        }
         return this.boutiqueService.findAllShopWithProducts(id);
     }
     findBoutiqueByUserId(userId) {
@@ -119,8 +132,9 @@ __decorate([
     (0, constants_1.Public)(),
     (0, roles_guard_1.Roles)('boutiquier'),
     (0, common_1.Get)(),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Request]),
     __metadata("design:returntype", Promise)
 ], BoutiqueController.prototype, "findAll", null);
 __decorate([
@@ -139,16 +153,18 @@ __decorate([
 ], BoutiqueController.prototype, "getStatistic", null);
 __decorate([
     (0, common_1.Get)('all-with-products'),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Request]),
     __metadata("design:returntype", void 0)
 ], BoutiqueController.prototype, "findAllWithProducts", null);
 __decorate([
     (0, constants_1.Public)(),
     (0, common_1.Get)('all-produits/:id'),
-    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Request, Number]),
     __metadata("design:returntype", void 0)
 ], BoutiqueController.prototype, "findBoutiqueProduit", null);
 __decorate([

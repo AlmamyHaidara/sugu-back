@@ -55,7 +55,7 @@ export class ParticulierService {
             data: {
               nom: createParticulierDto.prodName,
               description: createParticulierDto.prodDescription,
-              img: createParticulierDto.prodImg,
+              img: '',
               categorieId: +createParticulierDto.categorieId,
               isPublic: Boolean(createParticulierDto.published),
               status: ProduitStatus.PENDING,
@@ -65,6 +65,7 @@ export class ParticulierService {
             },
             include: {
               categories: true,
+              Image: true,
               Prix: {
                 select: {
                   id: true,
@@ -76,7 +77,15 @@ export class ParticulierService {
           });
 
           this.logger.log(`Nouveau produit créé: ${produit.id}`);
+          const images = createParticulierDto.prodImg.map((img) => {
+            return { img, produitId: produit.id };
+          });
 
+          console.log(images);
+
+          const imageSaved = await tx.image.createMany({
+            data: images,
+          });
           // 4. Créer le prix associé
           const prix = await tx.prix.create({
             data: {
@@ -135,7 +144,7 @@ export class ParticulierService {
   }
   async updateProduct(
     updateData: UpdateParticulierDto,
-    file?: Express.Multer.File,
+    file?: Express.Multer.File[],
   ) {
     try {
       const existingProduit = await this.prisma.produit.findUnique({
@@ -183,9 +192,6 @@ export class ParticulierService {
         ...updateData,
       };
 
-      if (file) {
-        dataToUpdate.img = file.path.split('uploads/')[1]; // ou construire une URL publique
-      }
       const result = await this.prisma.$transaction(
         async (tx) => {
           // 1. Vérifier que le produit existe et appartient au particulier
@@ -238,6 +244,21 @@ export class ParticulierService {
                 },
               },
             },
+          });
+
+          await tx.image.deleteMany({
+            where: { produitId: Number(dataToUpdate.produitId) },
+          });
+          const images = file.map((img) => {
+            return {
+              img:
+                img.path.split('uploads/')[1] || img.path.split('uploads\\')[1],
+              produitId: produit.id,
+            };
+          });
+
+          const imageSaved = await tx.image.createMany({
+            data: images,
           });
           let updatedPrix = updatedProduit.Prix[0];
           // 3. Mettre à jour le prix si nécessaire
@@ -394,6 +415,7 @@ export class ParticulierService {
           },
         },
         include: {
+          Image: true,
           Prix: {
             select: {
               id: true,
@@ -445,6 +467,7 @@ export class ParticulierService {
           isPublic: true,
         },
         include: {
+          Image: true,
           Prix: {
             include: {
               particular: true,
@@ -460,14 +483,18 @@ export class ParticulierService {
       });
 
       const result = produits.map((el) => {
+        console.log(el);
+        if (el.Prix.length === 0) {
+          return null;
+        }
         const custum = {
           ...el,
           published: el.isPublic,
-          prix: el.Prix[0].prix,
-          prixId: el.Prix[0].id,
-          quantiter: el.Prix[0].quantiter,
-          particularId: el.Prix[0].particularId,
-          particulier: el.Prix[0].particular,
+          prix: el?.Prix[0]?.prix,
+          prixId: el?.Prix[0].id,
+          quantiter: el?.Prix[0].quantiter,
+          particularId: el?.Prix[0].particularId,
+          particulier: el?.Prix[0].particular,
         };
         delete custum.Prix;
         return custum;
@@ -501,6 +528,7 @@ export class ParticulierService {
           id: produitId,
         },
         include: {
+          Image: true,
           Prix: {
             include: {
               particular: true,
@@ -585,6 +613,7 @@ export class ParticulierService {
       const produit = await this.prisma.produit.findUnique({
         where: { id: produitId },
         include: {
+          Image: true,
           Prix: {
             include: {
               particular: true,
@@ -640,6 +669,7 @@ export class ParticulierService {
           },
         },
         include: {
+          Image: true,
           Prix: {
             include: {
               particular: true,
@@ -747,6 +777,7 @@ export class ParticulierService {
           take: pageSize,
           include: {
             categories: true,
+            Image: true,
             Prix: {
               include: {
                 particular: {

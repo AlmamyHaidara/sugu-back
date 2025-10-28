@@ -123,6 +123,14 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                 throw new common_1.NotFoundException(`Country #${createBoutiqueDto.countryId} introuvable`);
             }
             const password = (0, functions_1.genererMotDePasse)(8);
+            const isExiste = await this.prisma.utilisateur.findFirst({
+                where: {
+                    email: createBoutiqueDto.email,
+                },
+                select: {
+                    id: true,
+                },
+            });
             const boutique = await this.prisma.boutique.create({
                 data: {
                     nom: createBoutiqueDto.nom,
@@ -154,6 +162,16 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                     },
                 },
             });
+            if (isExiste) {
+                this.prisma.utilisateur.update({
+                    where: {
+                        id: isExiste.id,
+                    },
+                    data: {
+                        profile: client_1.Profile.BOUTIQUIER,
+                    },
+                });
+            }
             await this.mailService.sendMail([createBoutiqueDto.email], 'Les identifiant de votre boutique', (0, data_1.templateToSendShopidentyMail)(password, createBoutiqueDto.nom, createBoutiqueDto.email));
             return {
                 statusCode: 201,
@@ -166,7 +184,7 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
             throw new common_1.InternalServerErrorException('Erreur lors de la création de la boutique');
         }
     }
-    async findAllShopAndProducts() {
+    async findAllShopAndProducts(userId) {
         try {
             const boutiques = await this.prisma.boutique.findMany({
                 include: {
@@ -180,6 +198,11 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                     },
                     Prix: {
                         select: { prix: true, boutiqueId: true, quantiter: true },
+                    },
+                    Favorie: {
+                        where: {
+                            userId: userId,
+                        },
                     },
                 },
             });
@@ -206,7 +229,7 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
             throw new common_1.InternalServerErrorException('Erreur lors de la récupération des boutiques et produits');
         }
     }
-    async findAllShopWithProducts(shopId) {
+    async findAllShopWithProducts(shopId, userId) {
         try {
             const boutique = await this.prisma.boutique.findUnique({
                 where: { id: shopId },
@@ -217,6 +240,12 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
                             produits: {
                                 include: {
                                     categories: true,
+                                    Image: true,
+                                    Favorie: {
+                                        where: {
+                                            userId: userId,
+                                        },
+                                    },
                                 },
                             },
                         },
@@ -261,14 +290,23 @@ let BoutiqueService = BoutiqueService_1 = class BoutiqueService {
             throw new common_1.InternalServerErrorException('Erreur lors de la récupération des boutiques par utilisateur');
         }
     }
-    async findAll() {
+    async findAll(userId) {
         try {
             const boutiques = await this.prisma.boutique.findMany({
                 include: {
                     country: true,
                     Prix: {
                         include: {
-                            produits: true,
+                            produits: {
+                                include: {
+                                    Image: true,
+                                    Favorie: {
+                                        where: {
+                                            userId: userId,
+                                        },
+                                    },
+                                },
+                            },
                         },
                     },
                 },

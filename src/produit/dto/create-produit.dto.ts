@@ -20,7 +20,7 @@ export class CreateProduitDto {
   @IsString()
   description?: string;
 
-  img: string;
+  imgs: string[];
 
   @IsNotEmpty()
   @IsString()

@@ -19,13 +19,21 @@ export declare class PanierController {
     }>;
     getCart(boutiqueId: string): Promise<({
         produits: {
+            Image: {
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                produitId: number;
+                img: string;
+            }[];
+        } & {
             nom: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
             status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
-            img: string;
+            img: string | null;
             tags: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
             rejectionComment: string | null;
@@ -75,6 +83,13 @@ export declare class PanierController {
                 id: number;
                 description: string | null;
             };
+            Image?: {
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                produitId: number;
+                img: string;
+            }[];
         };
         id: number;
         boutiqueId: number;

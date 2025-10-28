@@ -104,7 +104,7 @@ model Produit {
   id          Int    @id @default(autoincrement())
   nom         String
   description String @db.Text
-  img         String
+  img         String?
   // Tableau de mots-clés pour la recherche avancée (facultatif)
   tags        String?
   type        ProduitType @default(BOUTIQUE)
@@ -118,6 +118,7 @@ model Produit {
   isPublic  Boolean? @default(false)
   Prix   Prix[]
   Panier Panier[]
+  Image Image[]
 
   Publicite Publicite[]
   validationLogs ProduitValidationLog[]
@@ -126,13 +127,21 @@ model Produit {
   Favorie Favorie[]
 }
 
+model Image{
+  id          Int    @id @default(autoincrement())
+  img         String
+  produitId Int
+  produit   Produit @relation(fields: [produitId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
 model Favorie{
     id           Int         @id @default(autoincrement())
-    userId       Int
-    produitId       Int
-    utilisateurs Utilisateur @relation(fields: [userId], references: [id])
-    product Produit @relation(fields: [produitId], references: [id])
+    userId       Int?
+    produitId       Int?
+    utilisateurs Utilisateur? @relation(fields: [userId], references: [id])
+    product Produit? @relation(fields: [produitId], references: [id])
     createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

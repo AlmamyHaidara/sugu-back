@@ -57,8 +57,16 @@ export class BoutiqueService {
           `Country #${createBoutiqueDto.countryId} introuvable`,
         );
       }
-
+      // GB06fP2T
       const password = genererMotDePasse(8);
+      const isExiste = await this.prisma.utilisateur.findFirst({
+        where: {
+          email: createBoutiqueDto.email,
+        },
+        select: {
+          id: true,
+        },
+      });
 
       const boutique = await this.prisma.boutique.create({
         data: {
@@ -91,6 +99,16 @@ export class BoutiqueService {
           },
         },
       });
+      if (isExiste) {
+        this.prisma.utilisateur.update({
+          where: {
+            id: isExiste.id,
+          },
+          data: {
+            profile: Profile.BOUTIQUIER,
+          },
+        });
+      }
 
       await this.mailService.sendMail(
         [createBoutiqueDto.email],
@@ -119,7 +137,7 @@ export class BoutiqueService {
   }
 
   // ========== FIND ALL SHOPS + PRODUCTS ==========
-  async findAllShopAndProducts() {
+  async findAllShopAndProducts(userId?: number) {
     try {
       // Récupérer toutes les boutiques
       const boutiques = await this.prisma.boutique.findMany({
@@ -136,6 +154,11 @@ export class BoutiqueService {
           },
           Prix: {
             select: { prix: true, boutiqueId: true, quantiter: true },
+          },
+          Favorie: {
+            where: {
+              userId: userId,
+            },
           },
         },
       });
@@ -171,7 +194,7 @@ export class BoutiqueService {
   }
 
   // ========== FIND ONE SHOP + PRODUCTS PAR ID ==========
-  async findAllShopWithProducts(shopId: number) {
+  async findAllShopWithProducts(shopId: number, userId?: number) {
     try {
       const boutique = await this.prisma.boutique.findUnique({
         where: { id: shopId },
@@ -182,6 +205,12 @@ export class BoutiqueService {
               produits: {
                 include: {
                   categories: true,
+                  Image: true,
+                  Favorie: {
+                    where: {
+                      userId: userId,
+                    },
+                  },
                 },
               },
             },
@@ -242,14 +271,23 @@ export class BoutiqueService {
   }
 
   // ========== FIND ALL (BASIC) ==========
-  async findAll() {
+  async findAll(userId?: number) {
     try {
       const boutiques = await this.prisma.boutique.findMany({
         include: {
           country: true,
           Prix: {
             include: {
-              produits: true,
+              produits: {
+                include: {
+                  Image: true,
+                  Favorie: {
+                    where: {
+                      userId: userId,
+                    },
+                  },
+                },
+              },
             },
           },
         },

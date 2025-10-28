@@ -22,33 +22,52 @@ const multer_1 = require("multer");
 const path_1 = require("path");
 const constants_1 = require("../auth/constants");
 const SearchProduits_dto_1 = require("./dto/SearchProduits.dto");
+const functions_1 = require("../utils/functions");
+const fs_1 = require("fs");
 let ProduitController = class ProduitController {
     constructor(produitService) {
         this.produitService = produitService;
     }
-    async create(file, createProduitDto) {
-        if (!file) {
+    async create(files, createProduitDto) {
+        if (!files) {
             throw new common_1.BadRequestException('Image file is required');
         }
+        const imgs = files.map((file) => file.path.split('uploads/')[1] || file.path.split('uploads\\')[1]);
         const created = await this.produitService.create({
             ...createProduitDto,
-            img: file.path.split('uploads/')[1],
+            imgs,
         });
         return created;
     }
-    async findAll(query) {
+    async findAll(req, query) {
+        const userId = (0, functions_1.decodejwt)(req);
+        if (userId != 0) {
+            return this.produitService.findAllProduits(query, userId);
+        }
         return this.produitService.findAllProduits(query);
     }
-    async findAllProductByCountryId(id) {
+    async findAllProductByCountryId(req, id) {
+        const userId = (0, functions_1.decodejwt)(req);
+        if (userId != 0) {
+            return this.produitService.findAllProduitsByCountryId(id, userId);
+        }
         return this.produitService.findAllProduitsByCountryId(id);
     }
-    findAllByShopClient(id) {
+    findAllByShopClient(req, id) {
+        const userId = (0, functions_1.decodejwt)(req);
+        if (userId != 0) {
+            return this.produitService.findAllByShop(id, userId);
+        }
         return this.produitService.findAllByShop(id);
     }
-    findAllByShop(id) {
+    findAllByShop(req, id) {
+        const userId = (0, functions_1.decodejwt)(req);
+        if (userId != 0) {
+            return this.produitService.findAllByShop(id, userId);
+        }
         return this.produitService.findAllByShop(id);
     }
-    async findOne(id) {
+    async findOne(req, id) {
         const produit = await this.produitService.findOne(id);
         if (!produit) {
             throw new common_1.NotFoundException(`Produit #${id} introuvable`);
@@ -70,17 +89,20 @@ let ProduitController = class ProduitController {
     async getByShopIdAndUserId(shopId, userId) {
         return await this.produitService.findByUserIdAndShopId(shopId, userId);
     }
-    async getByShopId(shopId) {
+    async getByShopId(req, shopId) {
         return await this.produitService.findByShopId(shopId);
     }
 };
 exports.ProduitController = ProduitController;
 __decorate([
     (0, common_1.Post)(),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('img', {
+    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('imgs', 10, {
         storage: (0, multer_1.diskStorage)({
             destination: (req, file, callback) => {
                 const uploadPath = process.env.PRODUIT_UPLOAD_DIR || './uploads/produits';
+                if (!(0, fs_1.existsSync)(uploadPath)) {
+                    (0, fs_1.mkdirSync)(uploadPath, { recursive: true });
+                }
                 callback(null, uploadPath);
             },
             filename: (req, file, callback) => {
@@ -92,53 +114,63 @@ __decorate([
         }),
         fileFilter: (req, file, callback) => {
             if (!file.mimetype.match(/\/(jpg|jpeg|png)$/i)) {
-                return callback(new Error('Seuls les fichiers JPG, JPEG et PNG sont autorisés !'), false);
+                return callback(new common_1.BadRequestException('Seuls les fichiers JPG, JPEG et PNG sont autorisés !'), false);
             }
             callback(null, true);
         },
+        limits: {
+            files: 10,
+            fileSize: 5 * 1024 * 1024,
+        },
     })),
-    __param(0, (0, common_1.UploadedFile)()),
+    __param(0, (0, common_1.UploadedFiles)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, create_produit_dto_1.CreateProduitDto]),
+    __metadata("design:paramtypes", [Array,
+        create_produit_dto_1.CreateProduitDto]),
     __metadata("design:returntype", Promise)
 ], ProduitController.prototype, "create", null);
 __decorate([
     (0, constants_1.Public)(),
     (0, common_1.Get)(),
-    __param(0, (0, common_1.Query)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [SearchProduits_dto_1.SearchProduitsDto]),
+    __metadata("design:paramtypes", [Request, SearchProduits_dto_1.SearchProduitsDto]),
     __metadata("design:returntype", Promise)
 ], ProduitController.prototype, "findAll", null);
 __decorate([
     (0, constants_1.Public)(),
     (0, common_1.Get)('country/:id'),
-    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Request, Number]),
     __metadata("design:returntype", Promise)
 ], ProduitController.prototype, "findAllProductByCountryId", null);
 __decorate([
     (0, constants_1.Public)(),
     (0, common_1.Get)('shop-products-client/:id'),
-    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Request, Number]),
     __metadata("design:returntype", void 0)
 ], ProduitController.prototype, "findAllByShopClient", null);
 __decorate([
     (0, common_1.Get)('shop-products/:id'),
-    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Request, Number]),
     __metadata("design:returntype", void 0)
 ], ProduitController.prototype, "findAllByShop", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Request, Number]),
     __metadata("design:returntype", Promise)
 ], ProduitController.prototype, "findOne", null);
 __decorate([
@@ -183,9 +215,10 @@ __decorate([
 ], ProduitController.prototype, "getByShopIdAndUserId", null);
 __decorate([
     (0, common_1.Get)('by-shop-id/:shopId/'),
-    __param(0, (0, common_1.Param)('shopId', common_1.ParseIntPipe)),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('shopId', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Request, Number]),
     __metadata("design:returntype", Promise)
 ], ProduitController.prototype, "getByShopId", null);
 exports.ProduitController = ProduitController = __decorate([

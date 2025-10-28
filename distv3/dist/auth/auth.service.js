@@ -49,8 +49,10 @@ let AuthService = AuthService_1 = class AuthService {
                 throw new common_1.UnauthorizedException('Invalid credentials');
             }
             const payload = {
-                sub: user.userId,
+                sub: user.id,
                 username: user.username,
+                id: user.id,
+                email: user.email,
                 roles: user?.profile ? [user.profile.toLowerCase()] : [],
             };
             let currentUser = await this.usersService.getCurrentUser(email);

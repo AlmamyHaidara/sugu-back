@@ -4,7 +4,7 @@ export declare class CreateParticulierDto {
     prix: number;
     prodName: string;
     prodDescription: string;
-    prodImg: string;
+    prodImg: string[];
     published: boolean;
     categorieId: number;
 }

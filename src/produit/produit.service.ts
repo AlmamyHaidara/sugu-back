@@ -10,6 +10,7 @@ import { UpdateProduitDto } from './dto/update-produit.dto';
 import { SearchProduitsDto } from './dto/SearchProduits.dto';
 import {
   CategorieBoutique,
+  Image,
   Prisma,
   ProduitStatus,
   ProduitType,
@@ -49,7 +50,7 @@ export class ProduitService {
         data: {
           nom: createProduitDto.nom,
           description: createProduitDto.description,
-          img: createProduitDto.img,
+          img: '',
           tags: createProduitDto.tags,
           isPublic: true,
           status: ProduitStatus.APPROVED,
@@ -70,6 +71,7 @@ export class ProduitService {
         },
         include: {
           categories: true,
+          Image: true,
           Prix: {
             select: {
               id: true,
@@ -80,9 +82,36 @@ export class ProduitService {
         },
       });
 
-      const prixId = produit.Prix[0].id;
-      delete produit.Prix[0].id;
-      const productFiltered = { ...produit, ...produit.Prix[0], prixId };
+      const images = createProduitDto.imgs.map((img) => {
+        return { img, produitId: produit.id };
+      });
+      const imageSaved = await this.prisma.image.createMany({
+        data: images,
+      });
+      const prd = await this.prisma.produit.findFirst({
+        where: {
+          id: produit.id,
+        },
+        include: {
+          categories: true,
+          Image: true,
+          Prix: {
+            select: {
+              id: true,
+              prix: true,
+              quantiter: true,
+            },
+          },
+        },
+      });
+      const prixId = prd.Prix[0].id;
+      delete prd.Prix[0].id;
+      const productFiltered = {
+        ...prd,
+        ...prd.Prix[0],
+        prixId,
+        // img: imageSaved,
+      };
       delete productFiltered.Prix;
       return {
         statusCode: HttpStatus.CREATED,
@@ -124,7 +153,7 @@ export class ProduitService {
         data: {
           nom: createProduitDto.nom,
           description: createProduitDto.description,
-          img: createProduitDto.img,
+          // img: createProduitDto.img,
           tags: createProduitDto.tags,
           status: ProduitStatus.PENDING,
 
@@ -144,6 +173,7 @@ export class ProduitService {
         },
         include: {
           categories: true,
+          Image: true,
           Prix: {
             select: {
               id: true,
@@ -154,9 +184,21 @@ export class ProduitService {
         },
       });
 
+      const images = createProduitDto.imgs.map((img) => {
+        return { img, produitId: produit.id };
+      });
+      const imageSaved = await this.prisma.image.createMany({
+        data: images,
+      });
+
       const prixId = produit.Prix[0].id;
       delete produit.Prix[0].id;
-      const productFiltered = { ...produit, ...produit.Prix[0], prixId };
+      const productFiltered = {
+        ...produit,
+        ...produit.Prix[0],
+        prixId,
+        img: imageSaved,
+      };
       delete productFiltered.Prix;
       return {
         statusCode: HttpStatus.CREATED,
@@ -199,7 +241,7 @@ export class ProduitService {
         data: {
           nom: createProduitDto.nom,
           description: createProduitDto.description,
-          img: createProduitDto.img,
+          // img: createProduitDto.img,
           tags: createProduitDto.tags,
           status: ProduitStatus.APPROVED,
           isPublic: true,
@@ -220,6 +262,7 @@ export class ProduitService {
         },
         include: {
           categories: true,
+          Image: true,
           Prix: {
             select: {
               id: true,
@@ -230,6 +273,13 @@ export class ProduitService {
         },
       });
 
+      const images = createProduitDto.imgs.map((img) => {
+        return { img, produitId: produit.id };
+      });
+      const imageSaved = await this.prisma.image.createMany({
+        data: images,
+      });
+
       const prixId = produit.Prix[0].id;
       delete produit.Prix[0].id;
       const productFiltered = {
@@ -237,6 +287,7 @@ export class ProduitService {
         ...produit.Prix[0],
         prixId,
         tags: JSON.parse(produit.tags),
+        img: imageSaved,
       };
       delete productFiltered.Prix;
       return {
@@ -275,7 +326,7 @@ export class ProduitService {
   }
 
   // ========== FIND ALL BY SHOP ==========
-  async findAllByShop(shopId: number) {
+  async findAllByShop(shopId: number, userId?: number) {
     try {
       // (Facultatif) Vérifier l'existence de la boutique
       const shopExists = await this.prisma.boutique.findUnique({
@@ -298,6 +349,11 @@ export class ProduitService {
           },
         },
         include: {
+          Favorie: {
+            where: {
+              userId: userId,
+            },
+          },
           Prix: {
             // select: {
             //   id: true,
@@ -369,7 +425,7 @@ export class ProduitService {
     }
   }
 
-  async findByShopId(shopId: number) {
+  async findByShopId(shopId: number, userId?: number) {
     try {
       const prixs = await this.prisma.prix.findMany({
         where: {
@@ -381,10 +437,15 @@ export class ProduitService {
               id: true,
               categorieId: true,
               description: true,
-              img: true,
               nom: true,
               tags: true,
               categories: true,
+              Favorie: {
+                where: {
+                  userId: userId,
+                },
+              },
+              Image: true,
             },
           },
         },
@@ -399,7 +460,7 @@ export class ProduitService {
         delete prix.boutiqueId;
         delete prix.produitId;
         delete prix.produits;
-        return { ...prix, prixId, ...products };
+        return { ...prix, prixId, ...{ ...products, imgs: products.Image } };
       });
 
       return {
@@ -431,9 +492,18 @@ export class ProduitService {
               categorieId: true,
               description: true,
               img: true,
+              Image: true,
               nom: true,
               tags: true,
               categories: true,
+              Favorie: {
+                where: {
+                  userId: userId,
+                },
+              },
+            },
+            include: {
+              Image: true,
             },
           },
         },
@@ -445,7 +515,7 @@ export class ProduitService {
         delete prix.boutiqueId;
         delete prix.produitId;
         delete prix.produits;
-        return { ...prix, prixId, ...products };
+        return { ...prix, prixId, ...{ ...products, imgs: products.Image } };
       });
 
       return {
@@ -470,6 +540,7 @@ export class ProduitService {
     try {
       const existingProduit = await this.prisma.produit.findUnique({
         where: { id: Number(id) },
+        include: { Image: true },
       });
 
       const existingPrix = await this.prisma.prix.findFirst({
@@ -514,6 +585,41 @@ export class ProduitService {
       if (file) {
         dataToUpdate.img = file.path.split('uploads/')[1]; // ou construire une URL publique
       }
+
+      const ids: number[] = existingProduit.Image.map((image) => {
+        return image.id;
+      });
+      // 5. Convertir les champs si nécessaire
+      if (updateProduitDto.categorie) {
+        dataToUpdate.categorieId = Number(updateProduitDto.categorie);
+      }
+
+      const newImageIds = updateProduitDto.imgs || [];
+
+      // ✅ Images à supprimer (BDD et fichiers)
+      const imagesToDelete = existingProduit.Image.filter(
+        (img) => !newImageIds.includes(img.img),
+      );
+
+      if (imagesToDelete.length > 0) {
+        // Supprimer en BDD
+        await this.prisma.image.deleteMany({
+          where: { id: { in: imagesToDelete.map((i) => i.id) } },
+        });
+
+        // Supprimer fichiers du disque
+        imagesToDelete.forEach((img) => {
+          try {
+            const filePath = 'uploads/' + img.img;
+            if (fs.existsSync(filePath)) {
+              fs.unlinkSync(filePath);
+            }
+          } catch (error) {
+            console.error(`Erreur suppression fichier ${img.img}:`, error);
+          }
+        });
+      }
+
       // Mise à jour du produit
       const updatedProduit = await this.prisma.produit.update({
         where: { id: Number(id) },
@@ -537,9 +643,17 @@ export class ProduitService {
               },
             },
           },
+          Image: {
+            upsert: ids.map((imgId) => ({
+              where: { id: imgId },
+              update: { img: dataToUpdate.img },
+              create: { img: dataToUpdate.img, produitId: Number(id) },
+            })),
+          },
         },
         include: {
           categories: true,
+          Favorie: true,
           Prix: {
             select: {
               id: true,
@@ -617,7 +731,7 @@ export class ProduitService {
     }
   }
 
-  async findAllProduitsByCountryId(countryId: number) {
+  async findAllProduitsByCountryId(countryId: number, userId?: number) {
     const existingContry = await this.prisma.country.findUnique({
       where: { id: Number(countryId) },
     });
@@ -639,6 +753,12 @@ export class ProduitService {
       },
       include: {
         categories: true,
+        Image: true,
+        Favorie: {
+          where: {
+            userId: userId,
+          },
+        },
         Prix: {
           include: {
             boutiques: true,
@@ -691,7 +811,7 @@ export class ProduitService {
   }
 
   // ========== RECHERCHE / PAGINATION ==========
-  async findAllProduits(query: SearchProduitsDto) {
+  async findAllProduits(query: SearchProduitsDto, userId?: number) {
     const {
       nom,
       categorieBoutique,
@@ -766,9 +886,15 @@ export class ProduitService {
           take: pageSize,
           include: {
             categories: true,
+            Image: true,
             Prix: {
               include: {
                 boutiques: true,
+              },
+            },
+            Favorie: {
+              where: {
+                userId: userId,
               },
             },
           },
@@ -815,6 +941,7 @@ export class ProduitService {
           delete res.categories;
           return {
             ...res,
+            imgs: res.Image,
             categorie,
             prix: el.prix,
             boutique: el.boutique,

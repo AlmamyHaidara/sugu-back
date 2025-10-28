@@ -37,7 +37,7 @@ let ProduitService = class ProduitService {
                 data: {
                     nom: createProduitDto.nom,
                     description: createProduitDto.description,
-                    img: createProduitDto.img,
+                    img: '',
                     tags: createProduitDto.tags,
                     isPublic: true,
                     status: client_1.ProduitStatus.APPROVED,
@@ -56,6 +56,7 @@ let ProduitService = class ProduitService {
                 },
                 include: {
                     categories: true,
+                    Image: true,
                     Prix: {
                         select: {
                             id: true,
@@ -65,9 +66,35 @@ let ProduitService = class ProduitService {
                     },
                 },
             });
-            const prixId = produit.Prix[0].id;
-            delete produit.Prix[0].id;
-            const productFiltered = { ...produit, ...produit.Prix[0], prixId };
+            const images = createProduitDto.imgs.map((img) => {
+                return { img, produitId: produit.id };
+            });
+            const imageSaved = await this.prisma.image.createMany({
+                data: images,
+            });
+            const prd = await this.prisma.produit.findFirst({
+                where: {
+                    id: produit.id,
+                },
+                include: {
+                    categories: true,
+                    Image: true,
+                    Prix: {
+                        select: {
+                            id: true,
+                            prix: true,
+                            quantiter: true,
+                        },
+                    },
+                },
+            });
+            const prixId = prd.Prix[0].id;
+            delete prd.Prix[0].id;
+            const productFiltered = {
+                ...prd,
+                ...prd.Prix[0],
+                prixId,
+            };
             delete productFiltered.Prix;
             return {
                 statusCode: common_1.HttpStatus.CREATED,
@@ -99,7 +126,6 @@ let ProduitService = class ProduitService {
                 data: {
                     nom: createProduitDto.nom,
                     description: createProduitDto.description,
-                    img: createProduitDto.img,
                     tags: createProduitDto.tags,
                     status: client_1.ProduitStatus.PENDING,
                     categories: {
@@ -117,6 +143,7 @@ let ProduitService = class ProduitService {
                 },
                 include: {
                     categories: true,
+                    Image: true,
                     Prix: {
                         select: {
                             id: true,
@@ -126,9 +153,20 @@ let ProduitService = class ProduitService {
                     },
                 },
             });
+            const images = createProduitDto.imgs.map((img) => {
+                return { img, produitId: produit.id };
+            });
+            const imageSaved = await this.prisma.image.createMany({
+                data: images,
+            });
             const prixId = produit.Prix[0].id;
             delete produit.Prix[0].id;
-            const productFiltered = { ...produit, ...produit.Prix[0], prixId };
+            const productFiltered = {
+                ...produit,
+                ...produit.Prix[0],
+                prixId,
+                img: imageSaved,
+            };
             delete productFiltered.Prix;
             return {
                 statusCode: common_1.HttpStatus.CREATED,
@@ -162,7 +200,6 @@ let ProduitService = class ProduitService {
                 data: {
                     nom: createProduitDto.nom,
                     description: createProduitDto.description,
-                    img: createProduitDto.img,
                     tags: createProduitDto.tags,
                     status: client_1.ProduitStatus.APPROVED,
                     isPublic: true,
@@ -181,6 +218,7 @@ let ProduitService = class ProduitService {
                 },
                 include: {
                     categories: true,
+                    Image: true,
                     Prix: {
                         select: {
                             id: true,
@@ -190,6 +228,12 @@ let ProduitService = class ProduitService {
                     },
                 },
             });
+            const images = createProduitDto.imgs.map((img) => {
+                return { img, produitId: produit.id };
+            });
+            const imageSaved = await this.prisma.image.createMany({
+                data: images,
+            });
             const prixId = produit.Prix[0].id;
             delete produit.Prix[0].id;
             const productFiltered = {
@@ -197,6 +241,7 @@ let ProduitService = class ProduitService {
                 ...produit.Prix[0],
                 prixId,
                 tags: JSON.parse(produit.tags),
+                img: imageSaved,
             };
             delete productFiltered.Prix;
             return {
@@ -229,7 +274,7 @@ let ProduitService = class ProduitService {
             throw new common_1.InternalServerErrorException('Erreur lors de la récupération des produits');
         }
     }
-    async findAllByShop(shopId) {
+    async findAllByShop(shopId, userId) {
         try {
             const shopExists = await this.prisma.boutique.findUnique({
                 where: { id: shopId },
@@ -249,6 +294,11 @@ let ProduitService = class ProduitService {
                     },
                 },
                 include: {
+                    Favorie: {
+                        where: {
+                            userId: userId,
+                        },
+                    },
                     Prix: {
                         omit: {
                             createdAt: true,
@@ -304,7 +354,7 @@ let ProduitService = class ProduitService {
             throw new common_1.InternalServerErrorException('Erreur lors de la récupération du produit');
         }
     }
-    async findByShopId(shopId) {
+    async findByShopId(shopId, userId) {
         try {
             const prixs = await this.prisma.prix.findMany({
                 where: {
@@ -316,10 +366,15 @@ let ProduitService = class ProduitService {
                             id: true,
                             categorieId: true,
                             description: true,
-                            img: true,
                             nom: true,
                             tags: true,
                             categories: true,
+                            Favorie: {
+                                where: {
+                                    userId: userId,
+                                },
+                            },
+                            Image: true,
                         },
                     },
                 },
@@ -333,7 +388,7 @@ let ProduitService = class ProduitService {
                 delete prix.boutiqueId;
                 delete prix.produitId;
                 delete prix.produits;
-                return { ...prix, prixId, ...products };
+                return { ...prix, prixId, ...{ ...products, imgs: products.Image } };
             });
             return {
                 statusCode: common_1.HttpStatus.OK,
@@ -362,9 +417,18 @@ let ProduitService = class ProduitService {
                             categorieId: true,
                             description: true,
                             img: true,
+                            Image: true,
                             nom: true,
                             tags: true,
                             categories: true,
+                            Favorie: {
+                                where: {
+                                    userId: userId,
+                                },
+                            },
+                        },
+                        include: {
+                            Image: true,
                         },
                     },
                 },
@@ -375,7 +439,7 @@ let ProduitService = class ProduitService {
                 delete prix.boutiqueId;
                 delete prix.produitId;
                 delete prix.produits;
-                return { ...prix, prixId, ...products };
+                return { ...prix, prixId, ...{ ...products, imgs: products.Image } };
             });
             return {
                 statusCode: common_1.HttpStatus.OK,
@@ -392,6 +456,7 @@ let ProduitService = class ProduitService {
         try {
             const existingProduit = await this.prisma.produit.findUnique({
                 where: { id: Number(id) },
+                include: { Image: true },
             });
             const existingPrix = await this.prisma.prix.findFirst({
                 where: {
@@ -426,6 +491,30 @@ let ProduitService = class ProduitService {
             if (file) {
                 dataToUpdate.img = file.path.split('uploads/')[1];
             }
+            const ids = existingProduit.Image.map((image) => {
+                return image.id;
+            });
+            if (updateProduitDto.categorie) {
+                dataToUpdate.categorieId = Number(updateProduitDto.categorie);
+            }
+            const newImageIds = updateProduitDto.imgs || [];
+            const imagesToDelete = existingProduit.Image.filter((img) => !newImageIds.includes(img.img));
+            if (imagesToDelete.length > 0) {
+                await this.prisma.image.deleteMany({
+                    where: { id: { in: imagesToDelete.map((i) => i.id) } },
+                });
+                imagesToDelete.forEach((img) => {
+                    try {
+                        const filePath = 'uploads/' + img.img;
+                        if (fs.existsSync(filePath)) {
+                            fs.unlinkSync(filePath);
+                        }
+                    }
+                    catch (error) {
+                        console.error(`Erreur suppression fichier ${img.img}:`, error);
+                    }
+                });
+            }
             const updatedProduit = await this.prisma.produit.update({
                 where: { id: Number(id) },
                 data: {
@@ -447,9 +536,17 @@ let ProduitService = class ProduitService {
                             },
                         },
                     },
+                    Image: {
+                        upsert: ids.map((imgId) => ({
+                            where: { id: imgId },
+                            update: { img: dataToUpdate.img },
+                            create: { img: dataToUpdate.img, produitId: Number(id) },
+                        })),
+                    },
                 },
                 include: {
                     categories: true,
+                    Favorie: true,
                     Prix: {
                         select: {
                             id: true,
@@ -514,7 +611,7 @@ let ProduitService = class ProduitService {
             throw new common_1.InternalServerErrorException('Erreur lors de la suppression du produit');
         }
     }
-    async findAllProduitsByCountryId(countryId) {
+    async findAllProduitsByCountryId(countryId, userId) {
         const existingContry = await this.prisma.country.findUnique({
             where: { id: Number(countryId) },
         });
@@ -536,6 +633,12 @@ let ProduitService = class ProduitService {
             },
             include: {
                 categories: true,
+                Image: true,
+                Favorie: {
+                    where: {
+                        userId: userId,
+                    },
+                },
                 Prix: {
                     include: {
                         boutiques: true,
@@ -580,7 +683,7 @@ let ProduitService = class ProduitService {
             data: dataFiltered,
         };
     }
-    async findAllProduits(query) {
+    async findAllProduits(query, userId) {
         const { nom, categorieBoutique, categorieId, prixMin, prixMax, countryId, location, page, limit, } = query;
         const whereClause = {};
         const whereBoutiqueClause = {};
@@ -627,9 +730,15 @@ let ProduitService = class ProduitService {
                     take: pageSize,
                     include: {
                         categories: true,
+                        Image: true,
                         Prix: {
                             include: {
                                 boutiques: true,
+                            },
+                        },
+                        Favorie: {
+                            where: {
+                                userId: userId,
                             },
                         },
                     },
@@ -666,6 +775,7 @@ let ProduitService = class ProduitService {
                     delete res.categories;
                     return {
                         ...res,
+                        imgs: res.Image,
                         categorie,
                         prix: el.prix,
                         boutique: el.boutique,
