@@ -354,6 +354,8 @@ export class ProduitService {
               userId: userId,
             },
           },
+          Image: true,
+          categories: true,
           Prix: {
             // select: {
             //   id: true,

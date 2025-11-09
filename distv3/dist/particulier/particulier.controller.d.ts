@@ -12,17 +12,17 @@ export declare class ParticulierController {
             prixId: number;
             tags: any;
             prix: import("@prisma/client/runtime/library").Decimal;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
-            id: number;
             quantiter: number;
             produitId: number;
             boutiqueId: number | null;
             particularId: number | null;
             categories: {
                 nom: string;
-                description: string | null;
                 id: number;
+                description: string | null;
             };
             Prix: {
                 prix: import("@prisma/client/runtime/library").Decimal;
@@ -30,20 +30,20 @@ export declare class ParticulierController {
                 quantiter: number;
             }[];
             Image: {
-                img: string;
+                id: number;
                 createdAt: Date;
                 updatedAt: Date;
-                id: number;
                 produitId: number;
+                img: string;
             }[];
             nom: string;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
-            status: import(".prisma/client").$Enums.ProduitStatus;
             rejectionComment: string | null;
-            isPublic: boolean | null;
             categorieId: number;
+            isPublic: boolean | null;
         };
     }>;
     findAll(userId: string): Promise<{
@@ -63,24 +63,24 @@ export declare class ParticulierController {
                 particularId: number;
             }[];
             Image: {
-                img: string;
+                id: number;
                 createdAt: Date;
                 updatedAt: Date;
-                id: number;
                 produitId: number;
+                img: string;
             }[];
             nom: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string | null;
             tags: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
-            status: import(".prisma/client").$Enums.ProduitStatus;
             rejectionComment: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            isPublic: boolean | null;
-            id: number;
             categorieId: number;
+            isPublic: boolean | null;
         }[];
     }>;
     findAllApprovedProducts(query: SearchProduitsDto): Promise<{
@@ -99,58 +99,58 @@ export declare class ParticulierController {
             };
             categories: {
                 nom: string;
-                description: string | null;
                 id: number;
+                description: string | null;
             };
             Prix: ({
                 particular: {
                     utilisateur: {
                         nom: string;
-                        createdAt: Date;
-                        updatedAt: Date;
-                        id: number;
-                        telephone: string;
-                        email: string;
                         prenom: string | null;
+                        email: string;
+                        telephone: string;
                         password: string;
                         profile: import(".prisma/client").$Enums.Profile;
                         avatar: string | null;
+                        id: number;
+                        createdAt: Date;
+                        updatedAt: Date;
                     };
                 } & {
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    id: number;
                     userId: number;
                 };
             } & {
                 prix: import("@prisma/client/runtime/library").Decimal;
+                id: number;
                 createdAt: Date;
                 updatedAt: Date;
-                id: number;
                 quantiter: number;
                 produitId: number;
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
             Image: {
-                img: string;
+                id: number;
                 createdAt: Date;
                 updatedAt: Date;
-                id: number;
                 produitId: number;
+                img: string;
             }[];
             nom: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string | null;
             tags: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
-            status: import(".prisma/client").$Enums.ProduitStatus;
             rejectionComment: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            isPublic: boolean | null;
-            id: number;
             categorieId: number;
+            isPublic: boolean | null;
         }[];
         totalCount: number;
         currentPage: number;
@@ -166,70 +166,70 @@ export declare class ParticulierController {
             quantiter: number;
             particularId: number;
             particulier: {
+                id: number;
                 createdAt: Date;
                 updatedAt: Date;
-                id: number;
                 userId: number;
             };
             categories: {
                 nom: string;
-                description: string | null;
                 id: number;
+                description: string | null;
             };
             Prix: ({
                 particular: {
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    id: number;
                     userId: number;
                 };
                 LigneCommand: ({
                     Commande: {
+                        id: number;
                         createdAt: Date;
                         updatedAt: Date | null;
-                        id: number;
                         commandeNbr: string;
                         utilisateurId: number;
                         adresseId: number | null;
                         etat: import(".prisma/client").$Enums.EtatCommand;
                     };
                 } & {
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    id: number;
                     quantiter: number;
                     prixId: number | null;
                     commandeId: number | null;
                 })[];
             } & {
                 prix: import("@prisma/client/runtime/library").Decimal;
+                id: number;
                 createdAt: Date;
                 updatedAt: Date;
-                id: number;
                 quantiter: number;
                 produitId: number;
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
             Image: {
-                img: string;
+                id: number;
                 createdAt: Date;
                 updatedAt: Date;
-                id: number;
                 produitId: number;
+                img: string;
             }[];
             nom: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string | null;
             tags: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
-            status: import(".prisma/client").$Enums.ProduitStatus;
             rejectionComment: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            isPublic: boolean | null;
-            id: number;
             categorieId: number;
+            isPublic: boolean | null;
         }[];
     }>;
     findAllProductInValidation(): Promise<{
@@ -242,70 +242,70 @@ export declare class ParticulierController {
             quantiter: number;
             particularId: number;
             particulier: {
+                id: number;
                 createdAt: Date;
                 updatedAt: Date;
-                id: number;
                 userId: number;
             };
             categories: {
                 nom: string;
-                description: string | null;
                 id: number;
+                description: string | null;
             };
             Prix: ({
                 particular: {
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    id: number;
                     userId: number;
                 };
                 LigneCommand: ({
                     Commande: {
+                        id: number;
                         createdAt: Date;
                         updatedAt: Date | null;
-                        id: number;
                         commandeNbr: string;
                         utilisateurId: number;
                         adresseId: number | null;
                         etat: import(".prisma/client").$Enums.EtatCommand;
                     };
                 } & {
+                    id: number;
                     createdAt: Date;
                     updatedAt: Date;
-                    id: number;
                     quantiter: number;
                     prixId: number | null;
                     commandeId: number | null;
                 })[];
             } & {
                 prix: import("@prisma/client/runtime/library").Decimal;
+                id: number;
                 createdAt: Date;
                 updatedAt: Date;
-                id: number;
                 quantiter: number;
                 produitId: number;
                 boutiqueId: number | null;
                 particularId: number | null;
             })[];
             Image: {
-                img: string;
+                id: number;
                 createdAt: Date;
                 updatedAt: Date;
-                id: number;
                 produitId: number;
+                img: string;
             }[];
             nom: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            status: import(".prisma/client").$Enums.ProduitStatus;
             description: string;
             img: string | null;
             tags: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
-            status: import(".prisma/client").$Enums.ProduitStatus;
             rejectionComment: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            isPublic: boolean | null;
-            id: number;
             categorieId: number;
+            isPublic: boolean | null;
         }[];
     }>;
     validateProduct(produitId: string, status: string, comment?: string): Promise<{

@@ -299,6 +299,8 @@ let ProduitService = class ProduitService {
                             userId: userId,
                         },
                     },
+                    Image: true,
+                    categories: true,
                     Prix: {
                         omit: {
                             createdAt: true,
