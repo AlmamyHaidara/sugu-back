@@ -74,9 +74,12 @@ let ProduitController = class ProduitController {
         }
         return produit;
     }
-    async update(id, file, updateProduitDto) {
+    async update(id, files, updateProduitDto) {
+        if (!files) {
+            throw new common_1.BadRequestException('Image file is required');
+        }
         console.log(updateProduitDto);
-        const updatedProduit = await this.produitService.update(id, updateProduitDto, file);
+        const updatedProduit = await this.produitService.update(id, updateProduitDto, files);
         return updatedProduit;
     }
     async remove(id) {
@@ -175,27 +178,39 @@ __decorate([
 ], ProduitController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('img', {
+    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('imgs', 10, {
         storage: (0, multer_1.diskStorage)({
-            destination: './uploads/produits',
+            destination: (req, file, callback) => {
+                const uploadPath = process.env.PRODUIT_UPLOAD_DIR || './uploads/produits';
+                if (!(0, fs_1.existsSync)(uploadPath)) {
+                    (0, fs_1.mkdirSync)(uploadPath, { recursive: true });
+                }
+                callback(null, uploadPath);
+            },
             filename: (req, file, callback) => {
-                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-                const ext = (0, path_1.extname)(file.originalname);
-                callback(null, `produit-${uniqueSuffix}${ext}`);
+                const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+                const ext = (0, path_1.extname)(file.originalname).toLowerCase();
+                const filename = `produit-${uniqueSuffix}${ext}`;
+                callback(null, filename);
             },
         }),
         fileFilter: (req, file, callback) => {
-            if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
-                return callback(new Error('Seuls les fichiers JPG, JPEG et PNG sont autorisés !'), false);
+            if (!file.mimetype.match(/\/(jpg|jpeg|png)$/i)) {
+                return callback(new common_1.BadRequestException('Seuls les fichiers JPG, JPEG et PNG sont autorisés !'), false);
             }
             callback(null, true);
         },
+        limits: {
+            files: 10,
+            fileSize: 5 * 1024 * 1024,
+        },
     })),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
-    __param(1, (0, common_1.UploadedFile)()),
+    __param(1, (0, common_1.UploadedFiles)()),
     __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object, update_produit_dto_1.UpdateProduitDto]),
+    __metadata("design:paramtypes", [Number, Array,
+        update_produit_dto_1.UpdateProduitDto]),
     __metadata("design:returntype", Promise)
 ], ProduitController.prototype, "update", null);
 __decorate([

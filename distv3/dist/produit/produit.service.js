@@ -414,22 +414,13 @@ let ProduitService = class ProduitService {
                 },
                 include: {
                     produits: {
-                        select: {
-                            id: true,
-                            categorieId: true,
-                            description: true,
-                            img: true,
-                            Image: true,
-                            nom: true,
-                            tags: true,
+                        include: {
                             categories: true,
                             Favorie: {
                                 where: {
                                     userId: userId,
                                 },
                             },
-                        },
-                        include: {
                             Image: true,
                         },
                     },
@@ -455,115 +446,74 @@ let ProduitService = class ProduitService {
         }
     }
     async update(id, updateProduitDto, file) {
-        try {
-            const existingProduit = await this.prisma.produit.findUnique({
+        return this.prisma.$transaction(async (tx) => {
+            const produit = await tx.produit.findUnique({
                 where: { id: Number(id) },
                 include: { Image: true },
             });
-            const existingPrix = await this.prisma.prix.findFirst({
+            if (!produit) {
+                throw new common_1.NotFoundException(`Produit #${id} introuvable.`);
+            }
+            const prix = await tx.prix.findFirst({
                 where: {
-                    produitId: Number(existingProduit.id),
+                    produitId: Number(id),
                     boutiqueId: Number(updateProduitDto.boutique),
                 },
             });
-            if (!existingProduit) {
-                throw new common_1.NotFoundException(`Produit #${id} introuvable.`);
+            if (!prix) {
+                throw new common_1.NotFoundException(`Prix pour le produit #${id} dans la boutique #${updateProduitDto.boutique} introuvable.`);
             }
-            if (!existingPrix) {
-                throw new common_1.NotFoundException(`Produit #${id} introuvable.`);
-            }
-            if (file && existingProduit.img) {
-                try {
-                    fs.access('uploads/' + existingProduit.img, fs.constants.F_OK, (err) => {
-                        if (err) {
-                            console.log("Le fichier n'existe pas.");
+            if (file && file.length > 0) {
+                if (produit.Image.length > 0) {
+                    produit.Image.forEach((image) => {
+                        try {
+                            const filePath = `uploads/${image.img}`;
+                            if (fs.existsSync(filePath)) {
+                                fs.unlinkSync(filePath);
+                            }
                         }
-                        else {
-                            fs.unlinkSync('uploads/' + existingProduit.img);
+                        catch (error) {
+                            console.error(`Erreur de suppression de l'ancien fichier : ${image.img}`, error);
                         }
                     });
+                    await tx.image.deleteMany({ where: { produitId: Number(id) } });
                 }
-                catch (error) {
-                    console.error(`Erreur de suppression de l'ancien fichier :`, error);
-                }
+                const newImages = file.map((f) => ({
+                    img: f.path.split('uploads/')[1] || f.path.split('uploads\\')[1],
+                    produitId: Number(id),
+                }));
+                await tx.image.createMany({ data: newImages });
             }
-            const dataToUpdate = {
-                ...updateProduitDto,
-            };
-            if (file) {
-                dataToUpdate.img = file.path.split('uploads/')[1];
-            }
-            const ids = existingProduit.Image.map((image) => {
-                return image.id;
-            });
-            if (updateProduitDto.categorie) {
-                dataToUpdate.categorieId = Number(updateProduitDto.categorie);
-            }
-            const newImageIds = updateProduitDto.imgs || [];
-            const imagesToDelete = existingProduit.Image.filter((img) => !newImageIds.includes(img.img));
-            if (imagesToDelete.length > 0) {
-                await this.prisma.image.deleteMany({
-                    where: { id: { in: imagesToDelete.map((i) => i.id) } },
-                });
-                imagesToDelete.forEach((img) => {
-                    try {
-                        const filePath = 'uploads/' + img.img;
-                        if (fs.existsSync(filePath)) {
-                            fs.unlinkSync(filePath);
-                        }
-                    }
-                    catch (error) {
-                        console.error(`Erreur suppression fichier ${img.img}:`, error);
-                    }
-                });
-            }
-            const updatedProduit = await this.prisma.produit.update({
+            const updatedProduit = await tx.produit.update({
                 where: { id: Number(id) },
                 data: {
                     nom: updateProduitDto.nom,
                     description: updateProduitDto.description,
-                    img: dataToUpdate.img,
                     tags: updateProduitDto.tags,
-                    categories: {
-                        connect: { id: Number(updateProduitDto.categorie) },
-                    },
-                    Prix: {
-                        update: {
-                            where: {
-                                id: existingPrix.id,
-                            },
-                            data: {
-                                prix: updateProduitDto.prix,
-                                quantiter: Number(updateProduitDto.quantiter),
-                            },
-                        },
-                    },
-                    Image: {
-                        upsert: ids.map((imgId) => ({
-                            where: { id: imgId },
-                            update: { img: dataToUpdate.img },
-                            create: { img: dataToUpdate.img, produitId: Number(id) },
-                        })),
-                    },
-                },
-                include: {
-                    categories: true,
-                    Favorie: true,
-                    Prix: {
-                        select: {
-                            id: true,
-                            prix: true,
-                            quantiter: true,
-                        },
-                    },
+                    categorieId: Number(updateProduitDto.categorie),
                 },
             });
-            const prixId = updatedProduit.Prix[0].id;
-            delete updatedProduit.Prix[0].id;
+            const updatedPrix = await tx.prix.update({
+                where: { id: prix.id },
+                data: {
+                    prix: updateProduitDto.prix,
+                    quantiter: Number(updateProduitDto.quantiter),
+                },
+            });
+            const finalProduit = await tx.produit.findUnique({
+                where: { id: Number(id) },
+                include: {
+                    categories: true,
+                    Image: true,
+                    Favorie: true,
+                    Prix: { where: { id: updatedPrix.id } },
+                },
+            });
             const productFiltered = {
-                ...updatedProduit,
-                ...updatedProduit.Prix[0],
-                prixId,
+                ...finalProduit,
+                prix: finalProduit.Prix[0].prix,
+                quantiter: finalProduit.Prix[0].quantiter,
+                prixId: finalProduit.Prix[0].id,
             };
             delete productFiltered.Prix;
             return {
@@ -571,11 +521,7 @@ let ProduitService = class ProduitService {
                 message: `Produit #${id} mis à jour avec succès`,
                 data: productFiltered,
             };
-        }
-        catch (error) {
-            console.error(error);
-            throw new common_1.InternalServerErrorException('Erreur lors de la mise à jour du produit');
-        }
+        });
     }
     async remove(id) {
         try {

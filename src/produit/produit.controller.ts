@@ -145,38 +145,55 @@ export class ProduitController {
 
   @Patch(':id')
   @UseInterceptors(
-    FileInterceptor('img', {
+    FilesInterceptor('imgs', 10, {
       storage: diskStorage({
-        destination: './uploads/produits',
+        destination: (req, file, callback) => {
+          const uploadPath =
+            process.env.PRODUIT_UPLOAD_DIR || './uploads/produits';
+          if (!existsSync(uploadPath)) {
+            mkdirSync(uploadPath, { recursive: true });
+          }
+          callback(null, uploadPath);
+        },
         filename: (req, file, callback) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = extname(file.originalname);
-          callback(null, `produit-${uniqueSuffix}${ext}`);
+          const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+          const ext = extname(file.originalname).toLowerCase();
+          const filename = `produit-${uniqueSuffix}${ext}`;
+          callback(null, filename);
         },
       }),
       fileFilter: (req, file, callback) => {
-        if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png)$/i)) {
           return callback(
-            new Error('Seuls les fichiers JPG, JPEG et PNG sont autorisés !'),
+            new BadRequestException(
+              'Seuls les fichiers JPG, JPEG et PNG sont autorisés !',
+            ),
             false,
           );
         }
         callback(null, true);
       },
+      limits: {
+        files: 10, // max number of files
+        fileSize: 5 * 1024 * 1024, // 5 MB per file
+      },
     }),
   )
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @UploadedFile() file: Express.Multer.File, // <-- Récupérer le nouveau fichier
+    @UploadedFiles() files: Array<Express.Multer.File>,
     @Body() updateProduitDto: UpdateProduitDto,
   ) {
+    if (!files) {
+      throw new BadRequestException('Image file is required');
+    }
+
     console.log(updateProduitDto);
     // Si file existe, c’est qu’on upload une nouvelle image
     const updatedProduit = await this.produitService.update(
       id,
       updateProduitDto,
-      file,
+      files,
     );
     return updatedProduit;
   }

@@ -311,14 +311,13 @@ export declare class ProduitController {
             isPublic: boolean | null;
         };
     }>;
-    update(id: number, file: Express.Multer.File, updateProduitDto: UpdateProduitDto): Promise<{
+    update(id: number, files: Array<Express.Multer.File>, updateProduitDto: UpdateProduitDto): Promise<{
         statusCode: HttpStatus;
         message: string;
         data: {
-            prixId: number;
-            id: number;
             prix: import("@prisma/client/runtime/library").Decimal;
             quantiter: number;
+            prixId: number;
             categories: {
                 id: number;
                 nom: string;
@@ -326,8 +325,20 @@ export declare class ProduitController {
             };
             Prix: {
                 id: number;
+                createdAt: Date;
+                updatedAt: Date;
                 prix: import("@prisma/client/runtime/library").Decimal;
                 quantiter: number;
+                boutiqueId: number | null;
+                particularId: number | null;
+                produitId: number;
+            }[];
+            Image: {
+                id: number;
+                img: string;
+                createdAt: Date;
+                updatedAt: Date;
+                produitId: number;
             }[];
             Favorie: {
                 id: number;
@@ -336,6 +347,7 @@ export declare class ProduitController {
                 produitId: number | null;
                 userId: number | null;
             }[];
+            id: number;
             nom: string;
             description: string;
             img: string | null;
@@ -367,12 +379,6 @@ export declare class ProduitController {
                 updatedAt: Date;
                 produitId: number;
             }[];
-            id: number;
-            nom: string;
-            description: string;
-            img: string | null;
-            tags: string | null;
-            categorieId: number;
             categories: {
                 id: number;
                 nom: string;
@@ -392,20 +398,20 @@ export declare class ProduitController {
                 produitId: number | null;
                 userId: number | null;
             }[];
+            id: number;
+            nom: string;
+            description: string;
+            img: string | null;
+            tags: string | null;
             type: $Enums.ProduitType;
             status: $Enums.ProduitStatus;
             rejectionComment: string | null;
+            categorieId: number;
             createdAt: Date;
             updatedAt: Date;
             isPublic: boolean | null;
             prixId: number;
             produits: {
-                id: number;
-                nom: string;
-                description: string;
-                img: string;
-                tags: string;
-                categorieId: number;
                 categories: {
                     id: number;
                     nom: string;

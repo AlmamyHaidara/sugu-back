@@ -287,12 +287,6 @@ export declare class ProduitService {
                 updatedAt: Date;
                 produitId: number;
             }[];
-            id: number;
-            nom: string;
-            description: string;
-            img: string | null;
-            tags: string | null;
-            categorieId: number;
             categories: {
                 id: number;
                 nom: string;
@@ -312,20 +306,20 @@ export declare class ProduitService {
                 produitId: number | null;
                 userId: number | null;
             }[];
+            id: number;
+            nom: string;
+            description: string;
+            img: string | null;
+            tags: string | null;
             type: import(".prisma/client").$Enums.ProduitType;
             status: import(".prisma/client").$Enums.ProduitStatus;
             rejectionComment: string | null;
+            categorieId: number;
             createdAt: Date;
             updatedAt: Date;
             isPublic: boolean | null;
             prixId: number;
             produits: {
-                id: number;
-                nom: string;
-                description: string;
-                img: string;
-                tags: string;
-                categorieId: number;
                 categories: {
                     id: number;
                     nom: string;
@@ -366,14 +360,13 @@ export declare class ProduitService {
             produitId: number;
         }[];
     }>;
-    update(id: number, updateProduitDto: UpdateProduitDto, file?: Express.Multer.File): Promise<{
+    update(id: number, updateProduitDto: UpdateProduitDto, file?: Express.Multer.File[]): Promise<{
         statusCode: HttpStatus;
         message: string;
         data: {
-            prixId: number;
-            id: number;
             prix: Prisma.Decimal;
             quantiter: number;
+            prixId: number;
             categories: {
                 id: number;
                 nom: string;
@@ -381,8 +374,20 @@ export declare class ProduitService {
             };
             Prix: {
                 id: number;
+                createdAt: Date;
+                updatedAt: Date;
                 prix: Prisma.Decimal;
                 quantiter: number;
+                boutiqueId: number | null;
+                particularId: number | null;
+                produitId: number;
+            }[];
+            Image: {
+                id: number;
+                img: string;
+                createdAt: Date;
+                updatedAt: Date;
+                produitId: number;
             }[];
             Favorie: {
                 id: number;
@@ -391,6 +396,7 @@ export declare class ProduitService {
                 produitId: number | null;
                 userId: number | null;
             }[];
+            id: number;
             nom: string;
             description: string;
             img: string | null;
